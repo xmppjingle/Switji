@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "http://logging.apache.org/log4j/docs/api/org/apache/log4j/xml/log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+    <appender name="stdout" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{ABSOLUTE}
+      %5p %c{1}:%L - %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="appender" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="DatePattern" value="'.'yyyyMMdd"/>
+        <param name="File" value="${sipgateway.home}/log/sipgateway.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{HH:mm:ss,SSS} %t %-5p %c - %m%n"/>
+        </layout>
+    </appender>
+
+    <root>
+        <priority value="debug"/>
+        <appender-ref ref="appender"/>
+    </root>
+</log4j:configuration>

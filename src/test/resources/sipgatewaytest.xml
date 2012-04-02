@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>file:///${sipgateway.home}/conf/sip.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="sipGatewayManager"
+          class="org.xmpp.component.MockExternalComponentManager">
+        <constructor-arg index="0" value="${xmpp.server}"/>
+        <constructor-arg index="1" value="${xmpp.port}"/>
+        <property name="accountServiceNamespace" value="${account.namespace}"/>
+        <property name="creditServiceNamespace" value="${credit.namespace}"/>
+    </bean>
+
+    <bean id="sipGatewayComponent" class="org.jinglenodes.component.SIPGatewayComponent" init-method="init">
+        <constructor-arg index="0" value="sip"/>
+        <constructor-arg index="1" value="SIP Gateway"/>
+        <constructor-arg index="2" value="${xmpp.server}"/>
+        <property name="gatewaySipRouter" ref="gatewaySipRouter"/>
+        <property name="jingleProcessor" ref="jingleProcessor"/>
+        <property name="sipProcessor" ref="sipProcessor"/>
+        <property name="manager" ref="sipGatewayManager"/>
+    </bean>
+
+    <bean id="gatewaySipRouter" class="org.jinglenodes.sip.router.GatewaySipRouter">
+        <constructor-arg index="0" value="${sip.localip}"/>
+        <constructor-arg index="1" ref="accountProvider"/>
+        <constructor-arg index="2" value="${sip.localip}"/>
+        <constructor-arg index="3" value="${sip.localport}"/>
+    </bean>
+
+    <bean id="callSessionMapper" class="org.jinglenodes.session.DefaultCallSessionMapper">
+    </bean>
+
+    <bean id="sipProcessor" class="org.jinglenodes.sip.processor.SipProcessor">
+        <property name="gatewayRouter" ref="sipGatewayComponent"/>
+        <property name="callSessionMapper" ref="callSessionMapper"/>
+        <property name="sipProviderInfo" ref="sipProviderInfo"/>
+        <property name="sipToJingleBind" ref="sipToJingleBind"/>
+        <property name="jingleProcessor" ref="jingleProcessor"/>
+    </bean>
+
+    <bean id="jingleProcessor" class="org.jinglenodes.jingle.processor.JingleProcessor" init-method="init">
+        <property name="gatewayRouter" ref="sipGatewayComponent"/>
+        <property name="callSessionMapper" ref="callSessionMapper"/>
+        <property name="sipProviderInfo" ref="sipProviderInfo"/>
+        <property name="sipToJingleBind" ref="sipToJingleBind"/>
+        <property name="preparations">
+            <list>
+                <ref bean="creditPreparation"/>
+                <ref bean="accountPreparation"/>
+                <ref bean="relayPreparation"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="creditPreparation" class="org.jinglenodes.credit.CreditPreparation">
+        <property name="creditServiceProcessor" ref="creditServiceProcessor"/>
+        <property name="prepareStatesManager" ref="jingleProcessor"/>
+    </bean>
+
+    <bean id="creditServiceProcessor" class="org.jinglenodes.credit.CreditServiceProcessor">
+        <constructor-arg index="0" value="${credit.name}"/>
+        <constructor-arg index="1" value="${credit.namespace}"/>
+        <property name="component" ref="sipGatewayComponent"/>
+        <property name="creditService" value="${credit.service}"/>
+        <property name="sessionMapper" ref="callSessionMapper"/>
+    </bean>
+
+    <bean id="chargeServiceProcessor" class="org.jinglenodes.credit.ChargeServiceProcessor">
+        <constructor-arg index="0" value="${charge.name}"/>
+        <constructor-arg index="1" value="${charge.namespace}"/>
+        <property name="component" ref="sipGatewayComponent"/>
+        <property name="chargeService" value="${charge.service}"/>
+    </bean>
+
+    <bean id="accountPreparation" class="org.jinglenodes.account.AccountPreparation">
+        <property name="accountServiceProcessor" ref="accountServiceProcessor"/>
+        <property name="sipToJingleBind" ref="sipToJingleBind"/>
+        <property name="prepareStatesManager" ref="jingleProcessor"/>
+    </bean>
+
+    <bean id="accountServiceProcessor" class="org.jinglenodes.account.AccountServiceProcessor">
+        <constructor-arg index="0" value="${account.name}"/>
+        <constructor-arg index="1" value="${account.namespace}"/>
+        <property name="accountProvider" ref="accountProvider"/>
+        <property name="component" ref="sipGatewayComponent"/>
+        <property name="sipInfo" ref="sipProviderInfo"/>
+        <property name="accountService" value="${account.service}"/>
+    </bean>
+
+    <bean id="relayPreparation" class="org.jinglenodes.relay.RelayCallPreparation">
+        <property name="relayServiceProcessor" ref="relayServiceProcessor"/>
+        <property name="prepareStatesManager" ref="jingleProcessor"/>
+    </bean>
+
+    <bean id="relayServiceProcessor" class="org.jinglenodes.relay.RelayServiceProcessor">
+        <property name="component" ref="sipGatewayComponent"/>
+        <property name="relayService" value="${relay.service}"/>
+        <property name="callSessionMapper" ref="callSessionMapper"/>
+    </bean>
+
+    <bean id="sipToJingleBind" class="org.jinglenodes.sip.CachedSipToJingleBind">
+        <property name="accountProvider" ref="accountProvider"/>
+        <property name="defaultJID" value="${sip.defaultjid}"/>
+        <property name="defaultResource" value="${sip.defaultresource}"/>
+    </bean>
+
+    <bean id="accountProvider" class="org.jinglenodes.sip.account.CachedSipAccountProvider">
+    </bean>
+
+    <bean id="sipProviderInfo" class="org.zoolu.sip.provider.SipProviderInformation">
+        <constructor-arg index="0" value="${sip.server}"/>
+        <constructor-arg index="1" value="${sip.port}"/>
+    </bean>
+
+    <bean id="sip" init-method="init" class="org.jinglenodes.component.SIPGatewayApplication" destroy-method="destroy">
+        <property name="manager" ref="sipGatewayManager"/>
+        <property name="sipGatewayComponent" ref="sipGatewayComponent"/>
+        <property name="jingleProcessor" ref="jingleProcessor"/>
+        <property name="sipProcessor" ref="sipProcessor"/>
+        <property name="subdomain" value="${xmpp.subdomain}"/>
+        <property name="password" value="${xmpp.password}"/>
+    </bean>
+
+</beans>
