@@ -26,12 +26,11 @@ public class SipServerMock implements DatagramListener {
 
     private static final Logger log = Logger.getLogger(SipServerMock.class);
 
-    private int port = 5062;
+    private int port = 5060;
     final private ConcurrentHashMap<String, SocketAddress> users = new ConcurrentHashMap<String, SocketAddress>();
     final private SipProviderInfoInterface sipProvider = new SipProviderInformation("127.0.0.1", port);
     private SelDatagramChannel channel = null;
     final private Random random = new Random();
-    private int remotePort = 5060;
 
     public SipServerMock() {
         for (int i = 0; channel == null && i < 10; i++, port++) {
@@ -65,6 +64,8 @@ public class SipServerMock implements DatagramListener {
     private void processMessage(final Message message) throws JingleSipException {
         if (message.isRegister()) {
             processRegister(message);
+        } else if (message.isInvite()) {
+
         } else {
             try {
                 final Participants p = Participants.getParticipants(message);
