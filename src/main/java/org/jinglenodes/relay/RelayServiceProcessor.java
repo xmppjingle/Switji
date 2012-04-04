@@ -42,7 +42,7 @@ import org.xmpp.tinder.JingleIQ;
 public class RelayServiceProcessor extends AbstractServiceProcessor {
 
     private String relayService;
-    private final String namespace = RelayIQ.NAMESPACE.split("#")[0];
+    private final String namespace = RelayIQ.NAMESPACE;
     private CallSessionMapper callSessionMapper;
 
     @Override

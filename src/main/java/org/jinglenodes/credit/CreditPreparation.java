@@ -68,11 +68,11 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public boolean prepareInitiate(JingleIQ iq, CallSession session) {
-        JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
         JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
+        log.debug("Preparing Initiate from: " + iq.getFrom() + " iq:" + iq.toXML());
         if (session.getRelayIQ() == null) {
             try {
-                creditServiceProcessor.queryService(iq, initiator.getNode(), responder.getNode(), this);
+                creditServiceProcessor.queryService(iq, iq.getFrom().getNode(), responder.getNode(), this);
             } catch (ServiceException e) {
                 log.error("Failed Querying Credit Service.", e);
             }

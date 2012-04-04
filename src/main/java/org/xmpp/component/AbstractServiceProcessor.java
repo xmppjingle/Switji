@@ -25,6 +25,12 @@ public abstract class AbstractServiceProcessor implements NamespaceProcessor {
     private int timeoutInterval = 100;
     private int requestCounter = 0;
 
+    public void init() {
+        if (component != null) {
+            component.addProcessor(this);
+        }
+    }
+
     public abstract IQ createServiceRequest(final Object object, final String fromNode, final String toNode);
 
     public void queryService(Object object, String from, String to, final ResultReceiver resultReceiver) throws ServiceException {
@@ -99,8 +105,35 @@ public abstract class AbstractServiceProcessor implements NamespaceProcessor {
 
     protected abstract String getRequestId(Object obj);
 
+    protected abstract void handleResult(IqRequest iq);
+
+    protected abstract void handleError(IQ iq);
+
+    protected abstract void handleTimeout(IqRequest request);
+
     @Override
-    public void processIQResult(IQ iq, String method) {
+    public IQ processIQGet(IQ iq) {
+        return _createPacketError(iq, Condition.bad_request);
+    }
+
+    @Override
+    public IQ processIQSet(IQ iq) {
+        return _createPacketError(iq, Condition.bad_request);
+    }
+
+    @Override
+    public void processIQError(IQ iq) {
+        final IqRequest iqRequest = deleteIqRequest(iq);
+        if (iqRequest != null) {
+            log.debug("processError: " + iq.toXML());
+            handleError(iq);
+            iqRequest.setResult(iq);
+            iqRequest.getResultReceiver().receivedError(iqRequest);
+        }
+    }
+
+    @Override
+    public void processIQResult(IQ iq) {
         log.debug("result Received: " + iq.toXML());
         final IqRequest iqRequest = deleteIqRequest(iq);
         if (iqRequest != null) {
@@ -111,62 +144,12 @@ public abstract class AbstractServiceProcessor implements NamespaceProcessor {
         }
     }
 
-    @Override
-    public void processIQError(IQ iq, String method) {
-        final IqRequest iqRequest = deleteIqRequest(iq);
-        if (iqRequest != null) {
-            log.debug("processError: " + iq.toXML());
-            handleError(iq);
-            iqRequest.setResult(iq);
-            iqRequest.getResultReceiver().receivedError(iqRequest);
-        }
-    }
-
-    protected abstract void handleResult(IqRequest iq);
-
-    protected abstract void handleError(IQ iq);
-
-    protected abstract void handleTimeout(IqRequest request);
-
-    @Override
-    public IQ processIQGet(IQ iq) {
-        return processIQGet(iq, null);
-    }
-
-    @Override
-    public IQ processIQGet(IQ iq, String method) {
-        return _createPacketError(iq, Condition.bad_request);
-    }
-
-    @Override
-    public IQ processIQSet(IQ iq) {
-        return processIQSet(iq, null);
-    }
-
-    @Override
-    public IQ processIQSet(IQ iq, String method) {
-        return _createPacketError(iq, Condition.bad_request);
-    }
-
-    @Override
-    public void processIQError(IQ iq) {
-        processIQError(iq, null);
-    }
-
-    @Override
-    public void processIQResult(IQ iq) {
-        processIQResult(iq, null);
-    }
-
     public ExternalComponent getComponent() {
         return component;
     }
 
     public void setComponent(ExternalComponent component) {
         this.component = component;
-        if (component != null) {
-            component.addProcessor(this);
-        }
     }
 
     protected IQ _createPacketError(final IQ iq, final Condition condition) {

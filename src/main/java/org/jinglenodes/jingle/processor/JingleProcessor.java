@@ -68,7 +68,6 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     private List<CallPreparation> preparations = new ArrayList<CallPreparation>();
 
     public void init() {
-
     }
 
     public IQ processIQ(final IQ xmppIQ) {
@@ -100,11 +99,17 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
         final CallSession session = callSessionMapper.addReceivedJingle(iq);
 
-        for (final CallPreparation p : preparations) {
-            session.addCallPreparation(p);
+        final String action = iq.getJingle().getAction();
+
+        if (action.equals(Jingle.SESSION_INITIATE)) {
+            for (final CallPreparation p : preparations) {
+                session.addCallPreparation(p);
+            }
+            prepareCall(iq, session);
+            return;
         }
 
-        prepareCall(iq, session);
+        proceedCall(iq, session);
     }
 
     public void prepareCall(final JingleIQ iq, CallSession session) {
@@ -112,9 +117,12 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             session = callSessionMapper.getSession(iq);
         }
         if (session != null) {
-            for (CallPreparation preparation = session.popCallPreparation(); preparation != null; preparation = session.popCallPreparation()) {
-                session.addCallProceed(preparation);
-                if (!preparation.prepareInitiate(iq, session)) return;
+            final String action = iq.getJingle().getAction();
+            if (action.equals(Jingle.SESSION_INITIATE)) {
+                for (CallPreparation preparation = session.popCallPreparation(); preparation != null; preparation = session.popCallPreparation()) {
+                    session.addCallProceed(preparation);
+                    if (!preparation.prepareInitiate(iq, session)) return;
+                }
             }
             proceedCall(iq, session);
         }
@@ -426,18 +434,8 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     }
 
     @Override
-    public IQ processIQGet(IQ iq, String method) {
-        return null;
-    }
-
-    @Override
     public IQ processIQSet(IQ iq) {
         return processIQ(iq);
-    }
-
-    @Override
-    public IQ processIQSet(IQ iq, String method) {
-        return null;
     }
 
     @Override
@@ -446,17 +444,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     }
 
     @Override
-    public void processIQError(IQ iq, String method) {
-
-    }
-
-    @Override
     public void processIQResult(IQ iq) {
-
-    }
-
-    @Override
-    public void processIQResult(IQ iq, String method) {
 
     }
 

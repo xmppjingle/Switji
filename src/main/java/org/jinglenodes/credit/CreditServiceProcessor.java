@@ -64,15 +64,18 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
     @Override
     public IQ createServiceRequest(Object object, String fromNode, String toNode) {
         if (object instanceof JingleIQ) {
-            final IQ request = new IQ(IQ.Type.get);
+            final IQ request = new IQ(IQ.Type.set);
+            if (toNode.indexOf("00") == 0) {
+                toNode = "+" + toNode.substring(2);
+            }
             final JID to = JIDFactory.getInstance().getJID(toNode + "@" + creditService);
             final JID from = JIDFactory.getInstance().getJID(fromNode, this.getComponentJID().getDomain(), null);
+            final JingleIQ jingleIQ = (JingleIQ) object;
             request.setTo(to);
             request.setFrom(from);
             request.setChildElement(requestElement.createCopy());
-            if (log.isDebugEnabled()) {
-                log.debug("createCreditRequest: " + request.toXML());
-            }
+            request.getChildElement().addAttribute("sid", jingleIQ.getJingle().getSid());
+            log.debug("createCreditRequest: " + request.toXML());
             return request;
         }
         return null;

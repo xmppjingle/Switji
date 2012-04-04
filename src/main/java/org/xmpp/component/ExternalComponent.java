@@ -138,24 +138,11 @@ public class ExternalComponent extends AbstractComponent {
 
         // Parse URI from namespace.
         final String ns = namespace.getURI();
-        final String[] parts = ns.split("#", 2);
-        if (null == parts) return null;
-
 
         final NamespaceProcessor np;
-        switch (parts.length) {
-            case 1:
-                np = processors.get(parts[0]);
-                if (null != np) {
-                    return np.processIQGet(iq);
-                }
-                break;
-            case 2:
-                np = processors.get(parts[0]);
-                if (null != np) {
-                    return np.processIQGet(iq, parts[1]);
-                }
-                break;
+        np = processors.get(ns);
+        if (null != np) {
+            return np.processIQGet(iq);
         }
 
         return null;
@@ -180,24 +167,11 @@ public class ExternalComponent extends AbstractComponent {
 
         // Parse URI from namespace.
         final String ns = namespace.getURI();
-        final String[] parts = ns.split("#", 2);
-        if (null == parts) return null;
-
 
         final NamespaceProcessor np;
-        switch (parts.length) {
-            case 1:
-                np = processors.get(parts[0]);
-                if (null != np) {
-                    return np.processIQSet(iq);
-                }
-                break;
-            case 2:
-                np = processors.get(parts[0]);
-                if (null != np) {
-                    return np.processIQSet(iq, parts[1]);
-                }
-                break;
+        np = processors.get(ns);
+        if (null != np) {
+            return np.processIQSet(iq);
         }
 
         return null;
@@ -225,30 +199,18 @@ public class ExternalComponent extends AbstractComponent {
 
         // Parse URI from namespace.
         final String ns = namespace.getURI();
-        final String[] parts = ns.split("#", 2);
-        if (null == parts) return;
 
         final NamespaceProcessor np;
-        switch (parts.length) {
-            case 1:
-                np = processors.get(parts[0]);
-                if (null != np) {
-                    np.processIQError(iq);
-                    return;
-                }
-                break;
-            case 2:
-                np = processors.get(parts[0]);
-                if (null != np) {
-                    np.processIQError(iq, parts[1]);
-                    return;
-                }
-                break;
+        np = processors.get(ns);
+        if (null != np) {
+            np.processIQError(iq);
         }
     }
 
     @Override
     protected void handleIQResult(final IQ iq) {
+
+        log.debug("Received Result: " + iq.toXML());
 
         // Get 'to'.
         final JID toJid = iq.getTo();
@@ -268,26 +230,14 @@ public class ExternalComponent extends AbstractComponent {
 
         // Parse URI from namespace.
         final String ns = namespace.getURI();
-        final String[] parts = ns.split("#", 2);
-        if (null == parts) return;
 
-        //
         final NamespaceProcessor np;
-        switch (parts.length) {
-            case 1:
-                np = processors.get(parts[0]);
-                if (null != np) {
-                    np.processIQResult(iq);
-                    return;
-                }
-                break;
-            case 2:
-                np = processors.get(parts[0]);
-                if (null != np) {
-                    np.processIQResult(iq, parts[1]);
-                    return;
-                }
-                break;
+
+        np = processors.get(ns);
+        if (null != np) {
+            np.processIQResult(iq);
+        } else {
+            log.debug("Unknown Result: " + iq.toXML());
         }
 
     }
