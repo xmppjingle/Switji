@@ -64,6 +64,7 @@
 
     <bean id="creditPreparation" class="org.jinglenodes.credit.CreditPreparation">
         <property name="creditServiceProcessor" ref="creditServiceProcessor"/>
+        <property name="chargeServiceProcessor" ref="chargeServiceProcessor"/>
         <property name="prepareStatesManager" ref="jingleProcessor"/>
     </bean>
 

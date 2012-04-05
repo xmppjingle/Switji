@@ -109,12 +109,22 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public boolean proceedTerminate(JingleIQ iq, CallSession session) {
-        JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
-        JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
-        try {
-            chargeServiceProcessor.queryService(iq, initiator.getNode(), responder.getNode(), this);
-        } catch (ServiceException e) {
-            log.error("Could NOT Query Charge Service.", e);
+        if (session.getSessionCredit() == null || !session.getSessionCredit().isCharged()) {
+            JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
+            JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
+            if (initiator != null && responder != null) {
+                if (chargeServiceProcessor != null) {
+                    try {
+                        chargeServiceProcessor.queryService(iq, initiator.getNode(), responder.getNode(), this);
+                    } catch (ServiceException e) {
+                        log.error("Could NOT Query Charge Service.", e);
+                    }
+                } else {
+                    log.error("Charge Error: Charge Service Processor is null");
+                }
+            } else {
+                log.error("Charge Error: Could NOT Retrieve Call Info");
+            }
         }
         return true;
     }
@@ -124,6 +134,7 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     }
 
     public void setChargeServiceProcessor(ChargeServiceProcessor chargeServiceProcessor) {
+        log.debug("Added Charge Service Processor");
         this.chargeServiceProcessor = chargeServiceProcessor;
     }
 }

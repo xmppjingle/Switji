@@ -256,8 +256,8 @@ public abstract class CallSession {
         proceeds.add(callPreparation);
     }
 
-    public CallPreparation popCallProceed() {
-        return proceeds.poll();
+    public ConcurrentLinkedQueue<CallPreparation> getProceeds() {
+        return proceeds;
     }
 
     public boolean isConnected() {

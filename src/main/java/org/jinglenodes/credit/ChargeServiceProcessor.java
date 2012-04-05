@@ -66,18 +66,26 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
             if (session != null) {
                 final SessionCredit credit = session.getSessionCredit();
                 if (credit != null) {
-                    final long callTime = credit.getFinishTime() - credit.getStartTime();
-                    final JID to = JIDFactory.getInstance().getJID(fromNode, chargeService, null);
+                    if (toNode.indexOf("00") == 0) {
+                        toNode = "+" + toNode.substring(2);
+                    }
+                    final JID to = JIDFactory.getInstance().getJID(toNode, chargeService, null);
+                    final JID from = JIDFactory.getInstance().getJID(fromNode, this.getComponentJID().getDomain(), null);
                     final IQ request = new IQ(IQ.Type.set);
                     request.setTo(to);
+                    request.setFrom(from);
+                    final long callTime = Math.round((credit.getFinishTime() - credit.getStartTime()) / 1000);
+
                     final Element e = requestElement.createCopy();
                     e.addAttribute("seconds", String.valueOf(callTime));
                     request.setChildElement(e);
-                    if (log.isDebugEnabled()) {
-                        log.debug("createCreditRequest: " + request.toXML());
-                    }
+                    log.debug("createdCreditRequest: " + request.toXML());
                     return request;
+                } else {
+                    log.error("No credit found for creating Charge");
                 }
+            } else {
+                log.error("No session found for creating Charge");
             }
         }
         return null;

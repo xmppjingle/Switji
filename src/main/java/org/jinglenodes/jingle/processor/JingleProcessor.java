@@ -77,7 +77,6 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         try {
 
             iq = JingleIQ.fromXml(xmppIQ);
-
             processJingle(iq);
 
         } catch (JingleException e) {
@@ -147,13 +146,13 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     }
 
     private void executeInitiateProceeds(final JingleIQ iq, final CallSession session) {
-        for (CallPreparation proceeds = session.popCallProceed(); proceeds != null; proceeds = session.popCallProceed()) {
+        for (CallPreparation proceeds : session.getProceeds()) {
             if (!proceeds.proceedInitiate(iq, session)) return;
         }
     }
 
     private void executeTerminateProceeds(final JingleIQ iq, final CallSession session) {
-        for (CallPreparation proceeds = session.popCallProceed(); proceeds != null; proceeds = session.popCallProceed()) {
+        for (CallPreparation proceeds : session.getProceeds()) {
             if (!proceeds.proceedTerminate(iq, session)) return;
         }
     }

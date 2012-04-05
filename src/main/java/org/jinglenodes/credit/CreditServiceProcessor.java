@@ -107,7 +107,7 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
       */
     protected SessionCredit getSessionCredit(final IQ iq) {
         String credit = null;
-        SessionCredit sessionCredit = null;
+        SessionCredit sessionCredit = new SessionCredit(SessionCredit.RouteType.pstn);
 
         for (Object o : iq.getChildElement().elements()) {
             Element e = (Element) o;
@@ -115,7 +115,6 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
             if (credit != null) {
                 try {
                     final int seconds = Integer.parseInt(credit);
-                    sessionCredit = new SessionCredit(SessionCredit.RouteType.pstn);
                     sessionCredit.setMaxDurationInSeconds(seconds);
                 } catch (IllegalFormatException ife) {
                     log.error("Invalid Credit Value Received: " + iq.toXML(), ife);
