@@ -36,6 +36,7 @@ import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.jingle.processor.JingleSipException;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
+import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.CallSessionMapper;
 import org.jinglenodes.sip.GatewayRouter;
@@ -70,6 +71,66 @@ public class SipProcessor implements SipPacketProcessor {
     private JingleProcessor jingleProcessor;
     private SipToJingleBind sipToJingleBind;
     private boolean forceMapper = false;
+
+    private List<CallPreparation> preparations = new ArrayList<CallPreparation>();
+
+    public void processSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) {
+
+        try {
+
+            final CSeqHeader ch = msg.getCSeqHeader();
+            if (msg.isRegister() || (ch != null && ch.getMethod().equals(SipMethods.REGISTER))) {
+                return;
+            }
+            final int statusLineCode = msg.getStatusLine() != null ? msg.getStatusLine().getCode() : -1;
+
+            // 200 OK
+            if (statusLineCode >= 200 && statusLineCode < 300 && ch != null && ch.getMethod() != null) {
+                if (ch.getMethod().equals(SipMethods.INVITE)) {
+                    process2xxSip(msg);
+                }
+            }
+            // Bye Request
+            else if (msg.isBye()) {
+                processByeSip(msg, sipChannel);
+            }
+            // CANCEL Request
+            else if (msg.isCancel()) {
+                processCancelSip(msg, sipChannel);
+            }
+            // Invite Request
+            else if (msg.isInvite() && msg.isRequest()) {
+                if (isReInvite(msg)) {
+                    processReInviteSip(msg, sipChannel);
+                } else {
+                    processInviteSip(msg, sipChannel);
+                }
+            }
+            // Ringing
+            else if (msg.isRinging()) {
+                processRingingSip(msg);
+            }
+            // Ack
+            else if (msg.isAck()) {
+                processAckSip(msg);
+            }
+            // Trying
+            else if (statusLineCode == 100) {
+                process100Sip(msg);
+            }
+            // 486 BUSY, 408 TIMEOUT, 483 MANY HOPS
+            else if (statusLineCode > -1) {
+                processFailSip(msg, sipChannel);
+            } else if (msg.isOption()) {
+                processSipOption(msg);
+            }
+        } catch (JingleException e) {
+            log.error("Could not Parse Packet", e);
+        } catch (Throwable e) {
+            log.error("Severe Error Processing SIP Packet: " + msg, e);
+        }
+
+    }
 
     public SipProviderInfoInterface getSipProviderInfo() {
         return sipProviderInfo;
@@ -128,64 +189,6 @@ public class SipProcessor implements SipPacketProcessor {
         final CSeqHeader ch = msg.getCSeqHeader();
 
         return statusLineCode >= 200 && statusLineCode < 300 && ch != null && ch.getMethod() != null;
-
-    }
-
-    public void processSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) {
-
-        try {
-
-            final CSeqHeader ch = msg.getCSeqHeader();
-            if (msg.isRegister() || (ch != null && ch.getMethod().equals(SipMethods.REGISTER))) {
-                return;
-            }
-            final int statusLineCode = msg.getStatusLine() != null ? msg.getStatusLine().getCode() : -1;
-
-            // 200 OK
-            if (statusLineCode >= 200 && statusLineCode < 300 && ch != null && ch.getMethod() != null) {
-                if (ch.getMethod().equals(SipMethods.INVITE)) {
-                    process2xxSip(msg);
-                }
-            }
-            // Bye Request
-            else if (msg.isBye()) {
-                processByeSip(msg, sipChannel);
-            }
-            // CANCEL Request
-            else if (msg.isCancel()) {
-                processCancelSip(msg, sipChannel);
-            }
-            // Invite Request
-            else if (msg.isInvite() && msg.isRequest()) {
-                if (isReInvite(msg)) {
-                    processReInviteSip(msg, sipChannel);
-                } else {
-                    processInviteSip(msg, sipChannel);
-                }
-            }
-            // Ringing
-            else if (msg.isRinging()) {
-                processRingingSip(msg);
-            }
-            // Ack
-            else if (msg.isAck()) {
-                processAckSip(msg);
-            }
-            // Trying
-            else if (statusLineCode == 100) {
-                process100Sip(msg);
-            }
-            // 486 BUSY, 408 TIMEOUT, 483 MANY HOPS
-            else if (statusLineCode > -1) {
-                processFailSip(msg, sipChannel);
-            } else if (msg.isOption()) {
-                processSipOption(msg);
-            }
-        } catch (JingleException e) {
-            log.error("Could not Parse Packet", e);
-        } catch (Throwable e) {
-            log.error("Severe Error Processing SIP Packet: " + msg, e);
-        }
 
     }
 
@@ -993,5 +996,9 @@ public class SipProcessor implements SipPacketProcessor {
         } catch (Throwable e) {
             throw new JingleSipException("Critical SDP Parsing Error:" + sdpDescription);
         }
+    }
+
+    public void setPreparations(List<CallPreparation> preparations) {
+        this.preparations = preparations;
     }
 }

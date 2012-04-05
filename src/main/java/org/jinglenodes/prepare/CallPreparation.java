@@ -26,6 +26,7 @@ package org.jinglenodes.prepare;
 
 import org.jinglenodes.session.CallSession;
 import org.xmpp.tinder.JingleIQ;
+import org.zoolu.sip.message.Message;
 
 /**
  * Created by IntelliJ IDEA.
@@ -40,5 +41,15 @@ public abstract class CallPreparation {
     public abstract boolean proceedInitiate(final JingleIQ iq, final CallSession session);
 
     public abstract boolean proceedTerminate(final JingleIQ iq, final CallSession session);
+
+    public abstract boolean proceedAccept(final JingleIQ iq, final CallSession session);
+
+    public abstract boolean prepareInitiate(final Message msg, final CallSession session);
+
+    public abstract boolean proceedInitiate(final Message msg, final CallSession session);
+
+    public abstract boolean proceedTerminate(final Message msg, final CallSession session);
+
+    public abstract boolean proceedAccept(final Message msg, final CallSession session);
 
 }

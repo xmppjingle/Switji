@@ -46,6 +46,13 @@
         <property name="sipProviderInfo" ref="sipProviderInfo"/>
         <property name="sipToJingleBind" ref="sipToJingleBind"/>
         <property name="jingleProcessor" ref="jingleProcessor"/>
+        <property name="preparations">
+            <list>
+                <ref bean="creditPreparation"/>
+                <ref bean="accountPreparation"/>
+                <ref bean="relayPreparation"/>
+            </list>
+        </property>
     </bean>
 
     <bean id="jingleProcessor" class="org.jinglenodes.jingle.processor.JingleProcessor" init-method="init">

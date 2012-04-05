@@ -35,6 +35,7 @@ import org.xmpp.component.ServiceException;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
+import org.zoolu.sip.message.Message;
 
 /**
  * Created by IntelliJ IDEA.
@@ -91,6 +92,31 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     @Override
     public boolean proceedTerminate(JingleIQ iq, CallSession session) {
         return true;
+    }
+
+    @Override
+    public boolean proceedAccept(JingleIQ iq, CallSession session) {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean prepareInitiate(Message msg, CallSession session) {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean proceedInitiate(Message msg, CallSession session) {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean proceedTerminate(Message msg, CallSession session) {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean proceedAccept(Message msg, CallSession session) {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public RelayServiceProcessor getRelayServiceProcessor() {

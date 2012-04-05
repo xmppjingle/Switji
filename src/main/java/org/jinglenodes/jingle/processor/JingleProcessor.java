@@ -140,9 +140,16 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         } else if (action.equals(Jingle.SESSION_INFO)) {
             sendSipRinging(iq);
         } else if (action.equals(Jingle.SESSION_ACCEPT)) {
+            executeAcceptProceeds(iq, session);
             sendSipInviteOk(iq);
         }
 
+    }
+
+    private void executeAcceptProceeds(JingleIQ iq, CallSession session) {
+        for (CallPreparation proceeds : session.getProceeds()) {
+            if (!proceeds.proceedAccept(iq, session)) return;
+        }
     }
 
     private void executeInitiateProceeds(final JingleIQ iq, final CallSession session) {
