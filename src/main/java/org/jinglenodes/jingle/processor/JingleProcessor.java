@@ -47,10 +47,7 @@ import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.address.SipURL;
 import org.zoolu.sip.header.ContactHeader;
 import org.zoolu.sip.header.StatusLine;
-import org.zoolu.sip.message.JIDFactory;
-import org.zoolu.sip.message.Message;
-import org.zoolu.sip.message.Participants;
-import org.zoolu.sip.message.SipParsingException;
+import org.zoolu.sip.message.*;
 import org.zoolu.sip.provider.SipProviderInfoInterface;
 
 import javax.sdp.SdpException;
@@ -144,6 +141,16 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             sendSipInviteOk(iq);
         }
 
+    }
+
+    @Override
+    public void prepareCall(Message msg, CallSession session, final SipChannel channel) {
+        // Do Nothing
+    }
+
+    @Override
+    public void proceedCall(Message msg, CallSession session, final SipChannel channel) {
+        // Do Nothing
     }
 
     private void executeAcceptProceeds(JingleIQ iq, CallSession session) {

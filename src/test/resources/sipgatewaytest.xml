@@ -42,7 +42,7 @@
 
     <bean id="sipProcessor" class="org.jinglenodes.sip.processor.SipProcessor">
         <property name="gatewayRouter" ref="sipGatewayComponent"/>
-        <property name="callSessionMapper" ref="callSessionMapper"/>
+        <property name="callSessions" ref="callSessionMapper"/>
         <property name="sipProviderInfo" ref="sipProviderInfo"/>
         <property name="sipToJingleBind" ref="sipToJingleBind"/>
         <property name="jingleProcessor" ref="jingleProcessor"/>

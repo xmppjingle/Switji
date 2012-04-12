@@ -37,6 +37,7 @@ import org.jinglenodes.jingle.processor.JingleSipException;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.jinglenodes.prepare.CallPreparation;
+import org.jinglenodes.prepare.PrepareStatesManager;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.CallSessionMapper;
 import org.jinglenodes.sip.GatewayRouter;
@@ -61,13 +62,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class SipProcessor implements SipPacketProcessor {
+public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
     private static final Logger log = Logger.getLogger(SipProcessor.class);
     public static final String emptyAddress = "0.0.0.0";
     private SipProviderInfoInterface sipProviderInfo;
-    private final String RESOURCE_HEADER = "RESOURCE";
     private GatewayRouter gatewayRouter;
-    private CallSessionMapper callSessionMapper;
+    private CallSessionMapper callSessions;
     private JingleProcessor jingleProcessor;
     private SipToJingleBind sipToJingleBind;
     private boolean forceMapper = false;
@@ -75,7 +75,28 @@ public class SipProcessor implements SipPacketProcessor {
     private List<CallPreparation> preparations = new ArrayList<CallPreparation>();
 
     public void processSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) {
+        try {
 
+            final CallSession callSession = msg.isRequest() ? callSessions.addReceivedRequest(msg) : callSessions.addReceivedResponse(msg);
+
+            if (msg.isInvite() && msg.isRequest()) {
+                if (!isReInvite(msg)) {
+                    for (final CallPreparation p : preparations) {
+                        callSession.addCallPreparation(p);
+                    }
+                    prepareCall(msg, callSession, sipChannel);
+                    return;
+                }
+            }
+
+            proceedCall(msg, callSession, sipChannel);
+        } catch (JingleException e) {
+            log.error("Could not Process Packet", e);
+        }
+    }
+
+    @Override
+    public void prepareCall(Message msg, CallSession session, final SipChannel sipChannel) {
         try {
 
             final CSeqHeader ch = msg.getCSeqHeader();
@@ -114,10 +135,6 @@ public class SipProcessor implements SipPacketProcessor {
             else if (msg.isAck()) {
                 processAckSip(msg);
             }
-            // Trying
-            else if (statusLineCode == 100) {
-                process100Sip(msg);
-            }
             // 486 BUSY, 408 TIMEOUT, 483 MANY HOPS
             else if (statusLineCode > -1) {
                 processFailSip(msg, sipChannel);
@@ -130,6 +147,21 @@ public class SipProcessor implements SipPacketProcessor {
             log.error("Severe Error Processing SIP Packet: " + msg, e);
         }
 
+    }
+
+    @Override
+    public void proceedCall(Message msg, CallSession session, final SipChannel sipChannel) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void prepareCall(JingleIQ iq, CallSession session) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void proceedCall(JingleIQ iq, CallSession session) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public SipProviderInfoInterface getSipProviderInfo() {
@@ -156,12 +188,12 @@ public class SipProcessor implements SipPacketProcessor {
         this.forceMapper = forceMapper;
     }
 
-    public CallSessionMapper getCallSessionMapper() {
-        return callSessionMapper;
+    public CallSessionMapper getCallSessions() {
+        return callSessions;
     }
 
-    public void setCallSessionMapper(CallSessionMapper callSessionMapper) {
-        this.callSessionMapper = callSessionMapper;
+    public void setCallSessions(CallSessionMapper callSessions) {
+        this.callSessions = callSessions;
     }
 
     public JingleProcessor getJingleProcessor() {
@@ -174,7 +206,7 @@ public class SipProcessor implements SipPacketProcessor {
 
     public boolean isReInvite(final org.zoolu.sip.message.Message msg) throws JingleException {
 
-        final CallSession callSession = callSessionMapper.getSession(msg);
+        final CallSession callSession = callSessions.getSession(msg);
 
         if (callSession == null) {
             return false;
@@ -193,7 +225,6 @@ public class SipProcessor implements SipPacketProcessor {
     }
 
     protected void process2xxSip(final org.zoolu.sip.message.Message msg) throws JingleException {
-        callSessionMapper.addReceivedResponse(msg);
         sendJingleAccepted(msg);
         sendSipAck(msg);
 
@@ -202,33 +233,31 @@ public class SipProcessor implements SipPacketProcessor {
     protected void processByeSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) throws JingleException {
         sendJingleTerminate(msg, sipChannel);
         sendSipOk(msg);
-        callSessionMapper.removeSession(callSessionMapper.getSession(msg));
+        callSessions.removeSession(callSessions.getSession(msg));
 
     }
 
     protected void processCancelSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) throws JingleException {
         sendJingleTerminate(msg, sipChannel);
         sendSipOk(msg);
-        callSessionMapper.removeSession(callSessionMapper.getSession(msg));
+        callSessions.removeSession(callSessions.getSession(msg));
 
     }
 
     protected void processInviteSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) throws JingleException {
-        callSessionMapper.addReceivedRequest(msg);
         sendSipTrying(msg);
         sendJingleInitialization(msg, sipChannel);
 
     }
 
     protected void processReInviteSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) throws JingleException {
-        final CallSession callSession = callSessionMapper.getSession(msg);
+        final CallSession callSession = callSessions.getSession(msg);
         JingleIQ iq = callSession.getLastSentJingle();
         jingleProcessor.sendSipInviteOk(iq);
     }
 
     protected void processRingingSip(final org.zoolu.sip.message.Message msg) throws JingleException {
         final int statusLineCode = msg.getStatusLine() != null ? msg.getStatusLine().getCode() : -1;
-        callSessionMapper.addReceivedResponse(msg);
         sendJingleRinging(msg);
         if (statusLineCode == 183) {
             sendJingleEarlyMedia(msg);
@@ -236,8 +265,6 @@ public class SipProcessor implements SipPacketProcessor {
     }
 
     protected void processAckSip(final org.zoolu.sip.message.Message msg) throws JingleException {
-
-        callSessionMapper.addReceivedResponse(msg);
         // Fix Contact Address Update
         if (msg.getContactHeader() != null) {
             Participants p = null;
@@ -246,7 +273,7 @@ public class SipProcessor implements SipPacketProcessor {
             } catch (SipParsingException e) {
                 log.error("Error Processing ACK.", e);
             }
-            final CallSession t = callSessionMapper.getSession(msg);
+            final CallSession t = callSessions.getSession(msg);
             if (p != null && p.getInitiator() != null) {
                 t.addContact(p.getInitiator().toBareJID(), msg.getContactHeader());
             }
@@ -254,7 +281,6 @@ public class SipProcessor implements SipPacketProcessor {
     }
 
     protected void process100Sip(final org.zoolu.sip.message.Message msg) throws JingleException {
-        callSessionMapper.addReceivedResponse(msg);
     }
 
     protected void processFailSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) throws JingleException {
@@ -272,7 +298,7 @@ public class SipProcessor implements SipPacketProcessor {
                 sendJingleTerminate(msg, sipChannel);
             }
             sendSipAck(msg);
-            callSessionMapper.removeSession(callSessionMapper.getSession(msg));
+            callSessions.removeSession(callSessions.getSession(msg));
         }
 
     }
@@ -284,7 +310,7 @@ public class SipProcessor implements SipPacketProcessor {
     public final void sendSipTrying(final Message msg) {
         try {
             final Message ringing = createSipTrying(msg, null);
-            callSessionMapper.addSentResponse(ringing);
+            callSessions.addSentResponse(ringing);
             ringing.setSendTo(msg.getSendTo());
             ringing.setArrivedAt(msg.getArrivedAt());
             gatewayRouter.routeSIP(ringing, null);
@@ -307,7 +333,7 @@ public class SipProcessor implements SipPacketProcessor {
             final JID responder = participants.getResponder();
             JID to = initiator;
 
-            final CallSession callSession = callSessionMapper.getSession(msg);
+            final CallSession callSession = callSessions.getSession(msg);
             if (callSession != null) {
                 if (sipToJingleBind != null) {
                     to = sipToJingleBind.getXmppTo(initiator, callSession.getLastReceivedJingle());
@@ -322,7 +348,7 @@ public class SipProcessor implements SipPacketProcessor {
 
             final JingleIQ iq = JingleProcessor.createJingleSessionInfo(initiator, responder, to.toString(), msg.getCallIdHeader().getCallId(), Info.Type.ringing);
 
-            callSessionMapper.addSentJingle(iq);
+            callSessions.addSentJingle(iq);
             gatewayRouter.send(iq);
         } catch (JingleException e) {
             log.error("Error Creating Ring Packet", e);
@@ -349,7 +375,7 @@ public class SipProcessor implements SipPacketProcessor {
             JID responder = participants.getResponder();
             JID to = initiator;
 
-            final CallSession callSession = callSessionMapper.getSession(msg);
+            final CallSession callSession = callSessions.getSession(msg);
             if (callSession != null) {
                 if (sipToJingleBind != null) {
                     to = sipToJingleBind.getXmppTo(initiator, callSession.getLastReceivedJingle());
@@ -379,7 +405,7 @@ public class SipProcessor implements SipPacketProcessor {
                 log.debug("Trying to Update Transport... Failed. No Session Found!");
             }
 
-            callSessionMapper.addSentJingle(iq);
+            callSessions.addSentJingle(iq);
             gatewayRouter.send(iq);
         } catch (JingleSipException e) {
             log.error("Error creating Session-accept packet", e);
@@ -392,7 +418,7 @@ public class SipProcessor implements SipPacketProcessor {
 
         try {
 
-            final CallSession callSession = callSessionMapper.getSession(msg);
+            final CallSession callSession = callSessions.getSession(msg);
             Participants mainParticipants;
 
             try {
@@ -496,7 +522,7 @@ public class SipProcessor implements SipPacketProcessor {
 
             final JingleIQ terminate = JingleProcessor.createJingleTermination(initiator, responder, to.toString(), reason, msg.getCallIdHeader().getCallId());
 
-            callSessionMapper.addSentJingle(terminate);
+            callSessions.addSentJingle(terminate);
             gatewayRouter.send(terminate);
 
         } catch (JingleException e) {
@@ -589,17 +615,10 @@ public class SipProcessor implements SipPacketProcessor {
                 content.setName(display.trim());
             }
 
-            // Check Forced Resource
-            final Header resourceHeader = msg.getHeader(RESOURCE_HEADER);
-            if (resourceHeader != null && resourceHeader.getValue() != null) {
-
-                initiator = JIDFactory.getInstance().getJID(initiator.getNode(), initiator.getDomain(), resourceHeader.getValue());
-            }
-
             final JingleIQ initialization = JingleProcessor.createJingleInitialization(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
 
             initialization.setTo(to);
-            final CallSession callSession = callSessionMapper.addSentJingle(initialization);
+            final CallSession callSession = callSessions.addSentJingle(initialization);
             callSession.setInitiateIQ(initialization);
             callSession.addContact(initiator.toBareJID(), msg.getContactHeader());
 
@@ -626,7 +645,7 @@ public class SipProcessor implements SipPacketProcessor {
             final JID responder = participants.getResponder();
             JID to = initiator;
 
-            final CallSession callSession = callSessionMapper.getSession(msg);
+            final CallSession callSession = callSessions.getSession(msg);
             if (callSession != null) {
                 if (sipToJingleBind != null) {
                     to = sipToJingleBind.getXmppTo(initiator, callSession.getLastReceivedJingle());
@@ -642,7 +661,7 @@ public class SipProcessor implements SipPacketProcessor {
 
             final JingleIQ iq = JingleProcessor.createJingleEarlyMedia(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
 
-            callSessionMapper.addSentJingle(iq);
+            callSessions.addSentJingle(iq);
             gatewayRouter.send(iq);
         } catch (JingleSipException e) {
             log.error("Error Creating Ring Packet", e);

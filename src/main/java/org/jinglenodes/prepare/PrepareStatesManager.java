@@ -26,6 +26,8 @@ package org.jinglenodes.prepare;
 
 import org.jinglenodes.session.CallSession;
 import org.xmpp.tinder.JingleIQ;
+import org.zoolu.sip.message.Message;
+import org.zoolu.sip.message.SipChannel;
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,4 +39,8 @@ public interface PrepareStatesManager {
     public void prepareCall(final JingleIQ iq, final CallSession session);
 
     public void proceedCall(final JingleIQ iq, final CallSession session);
+
+    public void prepareCall(final Message msg, final CallSession session, final SipChannel channel);
+
+    public void proceedCall(final Message msg, final CallSession session, final SipChannel channel);
 }
