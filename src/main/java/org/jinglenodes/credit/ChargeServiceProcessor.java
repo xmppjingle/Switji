@@ -74,7 +74,7 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
                     final IQ request = new IQ(IQ.Type.set);
                     request.setTo(to);
                     request.setFrom(from);
-                    final long callTime = Math.round((credit.getFinishTime() - credit.getStartTime()) / 1000);
+                    final double callTime = Math.ceil((credit.getFinishTime() - credit.getStartTime()) / 1000);
 
                     final Element e = requestElement.createCopy();
                     e.addAttribute("seconds", String.valueOf(callTime));
