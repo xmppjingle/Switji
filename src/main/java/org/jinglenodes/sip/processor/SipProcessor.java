@@ -88,7 +88,6 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
                     return;
                 }
             }
-
             proceedCall(msg, callSession, sipChannel);
         } catch (JingleException e) {
             log.error("Could not Process Packet", e);
@@ -97,6 +96,18 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
     @Override
     public void prepareCall(Message msg, CallSession session, final SipChannel sipChannel) {
+
+
+
+        for (CallPreparation preparation = session.popCallPreparation(); preparation != null; preparation = session.popCallPreparation()) {
+            session.addCallProceed(preparation);
+            if (!preparation.prepareInitiate(msg, session, sipChannel)) return;
+        }
+
+    }
+
+    @Override
+    public void proceedCall(Message msg, CallSession session, final SipChannel sipChannel) {
         try {
 
             final CSeqHeader ch = msg.getCSeqHeader();
@@ -147,11 +158,6 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             log.error("Severe Error Processing SIP Packet: " + msg, e);
         }
 
-    }
-
-    @Override
-    public void proceedCall(Message msg, CallSession session, final SipChannel sipChannel) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
