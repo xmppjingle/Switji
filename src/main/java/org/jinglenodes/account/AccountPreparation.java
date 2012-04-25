@@ -36,6 +36,7 @@ import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
+import org.zoolu.sip.message.SipChannel;
 
 /**
  * Created by IntelliJ IDEA.
@@ -129,26 +130,26 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
 
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
-    public boolean prepareInitiate(Message msg, CallSession session) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public boolean prepareInitiate(Message msg, CallSession session, final SipChannel sipChannel) {
+        return false;
     }
 
     @Override
-    public boolean proceedInitiate(Message msg, CallSession session) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public boolean proceedInitiate(Message msg, CallSession session, final SipChannel sipChannel) {
+        return false;
     }
 
     @Override
-    public boolean proceedTerminate(Message msg, CallSession session) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public boolean proceedTerminate(Message msg, CallSession session, final SipChannel sipChannel) {
+        return false;
     }
 
     @Override
-    public boolean proceedAccept(Message msg, CallSession session) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public boolean proceedAccept(Message msg, CallSession session, final SipChannel sipChannel) {
+        return false;
     }
 }

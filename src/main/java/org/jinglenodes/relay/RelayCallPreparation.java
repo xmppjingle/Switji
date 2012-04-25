@@ -36,6 +36,7 @@ import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
+import org.zoolu.sip.message.SipChannel;
 
 /**
  * Created by IntelliJ IDEA.
@@ -100,22 +101,22 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     }
 
     @Override
-    public boolean prepareInitiate(Message msg, CallSession session) {
+    public boolean prepareInitiate(Message msg, CallSession session, final SipChannel sipChannel) {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public boolean proceedInitiate(Message msg, CallSession session) {
+    public boolean proceedInitiate(Message msg, CallSession session, final SipChannel sipChannel) {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public boolean proceedTerminate(Message msg, CallSession session) {
+    public boolean proceedTerminate(Message msg, CallSession session, final SipChannel sipChannel) {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public boolean proceedAccept(Message msg, CallSession session) {
+    public boolean proceedAccept(Message msg, CallSession session, final SipChannel sipChannel) {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
