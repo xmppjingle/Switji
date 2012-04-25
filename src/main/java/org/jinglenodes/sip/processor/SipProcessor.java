@@ -95,9 +95,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
     }
 
     @Override
-    public void prepareCall(Message msg, CallSession session, final SipChannel sipChannel) {
-
-
+    public void prepareCall(final Message msg, CallSession session, final SipChannel sipChannel) {
 
         for (CallPreparation preparation = session.popCallPreparation(); preparation != null; preparation = session.popCallPreparation()) {
             session.addCallProceed(preparation);
@@ -754,7 +752,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
     }
 
     public static String getContact(final String node, final SipProviderInfoInterface sipProvider) {
-        return new StringBuilder().append(node).append("@").append(sipProvider.getIP()).append(":").append(sipProvider.getPort()).append(";transport=udp").toString();
+        return node + "@" + sipProvider.getIP() + ":" + sipProvider.getPort() + ";transport=udp";
     }
 
     public static SessionDescription createSipSDP(final Description rtpDescription, final RawUdpTransport transport, final SipProviderInfoInterface sipProvider) throws SdpException {
@@ -773,12 +771,12 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
         for (final Payload payload : rtpDescription.getPayloads()) {
             ids[i++] = Integer.parseInt(payload.getId());
             names.add("rtpmap");
-            values.add(new StringBuilder().append(payload.getId()).append(" ").append(payload.getName()).append(payload.getClockrate() > -1 ? "/" + payload.getClockrate() : "").append(payload.getChannels() > -1 ? "/" + payload.getChannels() : "").toString());
+            values.add(payload.getId() + " " + payload.getName() + (payload.getClockrate() > -1 ? "/" + payload.getClockrate() : "") + (payload.getChannels() > -1 ? "/" + payload.getChannels() : ""));
             // Fix for G729 prevent VAD support
 
             if (payload.equals(Payload.G729)) {
                 names.add("fmtp");
-                values.add(new StringBuilder().append(String.valueOf(payload.getId())).append(" ").append("annexb=no").toString());
+                values.add(String.valueOf(payload.getId()) + " annexb=no");
             }
         }
 
@@ -878,14 +876,14 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             throw new JingleSipException("Only RTP Session Description Supported.");
         }
 
-        final Description description = (Description) content.getDescription();
+        final Description description = content.getDescription();
 
         // Checks to verify if the conversion is supported
         if (!(content.getTransport() instanceof RawUdpTransport)) {
             throw new JingleSipException("Only RAW Transport Supported.");
         }
 
-        final RawUdpTransport transport = (RawUdpTransport) content.getTransport();
+        final RawUdpTransport transport = content.getTransport();
 
         return createSipInvite(JIDFactory.getInstance().getJID(iq.getInitiator()), JIDFactory.getInstance().getJID(iq.getResponder()), iq.getSid(), sipProvider, description, transport);
 

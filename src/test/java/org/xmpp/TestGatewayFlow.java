@@ -65,7 +65,7 @@ public class TestGatewayFlow extends TestCase {
                 "</jingle>\n" +
                 "</iq>";
 
-//        sipGatewayApplication.getSipGatewayComponent().processIQ(JingleIQ.fromXml());
+        //sipGatewayApplication.getSipGatewayComponent().processIQ(JingleIQ.fromXml());
 
         //sipGatewayApplication.getSipGatewayComponent().processIQ(fakeJingleInitiate("123@localhost/abc", "456@localhost/def", "sip.localhost"));
 

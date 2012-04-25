@@ -91,10 +91,9 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
     }
 
-    public void processJingle(JingleIQ iq) throws JingleException {
+    public void processJingle(final JingleIQ iq) throws JingleException {
 
         final CallSession session = callSessionMapper.addReceivedJingle(iq);
-
         final String action = iq.getJingle().getAction();
 
         if (action.equals(Jingle.SESSION_INITIATE)) {
@@ -144,16 +143,16 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     }
 
     @Override
-    public void prepareCall(Message msg, CallSession session, final SipChannel channel) {
+    public void prepareCall(final Message msg, final CallSession session, final SipChannel channel) {
         // Do Nothing
     }
 
     @Override
-    public void proceedCall(Message msg, CallSession session, final SipChannel channel) {
+    public void proceedCall(final Message msg, final CallSession session, final SipChannel channel) {
         // Do Nothing
     }
 
-    private void executeAcceptProceeds(JingleIQ iq, CallSession session) {
+    private void executeAcceptProceeds(final JingleIQ iq, final CallSession session) {
         for (CallPreparation proceeds : session.getProceeds()) {
             if (!proceeds.proceedAccept(iq, session)) return;
         }
@@ -402,8 +401,8 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             final JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
             final JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
 
-            final Description rtpDescription = (Description) initiateIq.getJingle().getContent().getDescription();
-            final RawUdpTransport transport = (RawUdpTransport) initiateIq.getJingle().getContent().getTransport();
+            final Description rtpDescription = initiateIq.getJingle().getContent().getDescription();
+            final RawUdpTransport transport = initiateIq.getJingle().getContent().getTransport();
 
             final Message invite = SipProcessor.createSipOnHold(initiator, responder,
                     iq.getJingle().getSid(), sipProviderInfo, rtpDescription, transport);

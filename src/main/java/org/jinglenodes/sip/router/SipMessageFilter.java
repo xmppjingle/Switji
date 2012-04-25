@@ -83,6 +83,7 @@ public class SipMessageFilter implements SipPacketFilter {
 
     public static int getTrimOffset(final byte[] s, final int maxPos) {
         int i;
+        //noinspection StatementWithEmptyBody
         for (i = 0; i < maxPos && (s[i] == '\n' || s[i] == '\r' || s[i] == ' ' || s[i] == '\t'); i++) ;
         return i;
     }

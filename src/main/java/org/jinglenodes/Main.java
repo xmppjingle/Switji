@@ -86,7 +86,7 @@ public class Main {
             DOMConfigurator.configureAndWatch(appDir + "/conf/log4j.xml");
             ApplicationContext appContext =
                     new FileSystemXmlApplicationContext("file:" + appDir + springFile);
-            BeanFactory factory = (BeanFactory) appContext;
+            BeanFactory factory = appContext;
             sipGatewayApplication = (SIPGatewayApplication) factory.getBean("sip");
             double time = (double) (System.currentTimeMillis() - init) / 1000.0;
             addShutdownHook();
