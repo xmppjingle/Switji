@@ -200,9 +200,7 @@ public class ExternalComponent extends AbstractComponent {
         // Parse URI from namespace.
         final String ns = namespace.getURI();
 
-        final NamespaceProcessor np;
-        np = processors.get(ns);
-        if (null != np) {
+        for (final NamespaceProcessor np : processors.values()) {
             np.processIQError(iq);
         }
     }
@@ -231,13 +229,8 @@ public class ExternalComponent extends AbstractComponent {
         // Parse URI from namespace.
         final String ns = namespace.getURI();
 
-        final NamespaceProcessor np;
-
-        np = processors.get(ns);
-        if (null != np) {
-            np.processIQResult(iq);
-        } else {
-            log.debug("Unknown Result: " + iq.toXML());
+        for (final NamespaceProcessor np : processors.values()) {
+            np.processIQError(iq);
         }
 
     }
