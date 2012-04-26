@@ -76,7 +76,6 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
     public void processSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) {
         try {
-
             final CallSession callSession = msg.isRequest() ? callSessions.addReceivedRequest(msg) : callSessions.addReceivedResponse(msg);
 
             if (msg.isInvite() && msg.isRequest()) {
@@ -102,6 +101,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             if (!preparation.prepareInitiate(msg, session, sipChannel)) return;
         }
 
+        proceedCall(msg, session, sipChannel);
     }
 
     @Override
