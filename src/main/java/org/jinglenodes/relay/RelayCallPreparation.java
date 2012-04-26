@@ -37,6 +37,7 @@ import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.SipChannel;
+import org.zoolu.sip.message.SipParsingException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -52,8 +53,10 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
 
     @Override
     public void receivedResult(final IqRequest iqRequest) {
-        if (iqRequest.getOriginalPacket() != null) {
+        if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
             prepareStatesManager.prepareCall((JingleIQ) iqRequest.getOriginalPacket(), null);
+        } else if (iqRequest.getOriginalPacket() instanceof Message) {
+            prepareStatesManager.prepareCall((Message) iqRequest.getOriginalPacket(), null, null);
         }
     }
 
@@ -102,7 +105,21 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
 
     @Override
     public boolean prepareInitiate(Message msg, CallSession session, final SipChannel sipChannel) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        JID initiator = null;
+        try {
+            initiator = msg.getParticipants().getInitiator();
+            if (session.getRelayIQ() == null) {
+                try {
+                    relayServiceProcessor.queryService(msg, null, initiator.getNode(), this);
+                } catch (ServiceException e) {
+                    log.error("Failed Querying Account Service.", e);
+                }
+                return false;
+            }
+        } catch (SipParsingException e) {
+            return false;
+        }
+        return true;
     }
 
     @Override
