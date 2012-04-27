@@ -49,7 +49,6 @@ import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.address.SipURL;
 import org.zoolu.sip.header.CSeqHeader;
 import org.zoolu.sip.header.ContactHeader;
-import org.zoolu.sip.header.Header;
 import org.zoolu.sip.header.ToHeader;
 import org.zoolu.sip.message.*;
 import org.zoolu.sip.provider.SipProviderInfoInterface;
@@ -396,7 +395,13 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             }
 
             final Content content = getContent(msg.getBody());
-            final JingleIQ iq = JingleProcessor.createJingleAccept(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
+            JingleIQ iq = JingleProcessor.createJingleAccept(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
+
+            if (callSession != null) {
+                for (final CallPreparation preparation : callSession.getProceeds()) {
+                    preparation.proceedSIPAccept(iq, callSession, null);
+                }
+            }
 
             callSessions.addSentJingle(iq);
             gatewayRouter.send(iq);
@@ -515,6 +520,10 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
             final JingleIQ terminate = JingleProcessor.createJingleTermination(initiator, responder, to.toString(), reason, msg.getCallIdHeader().getCallId());
 
+            for (final CallPreparation preparation : callSession.getProceeds()) {
+                preparation.proceedSIPTerminate(terminate, callSession, null);
+            }
+
             callSessions.addSentJingle(terminate);
             gatewayRouter.send(terminate);
 
@@ -614,6 +623,10 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             final CallSession callSession = callSessions.addSentJingle(initialization);
             callSession.setInitiateIQ(initialization);
             callSession.addContact(initiator.toBareJID(), msg.getContactHeader());
+
+            for (final CallPreparation preparation : callSession.getProceeds()) {
+                preparation.proceedSIPInitiate(initialization, callSession, null);
+            }
 
             gatewayRouter.send(initialization);
 
