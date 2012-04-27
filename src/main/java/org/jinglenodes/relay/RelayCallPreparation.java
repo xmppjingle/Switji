@@ -100,7 +100,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
 
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
-        return false;
+        return true;
     }
 
     @Override

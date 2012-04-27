@@ -130,26 +130,26 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
 
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
-        return false;
+        return true;
     }
 
     @Override
     public boolean prepareInitiate(Message msg, CallSession session, final SipChannel sipChannel) {
-        return false;
+        return true;
     }
 
     @Override
-    public boolean proceedInitiate(Message msg, CallSession session, final SipChannel sipChannel) {
-        return false;
+    public boolean proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
+        return true;
     }
 
     @Override
-    public boolean proceedTerminate(Message msg, CallSession session, final SipChannel sipChannel) {
-        return false;
+    public boolean proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
+        return true;
     }
 
     @Override
-    public boolean proceedAccept(Message msg, CallSession session, final SipChannel sipChannel) {
-        return false;
+    public boolean proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
+        return true;
     }
 }

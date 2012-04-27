@@ -133,27 +133,27 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return true;
     }
 
     @Override
     public boolean prepareInitiate(Message msg, CallSession session, final SipChannel sipChannel) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return true;
     }
 
     @Override
-    public boolean proceedInitiate(Message msg, CallSession session, final SipChannel sipChannel) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public boolean proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
+        return true;
     }
 
     @Override
-    public boolean proceedTerminate(Message msg, CallSession session, final SipChannel sipChannel) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public boolean proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
+        return true;
     }
 
     @Override
-    public boolean proceedAccept(Message msg, CallSession session, final SipChannel sipChannel) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public boolean proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
+        return true;
     }
 
     public ChargeServiceProcessor getChargeServiceProcessor() {

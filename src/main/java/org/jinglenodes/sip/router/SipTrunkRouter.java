@@ -49,9 +49,9 @@ import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class TrunkSipRouter implements SipRouter, DatagramListener {
+public class SipTrunkRouter implements SipRouter, DatagramListener {
 
-    static final Logger log = Logger.getLogger(TrunkSipRouter.class);
+    static final Logger log = Logger.getLogger(SipTrunkRouter.class);
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1, new NamingThreadFactory("DynamicMultiPortSipRouterThread"));
     private final List<SipRoutingListener> routingListeners = new ArrayList<SipRoutingListener>();
     private final List<SipPacketProcessor> packetProcessors = new ArrayList<SipPacketProcessor>();
@@ -65,7 +65,7 @@ public class TrunkSipRouter implements SipRouter, DatagramListener {
     private final int keepAliveDelay = 15; // 10 seconds delay in the keep alive packets
     private final SipProviderInfoInterface sipProvider;
 
-    public TrunkSipRouter(final String localSipIp, final int localPort, final SipAccountProvider sipAccountProvider, final String fakeLocalIp, final SocketAddress destination) throws IOException {
+    public SipTrunkRouter(final String localSipIp, final int localPort, final SipAccountProvider sipAccountProvider, final String fakeLocalIp, final SocketAddress destination) throws IOException {
         this.localSipIp = localSipIp;
         this.sipAccountProvider = sipAccountProvider;
         this.sipProvider = new SipProviderInformation(fakeLocalIp, localPort);
