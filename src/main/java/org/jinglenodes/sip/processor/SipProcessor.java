@@ -396,18 +396,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             }
 
             final Content content = getContent(msg.getBody());
-            JingleIQ iq = JingleProcessor.createJingleAccept(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
-
-            if (callSession != null) {
-                log.debug("Trying to Update Transport...");
-                if (callSession.getRelayIQ() != null) {
-                    iq = JingleProcessor.updateJingleTransport(iq, callSession.getRelayIQ());
-                } else {
-                    log.debug("Trying to Update Transport... Failed. No RelayIQ");
-                }
-            } else {
-                log.debug("Trying to Update Transport... Failed. No Session Found!");
-            }
+            final JingleIQ iq = JingleProcessor.createJingleAccept(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
 
             callSessions.addSentJingle(iq);
             gatewayRouter.send(iq);
