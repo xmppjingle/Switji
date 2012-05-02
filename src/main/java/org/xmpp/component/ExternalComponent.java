@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ExternalComponent extends AbstractComponent {
     static final Logger log = Logger.getLogger(ExternalComponent.class);
-    private final ConcurrentHashMap<String, NamespaceProcessor> processors = new ConcurrentHashMap<String, NamespaceProcessor>();
+    private final ConcurrentHashMap<String, List<NamespaceProcessor>> processors = new ConcurrentHashMap<String, List<NamespaceProcessor>>();
     private final List<MessageProcessor> messageProcessors = new ArrayList<MessageProcessor>(1);
     private ExternalComponentManager manager;
 
@@ -139,11 +139,10 @@ public class ExternalComponent extends AbstractComponent {
         // Parse URI from namespace.
         final String ns = namespace.getURI();
 
-        final NamespaceProcessor np;
-        np = processors.get(ns);
-        if (null != np) {
-            return np.processIQGet(iq);
-        }
+        for (final NamespaceProcessor np : processors.get(ns))
+            if (null != np) {
+                return np.processIQGet(iq);
+            }
 
         return null;
     }
@@ -168,11 +167,10 @@ public class ExternalComponent extends AbstractComponent {
         // Parse URI from namespace.
         final String ns = namespace.getURI();
 
-        final NamespaceProcessor np;
-        np = processors.get(ns);
-        if (null != np) {
-            return np.processIQSet(iq);
-        }
+        for (final NamespaceProcessor np : processors.get(ns))
+            if (null != np) {
+                return np.processIQSet(iq);
+            }
 
         return null;
     }
@@ -200,8 +198,9 @@ public class ExternalComponent extends AbstractComponent {
         // Parse URI from namespace.
         final String ns = namespace.getURI();
 
-        for (final NamespaceProcessor np : processors.values()) {
-            np.processIQError(iq);
+        for (final List<NamespaceProcessor> npl : processors.values()) {
+            for (final NamespaceProcessor np : npl)
+                np.processIQError(iq);
         }
     }
 
@@ -229,15 +228,24 @@ public class ExternalComponent extends AbstractComponent {
         // Parse URI from namespace.
         final String ns = namespace.getURI();
 
-        for (final NamespaceProcessor np : processors.values()) {
-            np.processIQError(iq);
+        for (final List<NamespaceProcessor> npl : processors.values()) {
+            for (final NamespaceProcessor np : npl)
+                np.processIQError(iq);
         }
 
     }
 
     public void addProcessor(final NamespaceProcessor processor) {
+
+        List<NamespaceProcessor> lnp = processors.get(processor.getNamespace());
+        if (lnp == null) {
+            lnp = new ArrayList<NamespaceProcessor>(1);
+            processors.put(processor.getNamespace(), lnp);
+        }
+
+        lnp.add(processor);
         log.info("Processor Added: " + processor.getNamespace());
-        processors.put(processor.getNamespace(), processor);
+
     }
 
     public void addMessageProcessor(final MessageProcessor messageProcessor) {
