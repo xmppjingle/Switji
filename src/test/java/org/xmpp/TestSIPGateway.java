@@ -66,8 +66,8 @@ public class TestSIPGateway extends TestCase {
         jt.setReason(new Reason(Reason.Type.no_error));
         jingleProcessor.processIQ(new JingleIQ(jt));
 
-        for (int i = 0; i < 1000; i++)
-            Thread.sleep(500);
+        for (int i = 0; i < 5; i++)
+            Thread.sleep(200);
 
         assertEquals(1, sipInviteSent.get());
 

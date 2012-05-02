@@ -38,38 +38,4 @@ public class TestGatewayFlow extends TestCase {
         log.debug(jingle.toString());
         return jingleIQ;
     }
-
-    public void testFlow() throws IOException, ComponentException, InterruptedException {
-        final int localPort = 5060;
-        final SocketAddress address = new InetSocketAddress("localhost", localPort);//InetSocketAddress.createUnresolved("localhost", localPort);
-        sipGatewayApplication = new SIPGatewayApplication();
-        sipGatewayApplication.setManager(new MockExternalComponentManager("127.0.0.1", 5269));
-        sipGatewayApplication.init();
-
-        sipServerMock = new SipServerMock();
-
-        Thread.sleep(500);
-
-        sipServerMock.injectPacket(SipServerMock.genSipInvite(), address);
-
-        final String js = "<iq from=\"thiago@localhost/MacBook-Pro\" to=\"sip.locahost\" type=\"set\" id=\"as\"><jingle xmlns\n" +
-                "=\"urn:xmpp:jingle:1\" action=\"session-initiate\" sid=\"abc\" initiator=\"thiago@locahost/MacBook-Pro \" responder=\"0000010031657118944@localhost\">\n" +
-                "  <content creator=\"initiator\" name=\"audio\" senders=\"both\">\n" +
-                "    <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\">\n" +
-                "      <payload-type id=\"18\" name=\"G729\" clockrate=\"8000\" channels=\"1\"/>\n" +
-                "    </description>\n" +
-                "    <transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\">\n" +
-                "      <candidate ip=\"10.166.108.22\" port=\"10000\" generation=\"0\" type=\"host\"/>\n" +
-                "    </transport>\n" +
-                "  </content>\n" +
-                "</jingle>\n" +
-                "</iq>";
-
-        //sipGatewayApplication.getSipGatewayComponent().processIQ(JingleIQ.fromXml());
-
-        //sipGatewayApplication.getSipGatewayComponent().processIQ(fakeJingleInitiate("123@localhost/abc", "456@localhost/def", "sip.localhost"));
-
-        for (int i = 0; i < 1; i++)
-            Thread.sleep(1500);
-    }
 }
