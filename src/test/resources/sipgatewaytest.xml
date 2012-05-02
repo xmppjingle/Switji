@@ -62,6 +62,7 @@
         <property name="sipToJingleBind" ref="sipToJingleBind"/>
         <property name="preparations">
             <list>
+                <ref bean="detourPreparation"/>
                 <ref bean="creditPreparation"/>
                 <ref bean="accountPreparation"/>
                 <ref bean="relayPreparation"/>
@@ -103,6 +104,20 @@
         <property name="accountProvider" ref="accountProvider"/>
         <property name="component" ref="sipGatewayComponent"/>
         <property name="sipInfo" ref="sipProviderInfo"/>
+        <property name="accountService" value="${account.service}"/>
+    </bean>
+
+    <bean id="detourPreparation" class="org.jinglenodes.detour.DetourPreparation">
+        <property name="detourServiceProcessor" ref="detourServiceProcessor"/>
+        <property name="jinglePhoneType" value="${detour.jinglephonetype}"/>
+        <property name="prepareStatesManager" ref="jingleProcessor"/>
+        <property name="externalComponent" ref="sipGatewayComponent"/>
+    </bean>
+
+    <bean id="detourServiceProcessor" class="org.jinglenodes.detour.DetourServiceProcessor" init-method="init">
+        <constructor-arg index="0" value="${account.name}"/>
+        <constructor-arg index="1" value="${account.namespace}"/>
+        <property name="component" ref="sipGatewayComponent"/>
         <property name="accountService" value="${account.service}"/>
     </bean>
 

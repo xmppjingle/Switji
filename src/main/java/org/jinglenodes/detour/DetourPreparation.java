@@ -25,13 +25,16 @@
 package org.jinglenodes.detour;
 
 import org.apache.log4j.Logger;
+import org.dom4j.Element;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.prepare.PrepareStatesManager;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.sip.SipToJingleBind;
+import org.xmpp.component.ExternalComponent;
 import org.xmpp.component.IqRequest;
 import org.xmpp.component.ResultReceiver;
 import org.xmpp.component.ServiceException;
+import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
@@ -49,43 +52,57 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
 
     private SipToJingleBind sipToJingleBind;
     private PrepareStatesManager prepareStatesManager;
-    private AccountServiceProcessor accountServiceProcessor;
+    private DetourServiceProcessor detourServiceProcessor;
+    private String jinglePhoneType;
+    private ExternalComponent externalComponent;
 
     @Override
     public boolean prepareInitiate(JingleIQ iq, final CallSession session) {
-        JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
-        if (sipToJingleBind != null) {
-            final JID sipFrom = sipToJingleBind.getSipFrom(initiator);
-            if (sipFrom != null) {
-                return true;
-            } else {
-                try {
-                    accountServiceProcessor.queryService(iq, null, initiator.getNode(), this);
-                } catch (ServiceException e) {
-                    log.error("Failed Querying Account Service.", e);
-                }
-            }
+        JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
+        try {
+            detourServiceProcessor.queryService(iq, null, responder.getNode(), this);
+        } catch (ServiceException e) {
+            log.error("Failed Querying Account Service.", e);
         }
         return false;
     }
 
     @Override
     public boolean proceedInitiate(JingleIQ iq, final CallSession session) {
-        JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
-        if (sipToJingleBind != null) {
-            final JID sipFrom = sipToJingleBind.getSipFrom(initiator);
-            if (sipFrom != null) {
-                iq.getJingle().setInitiator(sipFrom.toString());
-            }
-        }
         return true;
     }
 
     @Override
     public void receivedResult(IqRequest iqRequest) {
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
-            prepareStatesManager.prepareCall((JingleIQ) iqRequest.getOriginalPacket(), null);
+            final String destination = getJingleDestination(iqRequest.getResult());
+            if (destination != null) {
+                detourCall(iqRequest, destination);
+            } else {
+                prepareStatesManager.prepareCall((JingleIQ) iqRequest.getOriginalPacket(), null);
+            }
         }
+    }
+
+    private void detourCall(IqRequest iqRequest, final String destinationNode) {
+        if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
+            final JingleIQ jiq = (JingleIQ) iqRequest.getOriginalPacket();
+            jiq.setFrom(jiq.getJingle().getInitiator());
+            final JID destinationJID = new JID(destinationNode, externalComponent.getServerDomain(), null);
+            jiq.getJingle().setResponder(destinationJID.toBareJID());
+            jiq.setTo(destinationJID);
+            externalComponent.send(jiq);
+        }
+    }
+
+    public String getJingleDestination(final IQ res) {
+        for (Object o : res.getChildElement().elements()) {
+            Element e = (Element) o;
+            if (e.attributeValue("type").equals(jinglePhoneType)) {
+                return e.attributeValue("number");
+            }
+        }
+        return null;
     }
 
     @Override
@@ -115,12 +132,12 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
         this.prepareStatesManager = prepareStatesManager;
     }
 
-    public AccountServiceProcessor getAccountServiceProcessor() {
-        return accountServiceProcessor;
+    public DetourServiceProcessor getDetourServiceProcessor() {
+        return detourServiceProcessor;
     }
 
-    public void setAccountServiceProcessor(AccountServiceProcessor accountServiceProcessor) {
-        this.accountServiceProcessor = accountServiceProcessor;
+    public void setDetourServiceProcessor(DetourServiceProcessor detourServiceProcessor) {
+        this.detourServiceProcessor = detourServiceProcessor;
     }
 
     @Override
@@ -151,5 +168,21 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
     @Override
     public boolean proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
         return true;
+    }
+
+    public String getJinglePhoneType() {
+        return jinglePhoneType;
+    }
+
+    public void setJinglePhoneType(String jinglePhoneType) {
+        this.jinglePhoneType = jinglePhoneType;
+    }
+
+    public ExternalComponent getExternalComponent() {
+        return externalComponent;
+    }
+
+    public void setExternalComponent(ExternalComponent externalComponent) {
+        this.externalComponent = externalComponent;
     }
 }

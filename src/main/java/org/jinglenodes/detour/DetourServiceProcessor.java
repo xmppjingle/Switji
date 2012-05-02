@@ -24,10 +24,6 @@ import org.zoolu.sip.provider.SipProviderInformation;
  */
 public class DetourServiceProcessor extends AbstractServiceProcessor {
     private final Logger log = Logger.getLogger(DetourServiceProcessor.class);
-    private CachedSipAccountProvider accountProvider;
-    private SipProviderInformation sipInfo;
-    private String phoneDefaultType;
-
     private final Element requestElement;
     private final String xmlns;
     private String accountService;
@@ -60,35 +56,6 @@ public class DetourServiceProcessor extends AbstractServiceProcessor {
 
     @Override
     protected void handleResult(IqRequest iq) {
-        if (iq.getOriginalPacket() instanceof IQ) {
-            final IQ originalIq = (IQ) iq.getOriginalPacket();
-            final JID from = originalIq.getFrom();
-            final SipAccount sipAccount = getSipAccount(iq.getResult());
-            if (sipAccount != null) {
-                accountProvider.addSipAccount(from, sipAccount);
-            } else {
-                log.error("SEVERE Empty SIP Account Retrieved.");
-            }
-        }
-    }
-
-    /*
-      * Create the sip account based on
-      * the information retrieved from the iq
-      */
-    protected SipAccount getSipAccount(IQ iq) {
-        String phone = null;
-        for (Object o : iq.getChildElement().elements()) {
-            Element e = (Element) o;
-            if (e.attributeValue("type").equals(phoneDefaultType)) {
-                phone = e.attributeValue("number");
-                break;
-            } else if (phone == null) {
-                phone = e.attributeValue("number");
-            }
-        }
-
-        return phone != null ? new SipAccount(phone, phone, phone, "", sipInfo.getIP(), sipInfo.getViaAddress()) : null;
     }
 
     @Override
@@ -112,41 +79,5 @@ public class DetourServiceProcessor extends AbstractServiceProcessor {
 
     public void setAccountService(String accountService) {
         this.accountService = accountService;
-    }
-
-    public CachedSipAccountProvider getAccountProvider() {
-        return accountProvider;
-    }
-
-    public void setAccountProvider(CachedSipAccountProvider accountProvider) {
-        this.accountProvider = accountProvider;
-    }
-
-    /**
-     * @return the sipInfo
-     */
-    public SipProviderInformation getSipInfo() {
-        return sipInfo;
-    }
-
-    /**
-     * @param sipInfo the sipInfo to set
-     */
-    public void setSipInfo(SipProviderInformation sipInfo) {
-        this.sipInfo = sipInfo;
-    }
-
-    /**
-     * @return the phoneDefaultType
-     */
-    public String getPhoneDefaultType() {
-        return phoneDefaultType;
-    }
-
-    /**
-     * @param phoneDefaultType the phoneDefaultType to set
-     */
-    public void setPhoneDefaultType(String phoneDefaultType) {
-        this.phoneDefaultType = phoneDefaultType;
     }
 }
