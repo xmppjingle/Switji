@@ -230,7 +230,7 @@ public class ExternalComponent extends AbstractComponent {
 
         for (final List<NamespaceProcessor> npl : processors.values()) {
             for (final NamespaceProcessor np : npl)
-                np.processIQError(iq);
+                np.processIQResult(iq);
         }
 
     }
