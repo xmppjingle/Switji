@@ -84,10 +84,6 @@ public class SIPGatewayComponent extends ExternalComponent implements GatewayRou
         this.sipProcessor = sipProcessor;
     }
 
-    public String getServerDomain() {
-        return serverDomain;
-    }
-
     public void setServerDomain(String serverDomain) {
         this.serverDomain = serverDomain;
     }

@@ -37,6 +37,7 @@ import org.xmpp.component.ResultReceiver;
 import org.xmpp.component.ServiceException;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
+import org.xmpp.packet.PacketError;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
@@ -90,11 +91,14 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
     private void detourCall(IqRequest iqRequest, final String destinationNode) {
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
             final JingleIQ jiq = (JingleIQ) iqRequest.getOriginalPacket();
-            jiq.setFrom(jiq.getJingle().getInitiator());
+            IQ error = IQ.createResultIQ(jiq);
+            error.setType(IQ.Type.error);
+            error.setError(PacketError.Condition.redirect);
             final JID destinationJID = new JID(destinationNode, externalComponent.getServerDomain(), null);
-            jiq.getJingle().setResponder(destinationJID.toBareJID());
-            jiq.setTo(destinationJID);
-            externalComponent.send(jiq);
+            error.getError().getElement().addCDATA("xmpp:" + destinationJID.toBareJID());
+            jiq.setTo(jiq.getJingle().getInitiator());
+            log.warn("Detour Call: " + error.toXML() + " to: " + destinationNode);
+            externalComponent.send(error);
         }
     }
 

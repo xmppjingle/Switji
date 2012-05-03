@@ -121,9 +121,6 @@ public class ExternalComponent extends AbstractComponent {
 
     @Override
     protected IQ handleIQGet(final IQ iq) throws Exception {
-        //logger.debug(iq);
-
-
         // Get 'from'.
         final JID jid = iq.getFrom();
         if (null == jid) return null;
@@ -149,9 +146,6 @@ public class ExternalComponent extends AbstractComponent {
 
     @Override
     protected IQ handleIQSet(final IQ iq) throws Exception {
-        //logger.debug(iq);
-
-
         // Get 'from'.
         final JID jid = iq.getFrom();
         if (null == jid) return null;

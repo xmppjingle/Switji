@@ -36,6 +36,9 @@ public class MockExternalComponentManager extends ExternalComponentManager {
                         final Element e = reply.getChildElement().addElement("phone");
                         e.addAttribute("type", "private");
                         e.addAttribute("number", "0033557565");
+                        final Element ee = reply.getChildElement().addElement("phone");
+                        ee.addAttribute("type", "jingle");
+                        ee.addAttribute("number", "0033557564");
                         externalComponent.handleIQResult(reply);
                     } else if (((IQ) packet).getChildElement().getNamespace().getStringValue().equals(RelayIQ.NAMESPACE)) {
                         final RelayIQ reply = new RelayIQ(false);
