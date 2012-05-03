@@ -230,7 +230,6 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
     protected void process2xxSip(final org.zoolu.sip.message.Message msg) throws JingleException {
         sendJingleAccepted(msg);
         sendSipAck(msg);
-
     }
 
     protected void processByeSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) throws JingleException {

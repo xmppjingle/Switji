@@ -100,6 +100,11 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
 
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
+        if (session != null) {
+            if (session.getRelayIQ() != null) {
+                JingleProcessor.updateJingleTransport(iq, session.getRelayIQ());
+            }
+        }
         return true;
     }
 
@@ -125,14 +130,14 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     @Override
     public boolean proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
         if (session != null) {
-            log.debug("Trying to Update Transport...");
+            log.debug("SIP Initiate Trying to Update Transport SIP...");
             if (session.getRelayIQ() != null) {
                 JingleProcessor.updateJingleTransport(iq, session.getRelayIQ());
             } else {
-                log.debug("Trying to Update Transport... Failed. No RelayIQ");
+                log.debug("Trying to Update Transport SIP... Failed. No RelayIQ");
             }
         } else {
-            log.debug("Trying to Update Transport... Failed. No Session Found!");
+            log.debug("Trying to Update Transport SIP... Failed. No Session Found!");
         }
         return true;
     }
@@ -145,14 +150,14 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     @Override
     public boolean proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
         if (session != null) {
-            log.debug("Trying to Update Transport...");
+            log.debug("SIP Accept Trying to Update Transport SIP...");
             if (session.getRelayIQ() != null) {
                 JingleProcessor.updateJingleTransport(iq, session.getRelayIQ());
             } else {
-                log.debug("Trying to Update Transport... Failed. No RelayIQ");
+                log.debug("Trying to Update Transport SIP... Failed. No RelayIQ");
             }
         } else {
-            log.debug("Trying to Update Transport... Failed. No Session Found!");
+            log.debug("Trying to Update Transport SIP... Failed. No Session Found!");
         }
         return true;
     }

@@ -480,7 +480,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             if (!Candidate.RELAY.equals(c.getType())) {
                 c.setIp(relayIQ.getHost());
                 c.setPort(Jingle.SESSION_INITIATE.equals(iq.getJingle().getAction()) ? relayIQ.getLocalport() : relayIQ.getRemoteport());
-                log.debug("Updating Transport: " + iq.toXML() + " with: " + relayIQ.toXML());
+                log.debug("Updated Transport: " + iq.toXML() + " with: " + relayIQ.toXML());
                 return JingleIQ.clone(iq);
             }
         }
