@@ -31,15 +31,12 @@ import org.dom4j.Namespace;
 import org.dom4j.QName;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.CallSessionMapper;
-import org.jinglenodes.sip.account.CachedSipAccountProvider;
-import org.jinglenodes.sip.account.SipAccount;
 import org.xmpp.component.AbstractServiceProcessor;
 import org.xmpp.component.IqRequest;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
-import org.zoolu.sip.provider.SipProviderInformation;
 
 import java.util.IllegalFormatException;
 
@@ -68,15 +65,17 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
             if (toNode.indexOf("00") == 0) {
                 toNode = "+" + toNode.substring(2);
             }
-            final JID to = JIDFactory.getInstance().getJID(creditService);
+            final JID to = JIDFactory.getInstance().getJID(null, creditService, null);
             final JID from = JIDFactory.getInstance().getJID(fromNode, this.getComponentJID().getDomain(), null);
             final JingleIQ jingleIQ = (JingleIQ) object;
             request.setTo(to);
             request.setFrom(from);
             request.setChildElement(requestElement.createCopy());
+            final String toBareJid = JIDFactory.getInstance().getJID(toNode, creditService, null).toBareJID();
+
             final Element e = request.getChildElement();
-            e.addAttribute("initiator", fromNode);
-            e.addAttribute("responder", toNode);
+            e.addAttribute("initiator", from.toBareJID());
+            e.addAttribute("responder", toBareJid);
             e.addAttribute("sid", jingleIQ.getJingle().getSid());
             log.debug("createCreditRequest: " + request.toXML());
             return request;

@@ -38,8 +38,6 @@ import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
 
-import java.util.IllegalFormatException;
-
 /**
  * Created by IntelliJ IDEA.
  * User: thiago
@@ -75,10 +73,11 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
                     request.setTo(to);
                     request.setFrom(from);
                     final double callTime = Math.ceil((credit.getFinishTime() - credit.getStartTime()) / 1000);
+                    final String toBareJid = JIDFactory.getInstance().getJID(toNode, chargeService, null).toBareJID();
 
                     final Element e = requestElement.createCopy();
-                    e.addAttribute("initiator", fromNode);
-                    e.addAttribute("responder", toNode);
+                    e.addAttribute("initiator", from.toBareJID());
+                    e.addAttribute("responder", toBareJid);
                     e.addAttribute("seconds", String.valueOf(callTime));
                     request.setChildElement(e);
                     log.debug("createdCreditRequest: " + request.toXML());
