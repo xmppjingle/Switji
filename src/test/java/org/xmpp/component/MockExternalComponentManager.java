@@ -3,8 +3,6 @@ package org.xmpp.component;
 import org.dom4j.Element;
 import org.jinglenodes.relay.RelayIQ;
 import org.jivesoftware.whack.ExternalComponentManager;
-import org.xmpp.component.Component;
-import org.xmpp.component.ComponentException;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.Packet;
 
@@ -54,7 +52,7 @@ public class MockExternalComponentManager extends ExternalComponentManager {
                         reply.setChildElement(((IQ) packet).getChildElement().createCopy());
                         final Element e = reply.getChildElement().addElement("energy");
                         e.addAttribute("type", "pstn");
-                        e.addAttribute("seconds", "30");
+                        e.addAttribute("maxseconds", "30");
                         externalComponent.handleIQResult(reply);
                     }
                 }

@@ -68,13 +68,16 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
             if (toNode.indexOf("00") == 0) {
                 toNode = "+" + toNode.substring(2);
             }
-            final JID to = JIDFactory.getInstance().getJID(toNode + "@" + creditService);
+            final JID to = JIDFactory.getInstance().getJID(creditService);
             final JID from = JIDFactory.getInstance().getJID(fromNode, this.getComponentJID().getDomain(), null);
             final JingleIQ jingleIQ = (JingleIQ) object;
             request.setTo(to);
             request.setFrom(from);
             request.setChildElement(requestElement.createCopy());
-            request.getChildElement().addAttribute("sid", jingleIQ.getJingle().getSid());
+            final Element e = request.getChildElement();
+            e.addAttribute("initiator", fromNode);
+            e.addAttribute("responder", toNode);
+            e.addAttribute("sid", jingleIQ.getJingle().getSid());
             log.debug("createCreditRequest: " + request.toXML());
             return request;
         }
@@ -111,7 +114,7 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
 
         for (Object o : iq.getChildElement().elements()) {
             Element e = (Element) o;
-            credit = e.attributeValue("seconds");
+            credit = e.attributeValue("maxseconds");
             if (credit != null) {
                 try {
                     final int seconds = Integer.parseInt(credit);

@@ -69,7 +69,7 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
                     if (toNode.indexOf("00") == 0) {
                         toNode = "+" + toNode.substring(2);
                     }
-                    final JID to = JIDFactory.getInstance().getJID(toNode, chargeService, null);
+                    final JID to = JIDFactory.getInstance().getJID(null, chargeService, null);
                     final JID from = JIDFactory.getInstance().getJID(fromNode, this.getComponentJID().getDomain(), null);
                     final IQ request = new IQ(IQ.Type.set);
                     request.setTo(to);
@@ -77,6 +77,8 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
                     final double callTime = Math.ceil((credit.getFinishTime() - credit.getStartTime()) / 1000);
 
                     final Element e = requestElement.createCopy();
+                    e.addAttribute("initiator", fromNode);
+                    e.addAttribute("responder", toNode);
                     e.addAttribute("seconds", String.valueOf(callTime));
                     request.setChildElement(e);
                     log.debug("createdCreditRequest: " + request.toXML());
