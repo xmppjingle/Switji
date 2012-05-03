@@ -111,6 +111,12 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public boolean proceedTerminate(JingleIQ iq, CallSession session) {
+        setSessionFinishTime(session, System.currentTimeMillis());
+        chargeCall(iq, session);
+        return true;
+    }
+
+    private void chargeCall(JingleIQ iq, CallSession session) {
         if (session.getSessionCredit() == null || !session.getSessionCredit().isCharged()) {
             JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
             JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
@@ -128,12 +134,30 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
                 log.error("Charge Error: Could NOT Retrieve Call Info");
             }
         }
-        return true;
     }
 
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
+        setSessionStartTime(session, System.currentTimeMillis());
         return true;
+    }
+
+    private void setSessionStartTime(final CallSession session, final long time) {
+        if (session != null) {
+            final SessionCredit sessionCredit = session.getSessionCredit();
+            if (sessionCredit != null) {
+                sessionCredit.setStartTime(time);
+            }
+        }
+    }
+
+    private void setSessionFinishTime(final CallSession session, final long time) {
+        if (session != null) {
+            final SessionCredit sessionCredit = session.getSessionCredit();
+            if (sessionCredit != null) {
+                sessionCredit.setFinishTime(time);
+            }
+        }
     }
 
     @Override
@@ -148,11 +172,14 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public boolean proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
+        setSessionFinishTime(session, System.currentTimeMillis());
+        chargeCall(iq, session);
         return true;
     }
 
     @Override
     public JingleIQ proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
+        setSessionStartTime(session, System.currentTimeMillis());
         return iq;
     }
 
