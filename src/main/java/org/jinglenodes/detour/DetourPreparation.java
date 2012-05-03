@@ -99,7 +99,8 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
         for (Object o : res.getChildElement().elements()) {
             Element e = (Element) o;
             if (e.attributeValue("type").equals(jinglePhoneType)) {
-                return e.attributeValue("number");
+                if(res.getTo().getNode().equals(e.attributeValue("number")))
+                    return e.attributeValue("number");
             }
         }
         return null;
