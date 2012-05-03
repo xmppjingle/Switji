@@ -31,12 +31,15 @@ import org.dom4j.Namespace;
 import org.dom4j.QName;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.CallSessionMapper;
+import org.jinglenodes.sip.account.CachedSipAccountProvider;
+import org.jinglenodes.sip.account.SipAccount;
 import org.xmpp.component.AbstractServiceProcessor;
 import org.xmpp.component.IqRequest;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
+import org.zoolu.sip.provider.SipProviderInformation;
 
 import java.util.IllegalFormatException;
 
