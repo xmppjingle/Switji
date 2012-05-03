@@ -29,6 +29,7 @@ import org.dom4j.Element;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.prepare.PrepareStatesManager;
 import org.jinglenodes.session.CallSession;
+import org.jinglenodes.session.CallSessionMapper;
 import org.jinglenodes.sip.SipToJingleBind;
 import org.xmpp.component.ExternalComponent;
 import org.xmpp.component.IqRequest;
@@ -55,6 +56,7 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
     private DetourServiceProcessor detourServiceProcessor;
     private String jinglePhoneType;
     private ExternalComponent externalComponent;
+    private CallSessionMapper callSessions;
 
     @Override
     public boolean prepareInitiate(JingleIQ iq, final CallSession session) {
@@ -78,6 +80,7 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
             final String destination = getJingleDestination(iqRequest.getResult());
             if (destination != null) {
                 detourCall(iqRequest, destination);
+                callSessions.removeSession(callSessions.getSession((JingleIQ) iqRequest.getOriginalPacket()));
             } else {
                 prepareStatesManager.prepareCall((JingleIQ) iqRequest.getOriginalPacket(), null);
             }
@@ -96,14 +99,17 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
     }
 
     public String getJingleDestination(final IQ res) {
+        boolean isJingle = false;
+        String destination = null;
         for (Object o : res.getChildElement().elements()) {
             Element e = (Element) o;
             if (e.attributeValue("type").equals(jinglePhoneType)) {
-                if(res.getTo().getNode().equals(e.attributeValue("number")))
-                    return e.attributeValue("number");
+                isJingle = true;
+            } else {
+                destination = e.attributeValue("number");
             }
         }
-        return null;
+        return isJingle ? destination : null;
     }
 
     @Override
@@ -185,5 +191,13 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
 
     public void setExternalComponent(ExternalComponent externalComponent) {
         this.externalComponent = externalComponent;
+    }
+
+    public CallSessionMapper getCallSessions() {
+        return callSessions;
+    }
+
+    public void setCallSessions(CallSessionMapper callSessions) {
+        this.callSessions = callSessions;
     }
 }

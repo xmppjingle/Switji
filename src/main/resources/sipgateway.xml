@@ -103,6 +103,7 @@
         <property name="jinglePhoneType" value="${detour.jinglephonetype}"/>
         <property name="prepareStatesManager" ref="jingleProcessor"/>
         <property name="externalComponent" ref="sipGatewayComponent"/>
+        <property name="callSessions" ref="callSessionMapper"/>
     </bean>
 
     <bean id="detourServiceProcessor" class="org.jinglenodes.detour.DetourServiceProcessor" init-method="init">

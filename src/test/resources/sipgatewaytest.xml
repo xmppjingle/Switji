@@ -119,6 +119,7 @@
         <constructor-arg index="1" value="${account.namespace}"/>
         <property name="component" ref="sipGatewayComponent"/>
         <property name="accountService" value="${account.service}"/>
+        <property name="callSessions" ref="callSessionMapper"/>
     </bean>
 
     <bean id="relayPreparation" class="org.jinglenodes.relay.RelayCallPreparation">
