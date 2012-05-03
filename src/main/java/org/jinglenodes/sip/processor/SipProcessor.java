@@ -159,12 +159,12 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
     @Override
     public void prepareCall(JingleIQ iq, CallSession session) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     @Override
     public void proceedCall(JingleIQ iq, CallSession session) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     public SipProviderInfoInterface getSipProviderInfo() {
@@ -398,7 +398,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
             if (callSession != null) {
                 for (final CallPreparation preparation : callSession.getProceeds()) {
-                    preparation.proceedSIPAccept(iq, callSession, null);
+                    iq = preparation.proceedSIPAccept(iq, callSession, null);
                 }
             }
 

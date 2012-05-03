@@ -166,8 +166,8 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
     }
 
     @Override
-    public boolean proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
-        return true;
+    public JingleIQ proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
+        return iq;
     }
 
     public String getJinglePhoneType() {

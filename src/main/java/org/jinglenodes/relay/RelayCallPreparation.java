@@ -148,18 +148,19 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     }
 
     @Override
-    public boolean proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
+    public JingleIQ proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
+        JingleIQ jiq = null;
         if (session != null) {
             log.debug("SIP Accept Trying to Update Transport SIP...");
             if (session.getRelayIQ() != null) {
-                JingleProcessor.updateJingleTransport(iq, session.getRelayIQ());
+                jiq = JingleProcessor.updateJingleTransport(iq, session.getRelayIQ());
             } else {
                 log.debug("Trying to Update Transport SIP... Failed. No RelayIQ");
             }
         } else {
             log.debug("Trying to Update Transport SIP... Failed. No Session Found!");
         }
-        return true;
+        return jiq;
     }
 
     public RelayServiceProcessor getRelayServiceProcessor() {
