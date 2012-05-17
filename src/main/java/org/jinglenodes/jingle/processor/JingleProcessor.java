@@ -535,10 +535,10 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
     public static JingleIQ createJingleSessionInfo(final JID initiator, final JID responder, final String to, final String sid, final Info.Type type) throws JingleSipException {
         final Jingle jingle = new Jingle(sid, initiator.toString(), responder.toString(), Jingle.SESSION_INFO);
+        jingle.setInfo(new Info());
         final JingleIQ iq = new JingleIQ(jingle);
         iq.setTo(to);
         iq.setFrom(responder);
-        iq.getJingle().setInfo(new Info(type));
         return iq;
     }
 

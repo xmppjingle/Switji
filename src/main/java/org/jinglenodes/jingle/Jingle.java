@@ -59,6 +59,7 @@ public class Jingle {
 
     private Content content;
     private Reason reason;
+    @XStreamAlias("ringing")
     private Info info;
 
     public Jingle(String sid, String initiator, String responder, String action) {

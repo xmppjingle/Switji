@@ -83,10 +83,14 @@ public class TestParser extends TestCase {
         final String initiator = "romeo@localhost";
         final String responder = "juliet@localhost";
 
-        final Jingle jingle = new Jingle("12121", initiator, responder,Jingle.SESSION_INFO);
-        jingle.setInfo(new Info("ringing", Info.Type.ringing));
+        final Jingle jingle = new Jingle("12121", initiator, responder, Jingle.SESSION_INFO);
+        jingle.setInfo(new Info());
+        final JingleIQ iq = new JingleIQ(jingle);
+        iq.setTo(initiator);
+        iq.setFrom(responder);
 
         System.out.println(jingle.toString());
+        System.out.println(iq.toXML());
 
 
     }
