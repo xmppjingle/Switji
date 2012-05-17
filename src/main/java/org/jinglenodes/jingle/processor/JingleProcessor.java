@@ -501,7 +501,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         jingle.setContent(content);
         final JingleIQ iq = new JingleIQ(jingle);
         iq.setTo(to);
-        iq.setFrom(initiator);
+        iq.setFrom(responder);
         return iq;
     }
 
@@ -537,7 +537,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         final Jingle jingle = new Jingle(sid, initiator.toString(), responder.toString(), Jingle.SESSION_INFO);
         final JingleIQ iq = new JingleIQ(jingle);
         iq.setTo(to);
-        iq.setFrom(initiator);
+        iq.setFrom(responder);
         iq.getJingle().setInfo(new Info(type));
         return iq;
     }

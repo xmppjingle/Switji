@@ -660,6 +660,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
                         to = usr;
                     }
                 }
+
             }
 
             final Content content = getContent(msg.getBody());

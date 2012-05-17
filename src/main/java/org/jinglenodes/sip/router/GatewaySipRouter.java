@@ -219,6 +219,7 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
     }
 
     public void addPacketProcessor(final SipPacketProcessor sipPacketProcessor) {
+        log.debug("Added SipPacketProcessor: " + sipPacketProcessor.getClass().getCanonicalName());
         packetProcessors.add(sipPacketProcessor);
     }
 
