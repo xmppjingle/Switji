@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
+import org.jinglenodes.jingle.Info;
 import org.jinglenodes.jingle.Jingle;
 import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.content.Content;
@@ -75,5 +76,18 @@ public class TestParser extends TestCase {
         System.out.println(jingleIQParsed.getChildElement().element("jingle").asXML());
         assertEquals(sourceTerminate, jingleIQParsed.getChildElement().element("jingle").asXML());
         assertEquals(jingleIQParsed.getJingle().getInitiator(), initiator);
+    }
+
+    public void testRingingPacket(){
+
+        final String initiator = "romeo@localhost";
+        final String responder = "juliet@localhost";
+
+        final Jingle jingle = new Jingle("12121", initiator, responder,Jingle.SESSION_INFO);
+        jingle.setInfo(new Info("ringing", Info.Type.ringing));
+
+        System.out.println(jingle.toString());
+
+
     }
 }
