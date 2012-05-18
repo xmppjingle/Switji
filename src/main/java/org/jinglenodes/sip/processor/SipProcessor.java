@@ -260,9 +260,10 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
     protected void processRingingSip(final org.zoolu.sip.message.Message msg) throws JingleException {
         final int statusLineCode = msg.getStatusLine() != null ? msg.getStatusLine().getCode() : -1;
-        sendJingleRinging(msg);
         if (statusLineCode == 183) {
             sendJingleEarlyMedia(msg);
+        } else {
+            sendJingleRinging(msg);
         }
     }
 
