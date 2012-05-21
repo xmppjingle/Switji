@@ -65,7 +65,7 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
             final CallSession session = sessionMapper.getSession(jingleIQ);
             if (session != null) {
                 final SessionCredit credit = session.getSessionCredit();
-                if (credit != null) {
+                if (credit != null && !credit.isCharged() && credit.getStartTime() != 0) {
                     if (toNode.indexOf("00") == 0) {
                         toNode = "+" + toNode.substring(2);
                     }

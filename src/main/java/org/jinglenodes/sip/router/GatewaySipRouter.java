@@ -165,7 +165,7 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
         if (sender == null) {
             return null;
         }
-        return sender.toBareJID();
+        return "fixed"; //sender.toBareJID();
     }
 
     public SipChannel getSipChannel(final JID sender) {

@@ -107,6 +107,8 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
     public void proceedCall(Message msg, CallSession session, final SipChannel sipChannel) {
         try {
 
+            log.debug("Proceeding SIP: " + msg.toString());
+
             final CSeqHeader ch = msg.getCSeqHeader();
             if (msg.isRegister() || (ch != null && ch.getMethod().equals(SipMethods.REGISTER))) {
                 return;
