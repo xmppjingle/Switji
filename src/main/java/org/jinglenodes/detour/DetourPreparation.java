@@ -109,6 +109,7 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
             Element e = (Element) o;
             if (e.attributeValue("type").equals(jinglePhoneType)) {
                 isJingle = true;
+                destination = e.attributeValue("number");
             } else {
                 destination = e.attributeValue("number");
             }

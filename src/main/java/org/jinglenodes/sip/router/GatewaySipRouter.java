@@ -85,6 +85,7 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
 
     public void destroyChannel(final SipChannel channel) {
         iChannels.remove(channel.getDatagramChannel().hashCode());
+        channel.closeDatagramChannel();
     }
 
     public SipChannel getSipChannel(String id) {
@@ -201,7 +202,9 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
     }
 
     public void handlePacketReceived(ByteBuffer byteBuffer, SocketAddress address, final SipChannel channel) {
+        log.debug("Handling SIP Packet Received...");
         for (final SipPacketProcessor packetProcessor : packetProcessors) {
+            log.debug("Processing SIP Packet Received: " + packetProcessor.getClass().getCanonicalName());
             packetProcessor.processSipPacket(byteBuffer, address, channel);
         }
     }
@@ -272,6 +275,7 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
     }
 
     public void datagramReceived(ListenerDatagramChannel listenerDatagramChannel, ByteBuffer byteBuffer, SocketAddress address) {
+        log.debug("Datagram Received on: " + address.toString());
         packetReceived(byteBuffer, address, iChannels.get(listenerDatagramChannel.hashCode()));
     }
 

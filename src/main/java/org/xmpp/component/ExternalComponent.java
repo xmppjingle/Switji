@@ -48,6 +48,7 @@ public class ExternalComponent extends AbstractComponent {
      * @param serverDomain The XMPP domain to which this component is registered to.
      */
     public ExternalComponent(final String name, final String description, String serverDomain) {
+        super(20, 1000, false);
         this.name = name;
         this.description = description;
         this.serverDomain = serverDomain;

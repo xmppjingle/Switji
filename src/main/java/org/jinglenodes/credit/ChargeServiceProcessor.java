@@ -65,7 +65,7 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
             final CallSession session = sessionMapper.getSession(jingleIQ);
             if (session != null) {
                 final SessionCredit credit = session.getSessionCredit();
-                if (credit != null && !credit.isCharged() && credit.getStartTime() != 0) {
+                if (credit != null && !credit.isCharged()) {
                     if (toNode.indexOf("00") == 0) {
                         toNode = "+" + toNode.substring(2);
                     }
@@ -74,7 +74,7 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
                     final IQ request = new IQ(IQ.Type.set);
                     request.setTo(to);
                     request.setFrom(from);
-                    final int callTime = (int) Math.ceil((credit.getFinishTime() - credit.getStartTime()) / 1000);
+                    final int callTime = credit.getStartTime() == 0 ? 0 : (int) Math.ceil((credit.getFinishTime() - credit.getStartTime()) / 1000);
                     final String toBareJid = JIDFactory.getInstance().getJID(toNode, chargeService, null).toBareJID();
 
                     final Element e = requestElement.createCopy();
@@ -83,6 +83,7 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
                     e.addAttribute("seconds", String.valueOf(callTime));
                     request.setChildElement(e);
                     log.debug("createdCreditRequest: " + request.toXML());
+                    credit.setCharged(true);
                     return request;
                 } else {
                     log.error("No credit found for creating Charge");

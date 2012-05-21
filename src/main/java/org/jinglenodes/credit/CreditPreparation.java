@@ -85,11 +85,6 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public boolean proceedInitiate(JingleIQ iq, CallSession session) {
-        if (session != null) {
-            if (session.getRelayIQ() != null) {
-                JingleProcessor.updateJingleTransport(iq, session.getRelayIQ());
-            }
-        }
         return true;
     }
 
