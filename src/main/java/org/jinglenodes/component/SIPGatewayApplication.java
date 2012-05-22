@@ -101,7 +101,6 @@ public class SIPGatewayApplication {
                 manager.setSecretKey(subdomain, password);
                 manager.setMultipleAllowed(subdomain, false);
                 manager.addComponent(subdomain, sipGatewayComponent);
-                sipGatewayComponent.init();
                 break;
             } catch (ComponentException e) {
                 log.error("Connection Error... ", e);
