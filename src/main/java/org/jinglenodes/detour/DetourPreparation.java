@@ -95,10 +95,15 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
             error.setType(IQ.Type.error);
             error.setError(PacketError.Condition.redirect);
             final JID destinationJID = new JID(destinationNode, externalComponent.getServerDomain(), null);
-            error.getError().getElement().addCDATA("xmpp:" + destinationJID.toBareJID());
-            jiq.setTo(jiq.getJingle().getInitiator());
-            log.warn("Detour Call: " + error.toXML() + " to: " + destinationNode);
-            externalComponent.send(error);
+            final Element child = error.getError().getElement();
+            if (child != null) {
+                final Element redirect = child.element("redirect").addCDATA("xmpp:" + destinationJID.toBareJID());
+                if (redirect != null) {
+                    jiq.setTo(jiq.getJingle().getInitiator());
+                    log.warn("Detour Call: " + error.toXML() + " to: " + destinationNode);
+                    externalComponent.send(error);
+                }
+            }
         }
     }
 
