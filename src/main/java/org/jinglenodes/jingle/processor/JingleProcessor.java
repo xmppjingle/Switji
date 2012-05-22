@@ -199,7 +199,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         }
     }
 
-    public final void sendSipInviteOk(final JingleIQ iq) {
+    public final void sendSipInviteOk(JingleIQ iq) {
         try {
 
             final CallSession callSession = callSessionMapper.getSession(iq);
@@ -209,7 +209,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             }
 
             if (callSession.getRelayIQ() != null) {
-                updateJingleTransport(iq, callSession.getRelayIQ());
+                iq = updateJingleTransport(iq, callSession.getRelayIQ());
             }
 
             callSession.setUser(iq.getFrom());
@@ -479,7 +479,15 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         if (c != null) {
             if (!Candidate.RELAY.equals(c.getType())) {
                 c.setIp(relayIQ.getHost());
-                c.setPort(Jingle.SESSION_INITIATE.equals(iq.getJingle().getAction()) ? relayIQ.getLocalport() : relayIQ.getRemoteport());
+
+                String port;
+                if (Jingle.SESSION_INITIATE.equals(iq.getJingle().getAction()) || Jingle.CONTENT_ADD.equals(iq.getJingle().getAction())) {
+                    port = relayIQ.getLocalport();
+                } else {
+                    port = relayIQ.getRemoteport();
+                }
+
+                c.setPort(port);
                 log.debug("Updated Transport: " + iq.toXML() + " with: " + relayIQ.toXML());
                 return JingleIQ.clone(iq);
             }

@@ -38,29 +38,26 @@ import org.xmpp.packet.IQ;
  * To change this template use File | Settings | File Templates.
  */
 
-public class RelayIQ extends IQ {
+public class RelayRedirectIQ extends IQ {
 
     public final static String ELEMENT_NAME = "channel";
-    public final static String NAMESPACE = "http://jabber.org/protocol/jinglenodes#channel";
+    public final static String NAMESPACE = "http://jabber.org/protocol/jinglenodes#channelredirect";
     private String host;
-    private String localport;
-    private String remoteport;
+    private String port;
     private String channelId;
-    private String protocol;
     private boolean isRequest;
 
-    public RelayIQ() {
+    public RelayRedirectIQ() {
         this(true);
     }
 
-    public RelayIQ(final boolean isRequest) {
+    public RelayRedirectIQ(final boolean isRequest) {
         this.isRequest = isRequest;
         if (isRequest) {
-            this.setType(IQ.Type.get);
+            this.setType(Type.set);
         } else {
-            this.setType(IQ.Type.result);
+            this.setType(Type.result);
         }
-        this.setProtocol("udp");
     }
 
     public boolean isRequest() {
@@ -79,36 +76,12 @@ public class RelayIQ extends IQ {
         this.host = host;
     }
 
-    public String getLocalport() {
-        return localport;
-    }
-
-    public void setLocalport(String localport) {
-        this.localport = localport;
-    }
-
-    public String getRemoteport() {
-        return remoteport;
-    }
-
-    public void setRemoteport(String remoteport) {
-        this.remoteport = remoteport;
-    }
-
     public String getChannelId() {
         return channelId;
     }
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
     }
 
     public Element getChildElement() {
@@ -119,17 +92,11 @@ public class RelayIQ extends IQ {
             element.addAttribute("host", host);
         }
 
-        element.addAttribute("localport", localport);
-
-        element.addAttribute("remoteport", remoteport);
+        element.addAttribute("port", port);
 
         if (channelId != null) {
             element.addAttribute("id", channelId);
         }
-        if (protocol != null) {
-            element.addAttribute("protocol", protocol);
-        }
-
         return element;
 
     }
@@ -150,20 +117,16 @@ public class RelayIQ extends IQ {
         return e;
     }
 
-    public static RelayIQ parseRelayIq(final IQ iq) {
+    public static RelayRedirectIQ parseRelayIq(final IQ iq) {
 
         if (Type.result.equals(iq.getType())) {
             final Element e = iq.getChildElement();
             if (e != null && ELEMENT_NAME.equals(e.getName())) {
-                final RelayIQ r = new RelayIQ(false);
+                final RelayRedirectIQ r = new RelayRedirectIQ(false);
                 r.setID(iq.getID());
                 r.setChannelId(e.attributeValue("id"));
                 r.setHost(e.attributeValue("host"));
-                r.setLocalport(e.attributeValue("localport"));
-                r.setRemoteport(e.attributeValue("remoteport"));
-                r.setProtocol(e.attributeValue("protocol"));
-                r.setFrom(iq.getFrom());
-                r.setTo(iq.getTo());
+                r.setPort(e.attributeValue("localport"));
                 return r;
             }
         }
@@ -171,7 +134,15 @@ public class RelayIQ extends IQ {
         return null;
     }
 
-    public static boolean isRelayIQ(final IQ iq) {
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public static boolean isRelayRedirectIQ(final IQ iq) {
         if (Type.result.equals(iq.getType()) || Type.error.equals(iq.getType())) {
             final Element e = iq.getChildElement();
             if (e != null && ELEMENT_NAME.equals(e.getName())) {

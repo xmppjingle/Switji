@@ -74,6 +74,9 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
     private List<CallPreparation> preparations = new ArrayList<CallPreparation>();
 
     public void processSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) {
+
+        log.debug("Processing SIP: " + msg.toString());
+
         try {
             final CallSession callSession = msg.isRequest() ? callSessions.addReceivedRequest(msg) : callSessions.addReceivedResponse(msg);
 
@@ -262,11 +265,11 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
     protected void processRingingSip(final org.zoolu.sip.message.Message msg) throws JingleException {
         final int statusLineCode = msg.getStatusLine() != null ? msg.getStatusLine().getCode() : -1;
-        if (statusLineCode == 183) {
-            sendJingleEarlyMedia(msg);
-        } else {
-            sendJingleRinging(msg);
-        }
+//        if (statusLineCode == 183) {
+//            sendJingleEarlyMedia(msg);
+//        } else {
+        sendJingleRinging(msg);
+//  }
     }
 
     protected void processAckSip(final org.zoolu.sip.message.Message msg) throws JingleException {
@@ -668,7 +671,13 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
             final Content content = getContent(msg.getBody());
 
-            final JingleIQ iq = JingleProcessor.createJingleEarlyMedia(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
+            JingleIQ iq = JingleProcessor.createJingleEarlyMedia(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
+
+            if (callSession != null) {
+                for (final CallPreparation preparation : callSession.getProceeds()) {
+                    iq = preparation.proceedSIPEarlyMedia(iq, callSession, null);
+                }
+            }
 
             callSessions.addSentJingle(iq);
             gatewayRouter.send(iq);
@@ -679,7 +688,6 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
         } catch (SipParsingException e) {
             log.error("Error Sending Trying", e);
         }
-
 
     }
 

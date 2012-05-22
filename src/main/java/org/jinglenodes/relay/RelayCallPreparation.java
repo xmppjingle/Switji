@@ -26,6 +26,7 @@ package org.jinglenodes.relay;
 
 import org.apache.log4j.Logger;
 import org.jinglenodes.jingle.processor.JingleProcessor;
+import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.prepare.PrepareStatesManager;
 import org.jinglenodes.session.CallSession;
@@ -140,6 +141,38 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
             log.debug("Trying to Update Transport SIP... Failed. No Session Found!");
         }
         return true;
+    }
+
+    @Override
+    public JingleIQ proceedSIPEarlyMedia(JingleIQ iq, CallSession session, SipChannel channel) {
+        if (session != null) {
+            log.debug("SIP Early Media Trying to Update Transport SIP...");
+            if (session.getRelayIQ() != null) {
+
+                sendRelayRedirect(iq, session.getRelayIQ());
+
+                return JingleProcessor.updateJingleTransport(iq, session.getRelayIQ());
+            } else {
+                log.debug("Trying to Update Transport SIP... Failed. No RelayIQ");
+            }
+        } else {
+            log.debug("Trying to Update Transport SIP... Failed. No Session Found!");
+        }
+        return iq;
+    }
+
+    private void sendRelayRedirect(final JingleIQ iq, final RelayIQ relayIQ) {
+        final RelayRedirectIQ redirectIQ = new RelayRedirectIQ(true);
+        redirectIQ.setChannelId(relayIQ.getChannelId());
+        final Candidate candidate = iq.getJingle().getContent().getTransport().getCandidates().get(0);
+        redirectIQ.setHost(candidate.getIp());
+        redirectIQ.setPort(candidate.getPort());
+        redirectIQ.setFrom(relayIQ.getTo());
+        redirectIQ.setTo(relayIQ.getFrom());
+
+        log.debug("Sending Redirect IQ: " + redirectIQ.toXML());
+
+        relayServiceProcessor.getComponent().send(redirectIQ);
     }
 
     @Override

@@ -178,6 +178,11 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
     }
 
     @Override
+    public JingleIQ proceedSIPEarlyMedia(JingleIQ iq, CallSession session, SipChannel channel) {
+        return iq;
+    }
+
+    @Override
     public boolean proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
         return true;
     }

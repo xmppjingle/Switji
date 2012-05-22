@@ -144,6 +144,11 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
     }
 
     @Override
+    public JingleIQ proceedSIPEarlyMedia(JingleIQ iq, CallSession session, SipChannel channel) {
+        return iq;
+    }
+
+    @Override
     public boolean proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
         return true;
     }

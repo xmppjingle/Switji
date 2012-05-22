@@ -203,8 +203,9 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
 
     public void handlePacketReceived(ByteBuffer byteBuffer, SocketAddress address, final SipChannel channel) {
         log.debug("Handling SIP Packet Received...");
+        int i = 0;
         for (final SipPacketProcessor packetProcessor : packetProcessors) {
-            log.debug("Processing SIP Packet Received: " + packetProcessor.getClass().getCanonicalName());
+            log.debug("Processing SIP Packet Received (" + (i++) + "):" + packetProcessor.getClass().getCanonicalName());
             packetProcessor.processSipPacket(byteBuffer, address, channel);
         }
     }
