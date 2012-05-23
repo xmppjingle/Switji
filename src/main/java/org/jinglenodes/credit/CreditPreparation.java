@@ -183,9 +183,6 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     public boolean proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
         setSessionFinishTime(session, System.currentTimeMillis());
         chargeCall(iq, session);
-        if (callKiller != null) {
-            callKiller.cancelKill(session);
-        }
         return true;
     }
 
