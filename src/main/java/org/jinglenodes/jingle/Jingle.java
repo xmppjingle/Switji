@@ -24,18 +24,12 @@
 
 package org.jinglenodes.jingle;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import org.dom4j.Namespace;
+import org.dom4j.tree.BaseElement;
 import org.jinglenodes.jingle.content.Content;
-import org.xmpp.tinder.parser.XStreamIQ;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
 
-@XStreamAlias("jingle")
-@XmlRootElement(name = "jingle")
-public class Jingle {
+public class Jingle extends BaseElement {
 
     public final static String SESSION_INITIATE = "session-initiate";
     public final static String SESSION_TERMINATE = "session-terminate";
@@ -44,29 +38,36 @@ public class Jingle {
     public final static String CONTENT_ADD = "content-add";
     public final static String SESSION_INFO = "session-info";
     public final static String TRANSPORT_INFO = "transport-info";
+
+    public enum Action {
+        session_initiate, session_terminate, session_accept, content_modify, content_add, session_info, transport_info;
+
+        public String toString() {
+            return this.name().replace('_', '-');
+        }
+    }
+
     public final static String NAME = "jingle";
     public static final Namespace Q_NAMESPACE = new Namespace("", "urn:xmpp:jingle:1");
 
-    @XStreamAsAttribute
-    @XStreamAlias("xmlns")
-    @XmlAttribute(name = "xmlns")
-    public final String NAMESPACE = "urn:xmpp:jingle:1";
-    public static final String XMLNS = "urn:xmpp:jingle:1";
+    private final String SID = "sid";
+    private final String INITIATOR = "initiator";
+    private final String RESPONDER = "responder";
+    private final String ACTION = "action";
 
-    @XStreamAsAttribute
-    @XmlAttribute
-    private String action, sid, initiator, responder;
+    public static final String NAMESPACE = "urn:xmpp:jingle:1";
 
     private Content content;
     private Reason reason;
-    @XStreamAlias("ringing")
     private Info info;
 
     public Jingle(String sid, String initiator, String responder, String action) {
-        this.sid = sid;
-        this.initiator = initiator;
-        this.responder = responder;
-        this.action = action;
+        super(NAME);
+        this.addAttribute("xmlns", NAMESPACE);
+        this.addAttribute(SID, sid);
+        this.addAttribute(INITIATOR, initiator);
+        this.addAttribute(RESPONDER, responder);
+        this.addAttribute(ACTION, action);
     }
 
     public void setContent(Content content) {
@@ -78,27 +79,27 @@ public class Jingle {
     }
 
     public String getSid() {
-        return sid;
+        return this.attributeValue(SID);
     }
 
     public String getInitiator() {
-        return initiator;
+        return this.attributeValue(INITIATOR);
     }
 
     public String getResponder() {
-        return responder;
+        return this.attributeValue(RESPONDER);
     }
 
     public String getAction() {
-        return action;
+        return this.attributeValue(ACTION);
     }
 
     public String toString() {
-        return XStreamIQ.getStream().toXML(this);
+        return this.asXML();
     }
 
     public void setInitiator(String initiator) {
-        this.initiator = initiator;
+        this.addAttribute(INITIATOR, initiator);
     }
 
     public Reason getReason() {
@@ -118,6 +119,10 @@ public class Jingle {
     }
 
     public void setResponder(String responder) {
-        this.responder = responder;
+        this.addAttribute(RESPONDER, responder);
+    }
+
+    public Jingle clone() {
+        return new Jingle(this.getSid(), this.getInitiator(), this.getResponder(), this.getAction());
     }
 }

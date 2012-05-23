@@ -24,43 +24,53 @@
 
 package org.jinglenodes.jingle.content;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import org.dom4j.tree.BaseElement;
 import org.jinglenodes.jingle.description.Description;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XStreamAlias("content")
-@XmlRootElement(name = "content")
-public class Content {
-
-    @XStreamAsAttribute
-    @XmlAttribute
-    private String creator, name, senders;
+public class Content extends BaseElement {
+    private final static String ELEMENT_NAME = "content";
+    private final static String NAME = "name";
+    private final static String CREATOR = "creator";
+    private final static String SENDERS = "senders";
+    private final static String DISPOSITION = "disposition";
 
     private Description description;
     private RawUdpTransport transport;
 
-    public Content(String creator, String name, String senders, Description description, RawUdpTransport transport) {
-        this.creator = creator;
-        this.name = name;
-        this.senders = senders;
+    public enum Senders {
+        initiator, none, responder, both
+    }
+
+    public enum Creator {
+        initiator, responder
+    }
+
+    public Content(Creator creator, String name, Senders senders, Description description, RawUdpTransport transport) {
+        super(ELEMENT_NAME);
+        this.addAttribute(CREATOR, creator.toString());
+        this.addAttribute(NAME, name);
+        this.addAttribute(SENDERS, senders.toString());
+        description.setParent(this);
+        transport.setParent(this);
         this.description = description;
         this.transport = transport;
     }
 
     public String getCreator() {
-        return creator;
+        return this.attributeValue(CREATOR);
     }
 
     public String getName() {
-        return name;
+        return this.attributeValue(NAME);
     }
 
     public String getSenders() {
-        return senders;
+        return this.attributeValue(SENDERS);
+    }
+
+    public String getDisposition() {
+        return this.attributeValue(DISPOSITION);
     }
 
     public Description getDescription() {
@@ -72,6 +82,16 @@ public class Content {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.addAttribute(NAME, name);
+    }
+
+    public void setDisposition(String disposition) {
+        this.addAttribute(DISPOSITION, disposition);
+    }
+
+    public Content clone(){
+        Content content = new Content(Creator.valueOf(this.getCreator()), this.getName(), Senders.valueOf(this.getSenders()), this.getDescription(), this.getTransport());
+        content.setDisposition(this.getDisposition());
+        return content;
     }
 }

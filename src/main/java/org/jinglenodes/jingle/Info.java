@@ -23,22 +23,29 @@
  */
 
 package org.jinglenodes.jingle;
+import org.dom4j.tree.BaseElement;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+public class Info extends BaseElement {
 
-@XStreamAlias("info")
-public class Info {
-
-    private String name;
-
-    @XStreamAsAttribute
-    @XStreamAlias("xmlns")
     public final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:info:1";
+    private Type type;
 
     public enum Type {
         ringing, active, hold, mute
     }
 
+    public Info(Type type){
+        super(type.toString());
+        this.type = type;
+        this.addAttribute("xmlns", NAMESPACE);
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public Info clone(){
+        return new Info(this.getType());
+    }
 }
 

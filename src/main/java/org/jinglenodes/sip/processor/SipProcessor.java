@@ -1015,7 +1015,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             rtpDescription = new Description(type);
             rtpDescription.addPayload(sdpPayloads);
             rawTransport = new RawUdpTransport(new Candidate(sdp.getConnection().getAddress(), String.valueOf(md.getMedia().getMediaPort()), "0"));
-            return new Content("initiator", sdp.getOrigin().getUsername(), "both", rtpDescription, rawTransport);
+            return new Content(Content.Creator.initiator, sdp.getOrigin().getUsername(), Content.Senders.both, rtpDescription, rawTransport);
 
         } catch (SdpParseException e) {
             throw new JingleSipException("SDP Parsing Error.");

@@ -24,50 +24,39 @@
 
 package org.jinglenodes.jingle.description;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
-
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
+import org.dom4j.tree.BaseElement;
 import java.util.List;
 
-@XStreamAlias("description")
-@XmlRootElement(name = "description")
-public class Description {
+public class Description extends BaseElement {
 
-    @XStreamAsAttribute
-    @XStreamAlias("xmlns")
+    private static final String NAME = "description";
+    private static final String XMLNS = "xmlns";
+    private static final String MEDIA = "media";
     public final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:1";
 
-    @XStreamAsAttribute
-    @XmlAttribute
-    private final String media;
-
-    @XStreamImplicit
-    @XStreamAlias("payload-type")
-    @XmlAttribute
-    private final List<Payload> payloads = new ArrayList<Payload>();
-
     public Description(String media) {
-        this.media = media;
+        super(NAME);
+        this.addAttribute(XMLNS, NAMESPACE);
+        this.addAttribute(MEDIA, media);
     }
 
     public void addPayload(final Payload payload) {
-        payloads.add(payload);
+        this.add(payload);
     }
 
     public void addPayload(List<Payload> payloads) {
-        this.payloads.addAll(payloads);
+        for (Payload payload: payloads){
+                 this.add(payload);
+        }
     }
 
     public List<Payload> getPayloads() {
-        return payloads;
+        return (List<Payload>) this.elements();
     }
 
     public String getMedia() {
-        return media;
+        return this.attributeValue(MEDIA);
     }
+
 }
 

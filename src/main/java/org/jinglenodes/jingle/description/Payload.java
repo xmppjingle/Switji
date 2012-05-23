@@ -24,27 +24,12 @@
 
 package org.jinglenodes.jingle.description;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import org.dom4j.tree.BaseElement;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XStreamAlias("payload-type")
-@XmlRootElement(name = "payload-type")
-public class Payload {
-
-    @XStreamAsAttribute
-    @XmlAttribute
-    private final String id, name;
-
-    @XStreamAsAttribute
-    @XmlAttribute
-    private int clockrate = 8000;
-
-    @XStreamAsAttribute
-    @XmlAttribute
-    private int channels = 1;
+public class Payload extends BaseElement {
+    private static final String NAME = "payload-type";
+    private static final int CLOCKRATE = 8000;
+    private static final int CHANNELS = 1;
 
     public static final Payload PCMU = new Payload("0", "PCMU");
     public static final Payload PCMA = new Payload("8", "PCMA");
@@ -52,35 +37,39 @@ public class Payload {
     public static final Payload GSM = new Payload("3", "GSM");
 
     public Payload(String id, String name) {
-        this.id = id;
-        this.name = name;
+        super(NAME);
+        this.addAttribute("id", id);
+        this.addAttribute("name", name);
+        this.addAttribute("clockrate", String.valueOf(CLOCKRATE));
+        this.addAttribute("channels", String.valueOf(CHANNELS));
     }
 
     public Payload(String id, String name, int clockrate, int channels) {
-        this.id = id;
-        this.name = name;
-        this.clockrate = clockrate;
-        this.channels = channels;
+        super(NAME);
+        this.addAttribute("id", id);
+        this.addAttribute("name", name);
+        this.addAttribute("clockrate", String.valueOf(clockrate));
+        this.addAttribute("channels", String.valueOf(channels));
     }
 
     public String getId() {
-        return id;
+        return this.attributeValue("id");
     }
 
     public String getName() {
-        return name;
+        return this.attributeValue("name");
     }
 
     public int getClockrate() {
-        return clockrate;
+        return Integer.parseInt(this.attributeValue("clockrate"));
     }
 
     public int getChannels() {
-        return channels;
+        return Integer.parseInt(this.attributeValue("channels"));
     }
 
     public void setClockrate(int clockrate) {
-        this.clockrate = clockrate;
+        this.addAttribute("clockrate", String.valueOf(clockrate));
     }
 //
 //    public void setChannels(int channels) {
@@ -102,5 +91,9 @@ public class Payload {
 
         return null;
 
+    }
+
+    public Payload clone() {
+        return new Payload(this.getId(), this.getName(), this.getClockrate(), this.getChannels());
     }
 }

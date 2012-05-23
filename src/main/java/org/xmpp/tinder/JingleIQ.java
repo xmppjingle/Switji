@@ -1,29 +1,17 @@
 package org.xmpp.tinder;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.jinglenodes.jingle.Jingle;
 import org.xmpp.packet.IQ;
-import org.xmpp.tinder.parser.XStreamIQ;
 
-import java.io.StringReader;
-
-public class JingleIQ extends XStreamIQ<Jingle> {
+public class JingleIQ extends IQ {
 
     private final Jingle jingle;
 
     public JingleIQ(final Jingle element) {
         this.setType(Type.set);
         this.jingle = element;
-        final Document originalDoc;
-        try {
-            originalDoc = new SAXReader().read(new StringReader(element.toString()));
-            this.element.add(originalDoc.getRootElement().createCopy());
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        }
+        this.setChildElement(element.clone());
     }
 
     public static JingleIQ fromXml(final IQ iq) {
@@ -35,8 +23,11 @@ public class JingleIQ extends XStreamIQ<Jingle> {
             if (!"jingle".equals(e.getName())) {
                 e = e.element("jingle");
             }
-            final String child = e.asXML().replace("\n", "");
-            final Jingle j = (Jingle) JingleIQ.getStream().fromXML(child);
+            final String sid = e.attributeValue("sid");
+            final String initiator = e.attributeValue("initiator");
+            final String responder = e.attributeValue("responder");
+            final String action = e.attributeValue("action");
+            final Jingle j = new Jingle(sid, initiator, responder, action);
             final JingleIQ jingleIQ = new JingleIQ(j);
             jingleIQ.setTo(iq.getTo());
             jingleIQ.setFrom(iq.getFrom());

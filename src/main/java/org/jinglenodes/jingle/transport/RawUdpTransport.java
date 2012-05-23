@@ -24,34 +24,23 @@
 
 package org.jinglenodes.jingle.transport;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
-
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
+import org.dom4j.tree.BaseElement;
 import java.util.List;
 
-@XStreamAlias("transport")
-@XmlRootElement(name = "transport")
-public class RawUdpTransport {
+public class RawUdpTransport extends BaseElement{
 
-    @XStreamAsAttribute
-    @XStreamAlias("xmlns")
-    @XmlAttribute(name = "xmlns")
+    private final static String ELEMENT_NAME = "transport";
     public final String NAMESPACE = "urn:xmpp:jingle:transports:raw-udp:1";
 
-    @XStreamImplicit
-    @XStreamAlias("candidate")
-    @XmlAttribute(name = "candidate")
-    private final ArrayList<Candidate> candidates = new ArrayList<Candidate>();
-
     public RawUdpTransport(Candidate candidate) {
-        this.candidates.add(candidate);
+        super(ELEMENT_NAME);
+        this.addAttribute("xmlns", NAMESPACE);
+        candidate.setParent(this);
     }
 
     public List<Candidate> getCandidates() {
-        return candidates;
+        return (List<Candidate>) this.elements();
     }
+
+
 }

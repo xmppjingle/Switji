@@ -24,68 +24,56 @@
 
 package org.jinglenodes.jingle;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
+import org.dom4j.tree.BaseElement;
 
-import javax.xml.bind.annotation.XmlRootElement;
+public class Reason extends BaseElement {
 
-@XStreamAlias("reason")
-@XmlRootElement(name = "reason")
-public class Reason {
-
-    private String text;
     private Type type;
-    private static final String REASON = "reason";
-    private static final String CONDITION = "condition";
+    private static final String NAME = "reason";
+    private static final String TEXT = "text";
 
     public enum Type {
-        security_error, alternative_session, busy, connectivity_error, decline, general_error, media_error, no_error, success, unsupported_applications, unsupported_transports, timeout
-    }
+        security_error, alternative_session, busy, connectivity_error, decline, general_error, media_error, no_error, success, unsupported_applications, unsupported_transports, timeout;
 
-//    @XStreamAlias("no-error")
-//    public class NoError implements Type{
-//    }
+        public String toString() {
+            return this.name().replace('_', '-');
+        }
+    }
 
     public Reason(final Type type) {
         this(null, type);
     }
 
     public Reason(final String text, final Type type) {
-        this.text = text;
+        super(NAME);
         this.type = type;
+        this.addElement(type.toString());
+        if (null != text)
+            this.addElement(TEXT).addCDATA(text);
     }
 
     public String getText() {
-        return text;
+        if (null != this.element(TEXT))
+            return this.element(TEXT).getStringValue();
+        return null;
     }
 
     public void setText(final String text) {
-        this.text = text;
+        if (null != text)
+            this.addElement(TEXT).addCDATA(text);
     }
 
     public Type getType() {
-        return type;
+        return this.type;
     }
 
     public void setType(final Type type) {
         this.type = type;
+        //TODO remove old element
+        this.addElement(type.toString());
     }
 
-    public Element getElement() {
-        final Element parent = DocumentHelper.createElement(REASON);
-        final Element inner = DocumentHelper.createElement(CONDITION);
-        final Element child = DocumentHelper.createElement(getType().toString().replace('_', '-'));
-
-        inner.add(child);
-        parent.add(inner);
-
-        if (text != null) {
-            final Element text = DocumentHelper.createElement("text");
-            parent.add(text);
-            text.addText(getText());
-        }
-
-        return parent;
+    public Reason clone() {
+        return new Reason(this.getText(), this.getType());
     }
 }

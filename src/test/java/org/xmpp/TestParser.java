@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.jinglenodes.jingle.Info;
 import org.jinglenodes.jingle.Jingle;
 import org.jinglenodes.jingle.Reason;
@@ -31,16 +32,19 @@ public class TestParser extends TestCase {
 
     public void testGenParser() {
         final Jingle jingle = new Jingle("abc", initiator, responder, Jingle.SESSION_INITIATE);
-        jingle.setContent(new Content("initiator", "audio", "both", new Description("audio"), new RawUdpTransport(new Candidate("10.166.108.22", "10000", "0"))));
+        jingle.setContent(new Content(Content.Creator.initiator, "audio", Content.Senders.both, new Description("audio"), new RawUdpTransport(new Candidate("10.166.108.22", "10000", "0"))));
         jingle.getContent().getDescription().addPayload(Payload.G729);
         final JingleIQ jingleIQ = new JingleIQ(jingle);
         //assertEquals(jingleIQ.getChildElement().element("jingle").asXML(), source);
         System.out.println(jingleIQ.toXML());
         final JingleIQ jingleIQParsed = JingleIQ.fromXml(jingleIQ);
+        Element e1 = jingleIQ.getChildElement();
+        Element e = jingleIQParsed.getChildElement(); //TODO doesnt work, obtain null
+        final String jingleString = jingleIQParsed.getChildElement().element("jingle").toString();
         System.out.println(jingleIQParsed.getChildElement().element("jingle").asXML());
         //assertEquals(source, jingleIQParsed.getChildElement().element("jingle").asXML());
         //assertEquals(jingleIQParsed.getJingle().getInitiator(), initiator);
-        JingleIQ.getStream().fromXML(altSource);
+        //JingleIQ.getStream().fromXML(altSource);
         System.out.println(source);
     }
 
@@ -84,7 +88,7 @@ public class TestParser extends TestCase {
         final String responder = "juliet@localhost";
 
         final Jingle jingle = new Jingle("12121", initiator, responder, Jingle.SESSION_INFO);
-        jingle.setInfo(new Info());
+        jingle.setInfo(new Info(Info.Type.ringing));
         final JingleIQ iq = new JingleIQ(jingle);
         iq.setTo(initiator);
         iq.setFrom(responder);
