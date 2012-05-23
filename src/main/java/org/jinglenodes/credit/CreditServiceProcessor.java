@@ -96,6 +96,7 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
     protected void handleResult(IqRequest iq) {
         final SessionCredit sessionCredit = getSessionCredit(iq.getResult());
         if (iq.getOriginalPacket() instanceof JingleIQ) {
+            log.debug("Credit Value Received: " + iq.getResult().toXML());
             final CallSession session = sessionMapper.getSession((JingleIQ) iq.getOriginalPacket());
             if (session != null) {
                 session.setSessionCredit(sessionCredit);
@@ -111,17 +112,16 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
         String credit = null;
         SessionCredit sessionCredit = new SessionCredit(SessionCredit.RouteType.pstn);
 
-        for (Object o : iq.getChildElement().elements()) {
-            Element e = (Element) o;
-            credit = e.attributeValue("maxseconds");
-            if (credit != null) {
-                try {
-                    final int seconds = Integer.parseInt(credit);
-                    sessionCredit.setMaxDurationInSeconds(seconds);
-                } catch (IllegalFormatException ife) {
-                    log.error("Invalid Credit Value Received: " + iq.toXML(), ife);
-                }
-                break;
+        log.debug("Get Credit Value Received: " + iq.toXML());
+
+        Element e = iq.getChildElement();
+        credit = e.attributeValue("maxseconds");
+        if (credit != null) {
+            try {
+                final int seconds = Integer.parseInt(credit);
+                sessionCredit.setMaxDurationInSeconds(seconds);
+            } catch (IllegalFormatException ife) {
+                log.error("Invalid Credit Value Received: " + iq.toXML(), ife);
             }
         }
 
