@@ -25,6 +25,7 @@
 package org.jinglenodes.relay;
 
 import org.apache.log4j.Logger;
+import org.jinglenodes.credit.CallKiller;
 import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.prepare.CallPreparation;
@@ -39,6 +40,7 @@ import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.SipChannel;
 import org.zoolu.sip.message.SipParsingException;
+import org.zoolu.tools.ConcurrentTimelineHashMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -46,11 +48,13 @@ import org.zoolu.sip.message.SipParsingException;
  * Date: 3/19/12
  * Time: 5:21 PM
  */
-public class RelayCallPreparation extends CallPreparation implements ResultReceiver {
+public class RelayCallPreparation extends CallPreparation implements ResultReceiver, RelayEventListener {
 
     final Logger log = Logger.getLogger(RelayCallPreparation.class);
     private RelayServiceProcessor relayServiceProcessor;
     private PrepareStatesManager prepareStatesManager;
+    private ConcurrentTimelineHashMap<String, CallSession> sessions = new ConcurrentTimelineHashMap<String, CallSession>();
+    private CallKiller callKiller;
 
     @Override
     public void receivedResult(final IqRequest iqRequest) {
@@ -88,6 +92,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     public boolean proceedInitiate(JingleIQ iq, CallSession session) {
         if (session != null) {
             if (session.getRelayIQ() != null) {
+                sessions.put(session.getRelayIQ().getChannelId(), session);
                 JingleProcessor.updateJingleTransport(iq, session.getRelayIQ());
             }
         }
@@ -133,6 +138,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
         if (session != null) {
             log.debug("SIP Initiate Trying to Update Transport SIP...");
             if (session.getRelayIQ() != null) {
+                sessions.put(session.getRelayIQ().getChannelId(), session);
                 JingleProcessor.updateJingleTransport(iq, session.getRelayIQ());
             } else {
                 log.debug("Trying to Update Transport SIP... Failed. No RelayIQ");
@@ -171,7 +177,6 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
         redirectIQ.setTo(relayIQ.getFrom());
 
         log.debug("Sending Redirect IQ: " + redirectIQ.toXML());
-
         relayServiceProcessor.getComponent().send(redirectIQ);
     }
 
@@ -211,4 +216,32 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     public void setPrepareStatesManager(PrepareStatesManager prepareStatesManager) {
         this.prepareStatesManager = prepareStatesManager;
     }
+
+    @Override
+    public void relayEventReceived(final RelayEventIQ iq) {
+        log.debug("Relay Event Received: " + iq.toXML());
+        if (RelayEventIQ.KILLED.equals(iq.getEvent())) {
+            notifyCallKiller(iq);
+        }
+    }
+
+    private void notifyCallKiller(RelayEventIQ iq) {
+        log.debug("Notify Call Killer: " + iq.toXML());
+        if (iq.getChannelId() != null) {
+            final CallSession session = sessions.remove(iq.getChannelId());
+            if (session != null && callKiller != null) {
+                callKiller.immediateKill(session);
+            }
+        }
+
+    }
+
+    public CallKiller getCallKiller() {
+        return callKiller;
+    }
+
+    public void setCallKiller(CallKiller callKiller) {
+        this.callKiller = callKiller;
+    }
+
 }

@@ -17,7 +17,7 @@ import java.util.List;
  */
 public abstract class AbstractServiceProcessor implements NamespaceProcessor {
     static final Logger log = Logger.getLogger(AbstractServiceProcessor.class);
-    private ExternalComponent component;
+    protected ExternalComponent component;
     private final ConcurrentTimelineHashMap<String, IqRequest> pendingService = new ConcurrentTimelineHashMap<String, IqRequest>();
     private final ConcurrentTimelineHashMap<String, IqRequest> pendingServiceResult = new ConcurrentTimelineHashMap<String, IqRequest>();
     private int maxTries = 3;

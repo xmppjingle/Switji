@@ -58,7 +58,7 @@ public class CallKiller {
     }
 
     public void scheduleKill(final CallSession session) {
-        log.warn("Scheduling for Killing Call: " + session.getId() + " in " + session.getSessionCredit().getMaxDurationInSeconds() + " sec");
+        log.warn("Scheduling for Killing Call: " + session.getId() + " in " + session.getSessionCredit().getMaxDurationInSeconds() + " seconds");
         final CallKillerTask task = new CallKillerTask(session, jingleProcessor);
         tasks.put(session.getId(), task);
         timerExecutor.schedule(task, session.getSessionCredit().getMaxDurationInSeconds(), TimeUnit.SECONDS);
@@ -70,5 +70,11 @@ public class CallKiller {
         if (task != null) {
             timerExecutor.remove(task);
         }
+    }
+
+    public void immediateKill(final CallSession session) {
+        log.warn("Immediate Killing Call: " + session.getId());
+        final CallKillerTask task = new CallKillerTask(session, jingleProcessor);
+        timerExecutor.submit(task);
     }
 }

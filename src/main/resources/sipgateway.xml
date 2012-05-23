@@ -65,6 +65,11 @@
         <property name="jingleProcessor" ref="jingleProcessor"/>
     </bean>
 
+    <bean id="relayEventProcessor" class="org.jinglenodes.relay.RelayEventProcessor" init-method="init">
+        <property name="component" ref="sipGatewayComponent"/>
+        <property name="listener" ref="relayPreparation"/>
+    </bean>
+
     <bean id="chargeServiceProcessor" class="org.jinglenodes.credit.ChargeServiceProcessor" init-method="init">
         <constructor-arg index="0" value="${charge.name}"/>
         <constructor-arg index="1" value="${charge.namespace}"/>
@@ -121,6 +126,7 @@
     <bean id="relayPreparation" class="org.jinglenodes.relay.RelayCallPreparation">
         <property name="relayServiceProcessor" ref="relayServiceProcessor"/>
         <property name="prepareStatesManager" ref="jingleProcessor"/>
+        <property name="callKiller" ref="callKiller"/>
     </bean>
 
     <bean id="relayServiceProcessor" class="org.jinglenodes.relay.RelayServiceProcessor" init-method="init">
