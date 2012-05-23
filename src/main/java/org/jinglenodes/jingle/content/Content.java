@@ -24,6 +24,7 @@
 
 package org.jinglenodes.jingle.content;
 
+import org.dom4j.Element;
 import org.dom4j.tree.BaseElement;
 import org.jinglenodes.jingle.description.Description;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
@@ -57,11 +58,23 @@ public class Content extends BaseElement {
         this.transport = transport;
     }
 
+    public static Content fromElement(Element element){
+        final Content.Creator creator = Content.Creator.valueOf(element.attributeValue("creator"));
+        final String name = element.attributeValue("name");
+        final Content.Senders senders = Content.Senders.valueOf(element.attributeValue("senders"));
+        final Element de = element.element("description");
+
+        final Description description = Description.fromElement(de);
+        final Element te = element.element("transport");
+        final RawUdpTransport raw = RawUdpTransport.fromElement(te);
+        return new Content(creator, name, senders, description, raw);
+    }
+
     public String getCreator() {
         return this.attributeValue(CREATOR);
     }
 
-    public String getName() {
+    public String getAttributeName() {
         return this.attributeValue(NAME);
     }
 
@@ -81,7 +94,7 @@ public class Content extends BaseElement {
         return transport;
     }
 
-    public void setName(String name) {
+    public void setAttributeName(String name) {
         this.addAttribute(NAME, name);
     }
 
@@ -90,8 +103,9 @@ public class Content extends BaseElement {
     }
 
     public Content clone(){
-        Content content = new Content(Creator.valueOf(this.getCreator()), this.getName(), Senders.valueOf(this.getSenders()), this.getDescription(), this.getTransport());
+        Content content = new Content(Creator.valueOf(this.getCreator()), this.getAttributeName(), Senders.valueOf(this.getSenders()), this.getDescription(), this.getTransport());
         content.setDisposition(this.getDisposition());
         return content;
     }
+
 }

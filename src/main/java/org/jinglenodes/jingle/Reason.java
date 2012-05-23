@@ -24,6 +24,7 @@
 
 package org.jinglenodes.jingle;
 
+import org.dom4j.Element;
 import org.dom4j.tree.BaseElement;
 
 public class Reason extends BaseElement {
@@ -31,6 +32,11 @@ public class Reason extends BaseElement {
     private Type type;
     private static final String NAME = "reason";
     private static final String TEXT = "text";
+
+    public static Reason fromElement(Element element) {
+        //TODO
+        return null;  //To change body of created methods use File | Settings | File Templates.
+    }
 
     public enum Type {
         security_error, alternative_session, busy, connectivity_error, decline, general_error, media_error, no_error, success, unsupported_applications, unsupported_transports, timeout;
@@ -71,9 +77,5 @@ public class Reason extends BaseElement {
         this.type = type;
         //TODO remove old element
         this.addElement(type.toString());
-    }
-
-    public Reason clone() {
-        return new Reason(this.getText(), this.getType());
     }
 }

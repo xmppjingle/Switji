@@ -616,7 +616,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             final String display = msg.getFromHeader().getNameAddress().getDisplayName();
 
             if (display != null && !display.trim().equals("")) {
-                content.setName(display.trim());
+                content.setAttributeName(display.trim());
             }
 
             final JingleIQ initialization = JingleProcessor.createJingleInitialization(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());

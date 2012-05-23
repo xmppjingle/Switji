@@ -38,13 +38,10 @@ public class TestParser extends TestCase {
         //assertEquals(jingleIQ.getChildElement().element("jingle").asXML(), source);
         System.out.println(jingleIQ.toXML());
         final JingleIQ jingleIQParsed = JingleIQ.fromXml(jingleIQ);
-        Element e1 = jingleIQ.getChildElement();
-        Element e = jingleIQParsed.getChildElement(); //TODO doesnt work, obtain null
-        final String jingleString = jingleIQParsed.getChildElement().element("jingle").toString();
-        System.out.println(jingleIQParsed.getChildElement().element("jingle").asXML());
-        //assertEquals(source, jingleIQParsed.getChildElement().element("jingle").asXML());
-        //assertEquals(jingleIQParsed.getJingle().getInitiator(), initiator);
-        //JingleIQ.getStream().fromXML(altSource);
+        final String jingleString = jingleIQParsed.getJingle().toString();
+        System.out.println(jingleIQParsed.getJingle().asXML());
+        assertEquals(source, jingleIQParsed.getJingle().asXML());
+        assertEquals(jingleIQParsed.getJingle().getInitiator(), initiator);
         System.out.println(source);
     }
 
@@ -67,6 +64,7 @@ public class TestParser extends TestCase {
         jingleIQ.setTo("sip.localhost");
 
         final JingleIQ newJingle = JingleIQ.fromXml(jingleIQ);
+        Content c = newJingle.getJingle().getContent();
         assertTrue(newJingle.getJingle().getContent().getDescription() != null);
     }
 

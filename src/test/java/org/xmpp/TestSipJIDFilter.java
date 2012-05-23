@@ -5,12 +5,8 @@ import org.jinglenodes.jingle.Jingle;
 import org.jinglenodes.jingle.content.Content;
 import org.jinglenodes.jingle.description.Description;
 import org.jinglenodes.jingle.description.Payload;
-import org.jinglenodes.jingle.processor.JingleException;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
-import org.jinglenodes.sip.account.CachedSipAccountProvider;
-import org.jinglenodes.sip.account.SipAccount;
-import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 
 public class TestSipJIDFilter extends TestCase {

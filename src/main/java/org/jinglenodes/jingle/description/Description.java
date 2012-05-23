@@ -24,6 +24,7 @@
 
 package org.jinglenodes.jingle.description;
 
+import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.tree.BaseElement;
 import java.util.List;
@@ -57,5 +58,11 @@ public class Description extends BaseElement {
         return this.attributeValue(MEDIA);
     }
 
+    public static Description fromElement(Element element) {
+        final List<Payload> payloadList = Payload.fromElement(element);
+        final Description description = new Description(element.attributeValue("media"));
+        description.addPayload(payloadList);
+        return description;
+    }
 }
 

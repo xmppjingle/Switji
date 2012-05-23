@@ -24,7 +24,11 @@
 
 package org.jinglenodes.jingle.description;
 
+import org.dom4j.Element;
 import org.dom4j.tree.BaseElement;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Payload extends BaseElement {
     private static final String NAME = "payload-type";
@@ -95,5 +99,25 @@ public class Payload extends BaseElement {
 
     public Payload clone() {
         return new Payload(this.getId(), this.getName(), this.getClockrate(), this.getChannels());
+    }
+
+    public static List<Payload> fromElement(Element element) {
+        final List<Payload> payloadList = new ArrayList<Payload>();
+        final List<Element> elementList = (List<Element>) element.elements();
+        String id, name, clockrate, channels;
+        Payload payload;
+        for (Element pay : elementList) {
+            id = pay.attributeValue("id");
+            name = pay.attributeValue("name");
+            clockrate = pay.attributeValue("clockrate");
+            channels = pay.attributeValue("channels");
+            payload = new Payload(id, name);
+            if (null != clockrate)
+                payload.setClockrate(Integer.parseInt(clockrate));
+            if (null != channels)
+                payload.setClockrate(Integer.parseInt(channels));
+            payloadList.add(payload);
+        }
+        return payloadList;
     }
 }

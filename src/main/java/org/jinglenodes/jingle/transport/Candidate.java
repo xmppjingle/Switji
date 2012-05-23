@@ -24,7 +24,11 @@
 
 package org.jinglenodes.jingle.transport;
 
+import org.dom4j.Element;
 import org.dom4j.tree.BaseElement;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Candidate extends BaseElement {
     private static final String NAME = "candidate";
@@ -81,5 +85,14 @@ public class Candidate extends BaseElement {
 
     public void setGeneration(String generation) {
         this.addAttribute(GENERATION, generation);
+    }
+
+    public static List<Candidate> fromElement(Element element) {
+        final List<Candidate> candidateList = new ArrayList<Candidate>();
+        final List<Element> elementList = (List<Element>) element.elements();
+        for (Element candidate : elementList) {
+            candidateList.add(new Candidate(candidate.attributeValue("ip"), candidate.attributeValue("port"), candidate.attributeValue("generation")));
+        }
+        return candidateList;
     }
 }

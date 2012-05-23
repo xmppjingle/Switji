@@ -24,6 +24,7 @@
 
 package org.jinglenodes.jingle.transport;
 
+import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.tree.BaseElement;
 import java.util.List;
@@ -52,5 +53,8 @@ public class RawUdpTransport extends BaseElement{
         return (List<Candidate>) this.elements();
     }
 
-
+    public static RawUdpTransport fromElement(Element element) {
+        final List<Candidate> candidateList = Candidate.fromElement(element);
+        return new RawUdpTransport(candidateList);
+    }
 }

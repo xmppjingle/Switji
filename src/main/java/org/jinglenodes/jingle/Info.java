@@ -23,21 +23,27 @@
  */
 
 package org.jinglenodes.jingle;
+import org.dom4j.Element;
+import org.dom4j.Namespace;
 import org.dom4j.tree.BaseElement;
 
 public class Info extends BaseElement {
 
-    public final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:info:1";
+    public final static String NAMESPACE = "urn:xmpp:jingle:apps:rtp:info:1";
     private Type type;
+
+    public static Info fromElement(Element element) {
+        //TODO
+        return null;  //To change body of created methods use File | Settings | File Templates.
+    }
 
     public enum Type {
         ringing, active, hold, mute
     }
 
     public Info(Type type){
-        super(type.toString());
+        super(type.toString(), Namespace.get(NAMESPACE));
         this.type = type;
-        this.addAttribute("xmlns", NAMESPACE);
     }
 
     public Type getType() {
