@@ -37,11 +37,21 @@ public class JingleIQ extends XStreamIQ<Jingle> {
             }
             final String child = e.asXML().replace("\n", "");
             final Jingle j = (Jingle) JingleIQ.getStream().fromXML(child);
+
+            //Force Initiator and Responder
+            if(j.getInitiator()==null || j.getInitiator().length()<3){
+                j.setInitiator(iq.getFrom().toFullJID());
+            }
+            if(j.getResponder()==null || j.getResponder().length()<3){
+                j.setResponder(iq.getTo().toFullJID());
+            }
+
             final JingleIQ jingleIQ = new JingleIQ(j);
             jingleIQ.setTo(iq.getTo());
             jingleIQ.setFrom(iq.getFrom());
             jingleIQ.setID(iq.getID());
             jingleIQ.setType(iq.getType());
+
             return jingleIQ;
         }
         return null;

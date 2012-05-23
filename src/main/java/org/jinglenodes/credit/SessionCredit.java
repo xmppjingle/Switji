@@ -31,11 +31,11 @@ package org.jinglenodes.credit;
  * Time: 6:09 PM
  */
 public class SessionCredit {
-    private int maxDurationInSeconds = -1;
+    private int maxDurationInSeconds = 30;
     private RouteType routeType = RouteType.ip;
-    private long startTime=0;
+    private long startTime = 0;
     private long finishTime;
-    private boolean charged=false;
+    private boolean charged = false;
 
     public SessionCredit(RouteType routeType) {
         this.routeType = routeType;

@@ -38,8 +38,6 @@ import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
 
-import java.util.IllegalFormatException;
-
 /**
  * Created by IntelliJ IDEA.
  * User: thiago

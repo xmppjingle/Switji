@@ -2,9 +2,6 @@ package org.jinglenodes.sip.router;
 
 import org.zoolu.tools.ConcurrentTimelineHashMap;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
  * Created by IntelliJ IDEA.
  * User: thiago

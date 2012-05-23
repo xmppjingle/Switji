@@ -25,7 +25,6 @@
 package org.jinglenodes.credit;
 
 import org.apache.log4j.Logger;
-import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.prepare.PrepareStatesManager;
 import org.jinglenodes.session.CallSession;
@@ -51,10 +50,11 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     private CreditServiceProcessor creditServiceProcessor;
     private ChargeServiceProcessor chargeServiceProcessor;
     private PrepareStatesManager prepareStatesManager;
+    private CallKiller callKiller;
 
     @Override
     public void receivedResult(final IqRequest iqRequest) {
-        if (iqRequest.getOriginalPacket() != null) {
+        if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
             prepareStatesManager.prepareCall((JingleIQ) iqRequest.getOriginalPacket(), null);
         }
     }
@@ -129,6 +129,9 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
                 log.error("Charge Error: Could NOT Retrieve Call Info");
             }
         }
+        if (callKiller != null) {
+            callKiller.cancelKill(session);
+        }
     }
 
     @Override
@@ -174,12 +177,18 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     public boolean proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
         setSessionFinishTime(session, System.currentTimeMillis());
         chargeCall(iq, session);
+        if (callKiller != null) {
+            callKiller.cancelKill(session);
+        }
         return true;
     }
 
     @Override
     public JingleIQ proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
         setSessionStartTime(session, System.currentTimeMillis());
+        if (callKiller != null) {
+            callKiller.scheduleKill(session);
+        }
         return iq;
     }
 
@@ -190,5 +199,13 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     public void setChargeServiceProcessor(ChargeServiceProcessor chargeServiceProcessor) {
         log.debug("Added Charge Service Processor");
         this.chargeServiceProcessor = chargeServiceProcessor;
+    }
+
+    public CallKiller getCallKiller() {
+        return callKiller;
+    }
+
+    public void setCallKiller(CallKiller callKiller) {
+        this.callKiller = callKiller;
     }
 }

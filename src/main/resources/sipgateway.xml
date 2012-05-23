@@ -61,6 +61,10 @@
         </property>
     </bean>
 
+    <bean id="callKiller" class="org.jinglenodes.credit.CallKiller">
+        <property name="jingleProcessor" ref="jingleProcessor"/>
+    </bean>
+
     <bean id="chargeServiceProcessor" class="org.jinglenodes.credit.ChargeServiceProcessor" init-method="init">
         <constructor-arg index="0" value="${charge.name}"/>
         <constructor-arg index="1" value="${charge.namespace}"/>
@@ -81,6 +85,7 @@
         <property name="creditServiceProcessor" ref="creditServiceProcessor"/>
         <property name="prepareStatesManager" ref="jingleProcessor"/>
         <property name="chargeServiceProcessor" ref="chargeServiceProcessor"/>
+        <property name="callKiller" ref="callKiller"/>
     </bean>
 
     <bean id="accountPreparation" class="org.jinglenodes.account.AccountPreparation">

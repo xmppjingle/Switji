@@ -29,7 +29,6 @@ import org.jinglenodes.session.CallSessionMapper;
 import org.xmpp.component.AbstractServiceProcessor;
 import org.xmpp.component.IqRequest;
 import org.xmpp.packet.IQ;
-import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 
 /**

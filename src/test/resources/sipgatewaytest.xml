@@ -70,10 +70,15 @@
         </property>
     </bean>
 
+    <bean id="callKiller" class="org.jinglenodes.credit.CallKiller">
+        <property name="jingleProcessor" ref="jingleProcessor"/>
+    </bean>
+
     <bean id="creditPreparation" class="org.jinglenodes.credit.CreditPreparation">
         <property name="creditServiceProcessor" ref="creditServiceProcessor"/>
         <property name="chargeServiceProcessor" ref="chargeServiceProcessor"/>
         <property name="prepareStatesManager" ref="jingleProcessor"/>
+        <property name="callKiller" ref="callKiller"/>
     </bean>
 
     <bean id="creditServiceProcessor" class="org.jinglenodes.credit.CreditServiceProcessor" init-method="init">

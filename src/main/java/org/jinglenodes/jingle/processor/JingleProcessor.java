@@ -254,14 +254,15 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     }
 
     public final void sendSipTermination(final JingleIQ iq) {
+        final CallSession callSession = callSessionMapper.getSession(iq);
+        if (callSession == null) {
+            return;
+        }
+        sendSipTermination(iq, callSession);
+    }
+
+    public final void sendSipTermination(final JingleIQ iq, final CallSession callSession) {
         try {
-
-            final CallSession callSession = callSessionMapper.getSession(iq);
-
-            if (callSession == null) {
-
-                return;
-            }
 
             JID from;
             Message lastResponse = callSession.getLastSentResponse();
@@ -550,4 +551,8 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         return iq;
     }
 
+    public void sendJingleTermination(JingleIQ initiateIQ, CallSession session) {
+        final JingleIQ terminate = createJingleTermination(initiateIQ, new Reason(Reason.Type.timeout));
+        gatewayRouter.send(terminate);
+    }
 }
