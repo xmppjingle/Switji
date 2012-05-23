@@ -24,19 +24,18 @@
 
 package org.jinglenodes.jingle.description;
 
+import org.dom4j.Namespace;
 import org.dom4j.tree.BaseElement;
 import java.util.List;
 
 public class Description extends BaseElement {
 
     private static final String NAME = "description";
-    private static final String XMLNS = "xmlns";
     private static final String MEDIA = "media";
-    public final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:1";
+    public static final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:1";
 
     public Description(String media) {
-        super(NAME);
-        this.addAttribute(XMLNS, NAMESPACE);
+        super(NAME, Namespace.get(NAMESPACE));
         this.addAttribute(MEDIA, media);
     }
 
@@ -46,7 +45,7 @@ public class Description extends BaseElement {
 
     public void addPayload(List<Payload> payloads) {
         for (Payload payload: payloads){
-                 this.add(payload);
+             this.add(payload);
         }
     }
 

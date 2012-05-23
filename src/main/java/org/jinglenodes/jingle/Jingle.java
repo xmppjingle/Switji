@@ -47,13 +47,11 @@ public class Jingle extends BaseElement {
         }
     }
 
-    public final static String NAME = "jingle";
-    public static final Namespace Q_NAMESPACE = new Namespace("", "urn:xmpp:jingle:1");
-
-    private final String SID = "sid";
-    private final String INITIATOR = "initiator";
-    private final String RESPONDER = "responder";
-    private final String ACTION = "action";
+    private final static String NAME = "jingle";
+    private final static String SID = "sid";
+    private final static String INITIATOR = "initiator";
+    private final static String RESPONDER = "responder";
+    private final static String ACTION = "action";
 
     public static final String NAMESPACE = "urn:xmpp:jingle:1";
 
@@ -62,8 +60,7 @@ public class Jingle extends BaseElement {
     private Info info;
 
     public Jingle(String sid, String initiator, String responder, String action) {
-        super(NAME);
-        this.addAttribute("xmlns", NAMESPACE);
+        super(NAME, Namespace.get(NAMESPACE));
         this.addAttribute(SID, sid);
         this.addAttribute(INITIATOR, initiator);
         this.addAttribute(RESPONDER, responder);
@@ -71,6 +68,7 @@ public class Jingle extends BaseElement {
     }
 
     public void setContent(Content content) {
+        this.add(content);
         this.content = content;
     }
 
@@ -107,6 +105,7 @@ public class Jingle extends BaseElement {
     }
 
     public void setReason(Reason reason) {
+        this.add(reason);
         this.reason = reason;
     }
 
@@ -115,6 +114,7 @@ public class Jingle extends BaseElement {
     }
 
     public void setInfo(Info info) {
+        this.add(info);
         this.info = info;
     }
 
@@ -123,6 +123,10 @@ public class Jingle extends BaseElement {
     }
 
     public Jingle clone() {
-        return new Jingle(this.getSid(), this.getInitiator(), this.getResponder(), this.getAction());
+        Jingle jingle = new Jingle(this.getSid(), this.getInitiator(), this.getResponder(), this.getAction());
+        jingle.setContent(this.getContent());
+        jingle.setInfo(this.getInfo());
+        jingle.setReason(this.getReason());
+        return jingle;
     }
 }

@@ -24,18 +24,28 @@
 
 package org.jinglenodes.jingle.transport;
 
+import org.dom4j.Namespace;
 import org.dom4j.tree.BaseElement;
 import java.util.List;
 
 public class RawUdpTransport extends BaseElement{
 
     private final static String ELEMENT_NAME = "transport";
-    public final String NAMESPACE = "urn:xmpp:jingle:transports:raw-udp:1";
+    public final static String NAMESPACE = "urn:xmpp:jingle:transports:raw-udp:1";
 
     public RawUdpTransport(Candidate candidate) {
+        super(ELEMENT_NAME, Namespace.get(NAMESPACE));
+        this.addAttribute("xmlns", NAMESPACE);
+        this.add(candidate);
+    }
+
+    public RawUdpTransport(List<Candidate> candidateList) {
         super(ELEMENT_NAME);
         this.addAttribute("xmlns", NAMESPACE);
-        candidate.setParent(this);
+        for (Candidate candidate: candidateList){
+            this.add(candidate);
+        }
+
     }
 
     public List<Candidate> getCandidates() {

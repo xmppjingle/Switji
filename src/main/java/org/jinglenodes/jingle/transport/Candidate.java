@@ -82,10 +82,4 @@ public class Candidate extends BaseElement {
     public void setGeneration(String generation) {
         this.addAttribute(GENERATION, generation);
     }
-
-    public Candidate clone(){
-        Candidate candidate = new Candidate(this.getIp(), this.getPort(), this.getGeneration());
-        candidate.setType(candidate.getType());
-        return candidate;
-    }
 }

@@ -51,8 +51,8 @@ public class Content extends BaseElement {
         this.addAttribute(CREATOR, creator.toString());
         this.addAttribute(NAME, name);
         this.addAttribute(SENDERS, senders.toString());
-        description.setParent(this);
-        transport.setParent(this);
+        this.add(description);
+        this.add(transport);
         this.description = description;
         this.transport = transport;
     }
