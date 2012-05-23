@@ -43,6 +43,7 @@ import org.jinglenodes.sip.processor.SipProcessor;
 import org.xmpp.component.NamespaceProcessor;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
+import org.xmpp.packet.Packet;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.address.SipURL;
 import org.zoolu.sip.header.ContactHeader;
@@ -555,4 +556,9 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         final JingleIQ terminate = createJingleTermination(initiateIQ, new Reason(Reason.Type.timeout));
         gatewayRouter.send(terminate);
     }
+
+    public void send(final Packet packet) {
+        gatewayRouter.send(packet);
+    }
+
 }

@@ -39,11 +39,11 @@ public class JingleIQ extends XStreamIQ<Jingle> {
             final Jingle j = (Jingle) JingleIQ.getStream().fromXML(child);
 
             //Force Initiator and Responder
-            if(j.getInitiator()==null || j.getInitiator().length()<3){
-                j.setInitiator(iq.getFrom().toFullJID());
+            if (j.getInitiator() == null || j.getInitiator().length() < 3) {
+                j.setInitiator(iq.getFrom().toString());
             }
-            if(j.getResponder()==null || j.getResponder().length()<3){
-                j.setResponder(iq.getTo().toFullJID());
+            if (j.getResponder() == null || j.getResponder().length() < 3) {
+                j.setResponder(iq.getTo().toString());
             }
 
             final JingleIQ jingleIQ = new JingleIQ(j);

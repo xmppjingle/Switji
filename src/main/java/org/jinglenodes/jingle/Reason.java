@@ -40,7 +40,7 @@ public class Reason {
     private static final String CONDITION = "condition";
 
     public enum Type {
-        security_error, alternative_session, busy, connectivity_error, decline, general_error, media_error, no_error, success, unsupported_applications, unsupported_transports, timeout
+        security_error, alternative_session, busy, connectivity_error, decline, general_error, media_error, no_error, success, unsupported_applications, unsupported_transports, timeout, payment
     }
 
 //    @XStreamAlias("no-error")

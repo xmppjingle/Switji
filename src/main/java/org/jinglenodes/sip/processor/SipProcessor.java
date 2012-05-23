@@ -905,9 +905,9 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
     public static Message createSipBye(final JingleIQ iq, final SipProviderInfoInterface sipProvider, final Message lastResponse, final CallSession callSession) throws JingleSipException, SipParsingException {
 
         // Checks to verify if the conversion is supported
-        if (!iq.getJingle().getAction().equals(Jingle.SESSION_TERMINATE)) {
-            throw new JingleSipException("The IQ MUST have a session-terminate action.");
-        }
+//        if (!iq.getJingle().getAction().equals(Jingle.SESSION_TERMINATE)) {
+//            throw new JingleSipException("The IQ MUST have a session-terminate action.");
+//        }
 
         if (lastResponse == null) {
             throw new JingleSipException("No related Message Found.");

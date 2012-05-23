@@ -92,8 +92,8 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
     }
 
     @Override
-    protected void handleError(IQ iq) {
-        log.error("Failed to Retrieve Account: " + iq.toXML());
+    protected void handleError(IqRequest iq) {
+        log.error("Failed to Retrieve Account: " + iq.getResult().toXML());
     }
 
     @Override

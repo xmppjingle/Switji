@@ -116,8 +116,8 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
     }
 
     @Override
-    protected void handleError(IQ iq) {
-        log.error("Failed to Charge Account: " + iq.toXML());
+    protected void handleError(IqRequest iq) {
+        log.error("Failed to Charge Account: " + iq.getResult().toXML());
     }
 
     @Override

@@ -73,7 +73,7 @@ public class RelayServiceProcessor extends AbstractServiceProcessor {
     }
 
     @Override
-    protected void handleError(IQ iq) {
+    protected void handleError(IqRequest iq) {
 
     }
 

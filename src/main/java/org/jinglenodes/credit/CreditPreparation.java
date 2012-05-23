@@ -61,6 +61,9 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public void receivedError(IqRequest iqRequest) {
+        if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
+            prepareStatesManager.prepareCall((JingleIQ) iqRequest.getOriginalPacket(), null);
+        }
     }
 
     @Override
@@ -137,6 +140,9 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
         setSessionStartTime(session, System.currentTimeMillis());
+        if (callKiller != null) {
+            callKiller.scheduleKill(session);
+        }
         return true;
     }
 

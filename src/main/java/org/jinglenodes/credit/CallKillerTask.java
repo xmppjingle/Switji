@@ -24,8 +24,11 @@
 package org.jinglenodes.credit;
 
 import org.apache.log4j.Logger;
+import org.jinglenodes.jingle.Reason;
+import org.jinglenodes.jingle.processor.JingleException;
 import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.session.CallSession;
+import org.xmpp.tinder.JingleIQ;
 
 /**
  * Created by IntelliJ IDEA.
@@ -49,8 +52,16 @@ public class CallKillerTask implements Runnable {
         if (session != null) {
             if (session.isActive()) {
                 log.warn("Killing Call: " + session.getId());
-                jingleProcessor.sendSipTermination(session.getInitiateIQ(), session);
-                jingleProcessor.sendJingleTermination(session.getInitiateIQ(), session);
+                //jingleProcessor.sendSipTermination(session.getInitiateIQ(), session);
+
+                final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(session.getInitiateIQ(), new Reason(Reason.Type.payment));
+                try {
+                    jingleProcessor.processJingle(terminationIQ);
+                } catch (JingleException e) {
+                    log.error("Failed to Force Termination Process", e);
+                }
+                jingleProcessor.send(terminationIQ);
+
             }
         }
     }

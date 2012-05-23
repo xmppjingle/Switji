@@ -107,7 +107,7 @@ public abstract class AbstractServiceProcessor implements NamespaceProcessor {
 
     protected abstract void handleResult(IqRequest iq);
 
-    protected abstract void handleError(IQ iq);
+    protected abstract void handleError(IqRequest iq);
 
     protected abstract void handleTimeout(IqRequest request);
 
@@ -126,8 +126,8 @@ public abstract class AbstractServiceProcessor implements NamespaceProcessor {
         final IqRequest iqRequest = deleteIqRequest(iq);
         if (iqRequest != null) {
             log.debug("processError: " + iq.toXML());
-            handleError(iq);
             iqRequest.setResult(iq);
+            handleError(iqRequest);
             iqRequest.getResultReceiver().receivedError(iqRequest);
         }
     }

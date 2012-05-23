@@ -58,7 +58,7 @@ public class CallKiller {
     }
 
     public void scheduleKill(final CallSession session) {
-        log.warn("Scheduling for Killing Call: " + session.getId() + " in " + session.getSessionCredit().getMaxDurationInSeconds());
+        log.warn("Scheduling for Killing Call: " + session.getId() + " in " + session.getSessionCredit().getMaxDurationInSeconds() + " sec");
         final CallKillerTask task = new CallKillerTask(session, jingleProcessor);
         tasks.put(session.getId(), task);
         timerExecutor.schedule(task, session.getSessionCredit().getMaxDurationInSeconds(), TimeUnit.SECONDS);
