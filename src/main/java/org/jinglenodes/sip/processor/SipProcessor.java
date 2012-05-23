@@ -497,12 +497,8 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
                 }
             }
 
-            if (sipChannel != null && sipChannel.getId() != null) {
-                to = JIDFactory.getInstance().getJID(sipChannel.getId());
-            } else {
-                if (sipToJingleBind != null) {
-                    to = sipToJingleBind.getXmppTo(to, callSession.getLastReceivedJingle());
-                }
+            if (sipToJingleBind != null) {
+                to = sipToJingleBind.getXmppTo(to, callSession.getLastReceivedJingle());
             }
 
             for (final JID usr : callSession.getUsers()) {
