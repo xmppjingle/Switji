@@ -122,6 +122,8 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             if (statusLineCode >= 200 && statusLineCode < 300 && ch != null && ch.getMethod() != null) {
                 if (ch.getMethod().equals(SipMethods.INVITE)) {
                     process2xxSip(msg);
+                } else if (ch.getMethod().equals(SipMethods.INVITE)) {
+                    process2xxSipBye(msg);
                 }
             }
             // Bye Request
@@ -158,6 +160,19 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             log.error("Could not Parse Packet", e);
         } catch (Throwable e) {
             log.error("Severe Error Processing SIP Packet: " + msg, e);
+        }
+
+    }
+
+    private void process2xxSipBye(Message msg) {
+
+        try {
+            final CallSession callSession = callSessions.getSession(msg);
+            if (callSession != null) {
+                callSession.deactivate();
+            }
+        } catch (JingleException e) {
+            log.warn("Processing SIP 2XX BYE Exception", e);
         }
 
     }

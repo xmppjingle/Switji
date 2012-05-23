@@ -39,12 +39,14 @@ import org.xmpp.tinder.JingleIQ;
 public class CallKillerTask implements Runnable {
 
     private final Logger log = Logger.getLogger(CallKillerTask.class);
-    private CallSession session;
-    private JingleProcessor jingleProcessor;
+    private final CallSession session;
+    private final JingleProcessor jingleProcessor;
+    private final Reason reason;
 
-    public CallKillerTask(CallSession session, JingleProcessor jingleProcessor) {
+    public CallKillerTask(CallSession session, JingleProcessor jingleProcessor, final Reason reason) {
         this.session = session;
         this.jingleProcessor = jingleProcessor;
+        this.reason = reason;
     }
 
     @Override
@@ -54,7 +56,7 @@ public class CallKillerTask implements Runnable {
                 log.warn("Killing Call: " + session.getId());
                 //jingleProcessor.sendSipTermination(session.getInitiateIQ(), session);
 
-                final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(session.getInitiateIQ(), new Reason(Reason.Type.payment));
+                final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(session.getInitiateIQ(), reason);
                 try {
                     jingleProcessor.processJingle(terminationIQ);
                 } catch (JingleException e) {
