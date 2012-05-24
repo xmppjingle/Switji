@@ -26,20 +26,11 @@ package org.jinglenodes.stats;
 
 public interface SwitjiStats {
 
-    //TODO create all the other methods used for statistics
-
     /**
      * Number of open sessions
      *
      * @return number of open sessions
      */
     public int getOpenSessions();
-
-    /**
-     * Current size of the callSession mapper
-     *
-     * @return size of callSession mapper
-     */
-    public int getSessionMapperSize();
 
 }

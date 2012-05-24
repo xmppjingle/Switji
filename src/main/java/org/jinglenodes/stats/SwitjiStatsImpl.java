@@ -3,27 +3,30 @@
  */
 package org.jinglenodes.stats;
 
+import org.jinglenodes.component.SIPGatewayApplication;
+import org.jinglenodes.credit.CallKiller;
+
 /**
  * @author bhlangonijr
  */
 public class SwitjiStatsImpl implements SwitjiStats {
+
+    private SIPGatewayApplication sipApplication;
 
     /* (non-Javadoc)
       * @see org.jinglenodes.stats.SwitjiStats#getOpenSessions()
       */
     @Override
     public int getOpenSessions() {
-        // TODO Auto-generated method stub
-        return 0;
+        return sipApplication.getJingleProcessor().getCallSessionMapper().getSessionCount();
     }
 
-    /* (non-Javadoc)
-      * @see org.jinglenodes.stats.SwitjiStats#getSessionMapperSize()
-      */
-    @Override
-    public int getSessionMapperSize() {
-        // TODO Auto-generated method stub
-        return 0;
+    public SIPGatewayApplication getSipApplication() {
+        return sipApplication;
+    }
+
+    public void setSipApplication(SIPGatewayApplication sipApplication) {
+        this.sipApplication = sipApplication;
     }
 
 }

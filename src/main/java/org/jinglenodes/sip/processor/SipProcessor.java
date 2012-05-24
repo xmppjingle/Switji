@@ -604,8 +604,6 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
         try {
 
-            //TODO Query and Inject Relay
-
             final Participants participants = msg.getParticipants();
 
             if (participants == null) {

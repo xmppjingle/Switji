@@ -239,7 +239,6 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
     }
 
     public Collection<SipChannel> getKeepAliveTargets() {
-        //TODO Filter Single Destinations!!!
         return channels.values();
     }
 

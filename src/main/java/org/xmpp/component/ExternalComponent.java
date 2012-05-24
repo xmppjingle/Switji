@@ -79,8 +79,6 @@ public class ExternalComponent extends AbstractComponent {
         final IQ ret = new IQ(IQ.Type.result);
         ret.setID(message.getID());
         ret.setError(pe);
-        //
-        //
         return ret;
     }
 
