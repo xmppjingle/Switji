@@ -144,7 +144,7 @@ public class TestParser extends TestCase {
             "915738512829@sip.yuilop.tv/as5a1f65c0\"><jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-terminate\" sid=\"2E9C45EB2AF84F59BDB4D281060B63AF\" initiator=\"+4915634567890@194.183.72.28/sip\" responder=\"0049157\n" +
             "38512829@sip.yuilop.tv/as5a1f65c0\">\n" +
             "  <reason>\n" +
-            "    <type>no_error</type>\n" +
+            "    <type>general-error</type>\n" +
             "  </reason>\n" +
             "</jingle></iq>";
 
