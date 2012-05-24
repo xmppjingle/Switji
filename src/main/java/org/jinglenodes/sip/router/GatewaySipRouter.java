@@ -61,14 +61,16 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
     private final ConcurrentHashMap<Integer, SipChannel> iChannels = new ConcurrentHashMap<Integer, SipChannel>();
 
     private final String localSipIp;
+    private final int localSipPort;
 
     // SIP Routing
     private final SipAccountProvider sipAccountProvider;
     private final int keepAliveDelay = 15; // 10 seconds delay in the keep alive packets
     private final SipProviderInfoInterface sipProvider;
 
-    public GatewaySipRouter(final String localSipIp, final SipAccountProvider sipAccountProvider, final String fakeLocalIp, final int fakeLocalPort) {
+    public GatewaySipRouter(final String localSipIp, final int localSipPort, final SipAccountProvider sipAccountProvider, final String fakeLocalIp, final int fakeLocalPort) {
         this.localSipIp = localSipIp;
+        this.localSipPort = localSipPort;
         this.sipAccountProvider = sipAccountProvider;
         this.sipProvider = new SipProviderInformation(fakeLocalIp, fakeLocalPort);
         createSipRouter();
@@ -77,6 +79,7 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
     private void createSipRouter() {
         DynamicKeepAliveTask keepAliveTask = new DynamicKeepAliveTask(this);
         scheduledThreadPoolExecutor.scheduleWithFixedDelay(keepAliveTask, keepAliveDelay, keepAliveDelay, TimeUnit.SECONDS);
+
     }
 
     public Collection<SipChannel> getSipChannels() {
@@ -156,7 +159,7 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
     }
 
     public SipChannel createSipChannel(JID sender, SocketAddress destination) throws IOException {
-        final SipChannel c = new SipChannel(getSipChannelID(sender), destination, localSipIp, this);
+        final SipChannel c = new SipChannel(getSipChannelID(sender), destination, localSipIp, localSipPort, this);
         channels.put(getSipChannelID(sender), c);
         iChannels.put(c.getDatagramChannel().hashCode(), c);
         return c;

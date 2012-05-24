@@ -30,9 +30,10 @@
 
     <bean id="gatewaySipRouter" class="org.jinglenodes.sip.router.GatewaySipRouter">
         <constructor-arg index="0" value="${sip.localip}"/>
-        <constructor-arg index="1" ref="accountProvider"/>
-        <constructor-arg index="2" value="${sip.localip}"/>
-        <constructor-arg index="3" value="${sip.localport}"/>
+        <constructor-arg index="1" value="${sip.localport}"/>
+        <constructor-arg index="2" ref="accountProvider"/>
+        <constructor-arg index="3" value="${sip.localip}"/>
+        <constructor-arg index="4" value="${sip.localport}"/>
     </bean>
 
     <bean id="callSessionMapper" class="org.jinglenodes.session.DefaultCallSessionMapper">
@@ -162,6 +163,8 @@
     </bean>
 
     <bean id="switjiAdmin" class="org.jinglenodes.stats.SwitjiAdminImpl">
+        <property name="callKiller" ref="callKiller"/>
+        <property name="sipApplication" ref="sip"/>
     </bean>
 
     <bean id="jmxExporter" class="org.springframework.jmx.export.MBeanExporter">

@@ -24,4 +24,20 @@ public class SwitjiAdminImpl implements SwitjiAdmin {
     public int killAll() {
         return callKiller.killAll(new Reason(Reason.Type.general_error));
     }
+
+    public CallKiller getCallKiller() {
+        return callKiller;
+    }
+
+    public void setCallKiller(CallKiller callKiller) {
+        this.callKiller = callKiller;
+    }
+
+    public SIPGatewayApplication getSipApplication() {
+        return sipApplication;
+    }
+
+    public void setSipApplication(SIPGatewayApplication sipApplication) {
+        this.sipApplication = sipApplication;
+    }
 }
