@@ -67,6 +67,7 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
         this.purgeTimer = new ScheduledThreadPoolExecutor(5, new NamingThreadFactory("Session Cleaner Thread"));
         this.purgeTimer.scheduleWithFixedDelay(new SessionCleanerTask(sessionMap, purgeTimer, 1000, SessionCleanerTask.inactiveSessionFilter), purgeTime, purgeTime, TimeUnit.SECONDS);
         this.purgeTimer.scheduleWithFixedDelay(new SessionCleanerTask(sessionMap, purgeTimer, -1, SessionCleanerTask.inactiveSessionFilter), purgeTime * 15, purgeTime * 15, TimeUnit.SECONDS);
+        this.purgeTimer.scheduleWithFixedDelay(new SessionCleanerTask(sessionMap, purgeTimer, -1, SessionCleanerTask.sessionTtlFilter), purgeTime * 20, purgeTime * 20, TimeUnit.SECONDS);
     }
 
     public CallSession getSession(final String id) {
@@ -80,8 +81,6 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
 
     public void addSession(final CallSession callSession) {
         sessionMap.put(callSession.getId(), callSession);
-        callSession.setSessionDestroyTask(new SessionDestroyTask(this, callSession, maxSessionTtl, unfinishedSessionTtl));
-        purgeTimer.scheduleWithFixedDelay(callSession.getSessionDestroyTask(), purgeTime, purgeTime, TimeUnit.SECONDS);
     }
 
     private CallSession createSession(final Message message) throws JingleException {
@@ -94,8 +93,7 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
         }
         final String id = getSessionId(message);
         log.trace("Creating callSession. Id: " + id);
-        final CallSession callSession = new CallSession(id, user) {
-        };
+        final CallSession callSession = new CallSession(id, user);
         addSession(callSession);
         return callSession;
     }
@@ -103,8 +101,7 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
     private CallSession createSession(final JingleIQ jingle) {
         final String id = getSessionId(jingle);
         log.trace("Creating callSession. Id: " + id);
-        final CallSession callSession = new CallSession(id, new JID(jingle.getJingle().getInitiator())) {
-        };
+        final CallSession callSession = new CallSession(id, new JID(jingle.getJingle().getInitiator()));
         addSession(callSession);
         return callSession;
     }

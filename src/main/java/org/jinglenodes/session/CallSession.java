@@ -24,6 +24,7 @@
 
 package org.jinglenodes.session;
 
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import org.apache.log4j.Logger;
 import org.jinglenodes.credit.SessionCredit;
 import org.jinglenodes.prepare.CallPreparation;
@@ -45,28 +46,32 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Thiago Rocha Camargo (thiago@jinglenodes.org) - Jingle Nodes
  */
-public abstract class CallSession {
+public class CallSession {
 
+    @XStreamOmitField
     private static final Logger log = Logger.getLogger(CallSession.class);
+    private final String id;
     private final List<JID> user = new CopyOnWriteArrayList<JID>();
     private Message lastSentRequest;
     private Message lastSentResponse;
     private Message lastReceivedRequest;
     private Message lastReceivedResponse;
+    private Message lastMessage;
     private JingleIQ sentJingle;
     private JingleIQ receivedJingle;
-    private final ConcurrentHashMap<String, String> userHost = new ConcurrentHashMap<String, String>();
-    private final ConcurrentLinkedQueue<CallPreparation> preparations = new ConcurrentLinkedQueue<CallPreparation>();
-    private final ConcurrentLinkedQueue<CallPreparation> proceeds = new ConcurrentLinkedQueue<CallPreparation>();
-    private Message lastMessage;
     private JingleIQ initiateIQ;
+    @XStreamOmitField
+    private final ConcurrentLinkedQueue<CallPreparation> preparations = new ConcurrentLinkedQueue<CallPreparation>();
+    @XStreamOmitField
+    private final ConcurrentLinkedQueue<CallPreparation> proceeds = new ConcurrentLinkedQueue<CallPreparation>();
+    @XStreamOmitField
     private final Map<String, ContactHeader> userContactBind = (new ConcurrentHashMap<String, ContactHeader>());
-    private final String id;
     private int retries = 0;
     private long timestamp;
-    private SessionDestroyTask sessionDestroyTask;
     private boolean active = true;
+    @XStreamOmitField
     private AtomicInteger sentRequestsCounter = new AtomicInteger();
+    @XStreamOmitField
     private RelayIQ relayIQ;
     private boolean connected = false;
     private SessionCredit sessionCredit;
@@ -197,18 +202,6 @@ public abstract class CallSession {
         this.timestamp = timestamp;
     }
 
-    public SessionDestroyTask getSessionDestroyTask() {
-        return sessionDestroyTask;
-    }
-
-    public void setSessionDestroyTask(final SessionDestroyTask sessionDestroyTask) {
-        this.sessionDestroyTask = sessionDestroyTask;
-    }
-
-    public ConcurrentHashMap<String, String> getUserHost() {
-        return userHost;
-    }
-
     /**
      * @param initiateIQ the initiateIQ to set
      */
@@ -229,9 +222,6 @@ public abstract class CallSession {
 
     public void destroy() {
 
-        if (sessionDestroyTask != null) {
-            sessionDestroyTask.cancel();
-        }
         userContactBind.clear();
         active = false;
     }

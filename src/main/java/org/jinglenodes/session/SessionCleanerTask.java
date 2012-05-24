@@ -49,6 +49,27 @@ public class SessionCleanerTask implements Runnable {
         }
     };
 
+    public final static SessionCleanerFilter sessionTtlFilter = new SessionCleanerFilter() {
+
+        final private long sessionTtlInSeconds = 60 * 60 * 2;
+        final private long unfinishedSessionTtl = 60 * 60 * 1;
+
+        @Override
+        public boolean isToBeCleaned(final CallSession session) {
+            final long d = System.currentTimeMillis() - session.getLastTimestamp();
+            final float ds = d / 1000;
+
+            if (ds > sessionTtlInSeconds) {
+                return true;
+            } else if (ds > unfinishedSessionTtl) {
+                if (!session.isConnected()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    };
+
     public SessionCleanerTask(Map<String, CallSession> sessionMap, ScheduledThreadPoolExecutor timer, int limit, SessionCleanerFilter filter) {
         this.sessionMap = sessionMap;
         this.timer = timer;
@@ -63,7 +84,7 @@ public class SessionCleanerTask implements Runnable {
         try {
             for (final CallSession callSession : sessionMap.values()) {
                 if (filter.isToBeCleaned(callSession)) {
-                    sessionMap.remove(callSession.getId());
+                    destroy(callSession);
                     if (limit > -1 && i++ > limit) {
                         break;
                     }
@@ -75,6 +96,11 @@ public class SessionCleanerTask implements Runnable {
             log.error("Error while purging CallSession: ", e);
         }
         log.trace("Cleaning Task Finished. ");
+    }
+
+    private void destroy(final CallSession session) {
+        sessionMap.remove(session.getId());
+        session.destroy();
     }
 
     public static interface SessionCleanerFilter {

@@ -1,5 +1,7 @@
 package org.xmpp;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.jinglenodes.Main;
@@ -11,6 +13,7 @@ import org.jinglenodes.jingle.description.Payload;
 import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
+import org.jinglenodes.session.CallSession;
 import org.jinglenodes.sip.router.SipRoutingError;
 import org.jinglenodes.sip.router.SipRoutingListener;
 import org.xmpp.packet.JID;
@@ -58,7 +61,7 @@ public class TestSIPGateway extends TestCase {
         final JingleIQ init = fakeJingleInitiate("initiator@abc.com", "responder@abc.com", "sip.abc.com");
 
         jingleProcessor.processIQ(init);
-        Thread.sleep(1000);
+        Thread.sleep(500);
 
         final Jingle jt = new Jingle(init.getJingle().getSid(), init.getJingle().getInitiator(), init.getJingle().getResponder(), Jingle.SESSION_TERMINATE);
         jt.setReason(new Reason(Reason.Type.no_error));
@@ -66,6 +69,13 @@ public class TestSIPGateway extends TestCase {
 
         for (int i = 0; i < 5; i++)
             Thread.sleep(200);
+
+        XStream xStream = new XStream(new DomDriver());
+        xStream.processAnnotations(CallSession.class);
+        final CallSession cs = jingleProcessor.getCallSessionMapper().getSession("abc");
+        System.out.println(xStream.toXML(cs));
+
+        final CallSession cs2 = (CallSession) xStream.fromXML(xStream.toXML(cs));
 
         assertEquals(1, sipInviteSent.get());
 
