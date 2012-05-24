@@ -105,6 +105,53 @@ public class TestParser extends TestCase {
         System.out.println(jingle.toString());
         System.out.println(iq.toXML());
 
-
     }
+
+    final String initiateExample = "<iq type=\"set\" id=\"880BF095-217C-4723-A544-8AB154E17BA0\" to=\"sip.yuilop.tv\" from=\"+4915634567890\n" +
+            "@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\"><jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-initiate\" sid=\"65A377CF25AD46D7B5A324F063002247\" initiator=\"+4915634567890@yuilop.tv/I(1.4.0\n" +
+            ".20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\" responder=\"004915738512829@sip.yuilop.tv\">\n" +
+            "  <content creator=\"initiator\" name=\"voice\">\n" +
+            "    <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\">\n" +
+            "      <payload-type id=\"0\" name=\"PCMU\" clockrate=\"8000\" channels=\"1\"/>\n" +
+            "      <payload-type id=\"8\" name=\"PCMA\" clockrate=\"8000\" channels=\"1\"/>\n" +
+            "      <payload-type id=\"104\" name=\"iLBC\" clockrate=\"8000\" channels=\"1\"/>\n" +
+            "      <payload-type id=\"18\" name=\"G729\" clockrate=\"8000\" channels=\"1\"/>\n" +
+            "      <payload-type id=\"3\" name=\"GSM\" clockrate=\"8000\" channels=\"1\"/>\n" +
+            "    </description>\n" +
+            "    <transport>\n" +
+            "      <candidate ip=\"10.166.108.174\" port=\"4000\" type=\"host\"/>\n" +
+            "    </transport>\n" +
+            "  </content>\n" +
+            "</jingle></iq> ";
+
+     final String acceptExample = "<iq type=\"set\" id=\"73-62\" to=\"+4915634567890@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\" from=\"0049\n" +
+             "15738512829@sip.yuilop.tv\"><jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-accept\" sid=\"65A377CF25AD46D7B5A324F063002247\" initiator=\"+4915634567890@194.183.72.28/sip\" responder=\"004915738512829@sip.yu\n" +
+             "ilop.tv\">\n" +
+             "  <content creator=\"initiator\" name=\"root\" senders=\"both\">\n" +
+             "    <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\">\n" +
+             "      <payload-type id=\"18\" name=\"G729\" clockrate=\"8000\" channels=\"1\"/>\n" +
+             "      <payload-type id=\"3\" name=\"GSM\" clockrate=\"8000\" channels=\"1\"/>\n" +
+             "      <payload-type id=\"8\" name=\"PCMA\" clockrate=\"8000\" channels=\"1\"/>\n" +
+             "      <payload-type id=\"0\" name=\"PCMU\" clockrate=\"8000\" channels=\"1\"/>\n" +
+             "    </description>\n" +
+             "    <transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\">\n" +
+             "      <candidate ip=\"87.230.83.87\" port=\"6070\" generation=\"0\" type=\"host\"/>\n" +
+             "    </transport>\n" +
+             "  </content>\n" +
+             "</jingle></iq>";
+
+    final String terminateExample = "<iq type=\"set\" id=\"758-53\" to=\"+4915634567890@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\" from=\"004\n" +
+            "915738512829@sip.yuilop.tv/as5a1f65c0\"><jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-terminate\" sid=\"2E9C45EB2AF84F59BDB4D281060B63AF\" initiator=\"+4915634567890@194.183.72.28/sip\" responder=\"0049157\n" +
+            "38512829@sip.yuilop.tv/as5a1f65c0\">\n" +
+            "  <reason>\n" +
+            "    <type>no_error</type>\n" +
+            "  </reason>\n" +
+            "</jingle></iq>";
+
+    final String infoExample = " <iq type=\"set\" id=\"134-61\" to=\"+4915634567890@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\" from=\"004\n" +
+            "915738512829@sip.yuilop.tv/as677d099c\"><jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-info\" sid=\"65A377CF25AD46D7B5A324F063002247\" initiator=\"+4915634567890@194.183.72.28/sip\" responder=\"004915738512\n" +
+            "829@sip.yuilop.tv/as677d099c\">\n" +
+            "  <ringing xmlns=\"urn:xmpp:jingle:apps:rtp:info:1\"></ringing>\n" +
+            "</jingle></iq>";
+
 }
