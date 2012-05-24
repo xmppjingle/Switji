@@ -32,6 +32,7 @@ import org.zoolu.sip.header.CallIdHeader;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.Participants;
 import org.zoolu.sip.message.SipParsingException;
+import org.zoolu.tools.ConcurrentTimelineHashMap;
 import org.zoolu.tools.NamingThreadFactory;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class DefaultCallSessionMapper implements CallSessionMapper {
     final private static Logger log = Logger.getLogger(DefaultCallSessionMapper.class);
-    final protected Map<String, CallSession> sessionMap = new ConcurrentHashMap<String, CallSession>();
+    final protected ConcurrentTimelineHashMap<String, CallSession> sessionMap = new ConcurrentTimelineHashMap<String, CallSession>();
     final protected ScheduledThreadPoolExecutor purgeTimer;
     final private int maxSessionTtl; // in Seconds
     final private int unfinishedSessionTtl;
@@ -84,7 +85,7 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
         sessionMap.put(callSession.getId(), callSession);
     }
 
-    private CallSession createSession(final Message message) throws JingleException {
+    protected CallSession createSession(final Message message) throws JingleException {
         JID user;
         try {
             final Participants participants = Participants.getParticipants(message);
@@ -99,7 +100,7 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
         return callSession;
     }
 
-    private CallSession createSession(final JingleIQ jingle) {
+    protected CallSession createSession(final JingleIQ jingle) {
         final String id = getSessionId(jingle);
         log.trace("Creating callSession. Id: " + id);
         final CallSession callSession = new CallSession(id, new JID(jingle.getJingle().getInitiator()));

@@ -64,17 +64,16 @@ public class CallSession {
     private final ConcurrentLinkedQueue<CallPreparation> preparations = new ConcurrentLinkedQueue<CallPreparation>();
     @XStreamOmitField
     private final ConcurrentLinkedQueue<CallPreparation> proceeds = new ConcurrentLinkedQueue<CallPreparation>();
-    @XStreamOmitField
     private final Map<String, ContactHeader> userContactBind = (new ConcurrentHashMap<String, ContactHeader>());
     private int retries = 0;
     private long timestamp;
     private boolean active = true;
-    @XStreamOmitField
     private AtomicInteger sentRequestsCounter = new AtomicInteger();
-    @XStreamOmitField
     private RelayIQ relayIQ;
     private boolean connected = false;
     private SessionCredit sessionCredit;
+    @XStreamOmitField
+    private SessionUpdateListener sessionUpdateListener;
 
     public CallSession(final String id, final JID user) {
         this.id = id;
@@ -82,15 +81,22 @@ public class CallSession {
         this.timestamp = System.currentTimeMillis();
     }
 
-    public void addSentRequest(final Message request) {
+    private void update() {
         timestamp = System.currentTimeMillis();
+        if (sessionUpdateListener != null) {
+            sessionUpdateListener.sessionUpdated(this);
+        }
+    }
+
+    public void addSentRequest(final Message request) {
+        update();
         lastMessage = request;
         lastSentRequest = request;
         sentRequestsCounter.incrementAndGet();
     }
 
     public void addReceivedRequest(final Message request) {
-        timestamp = System.currentTimeMillis();
+        update();
         lastMessage = request;
         lastReceivedRequest = request;
     }
@@ -104,13 +110,13 @@ public class CallSession {
     }
 
     public void addSentResponse(final Message response) {
-        timestamp = System.currentTimeMillis();
+        update();
         lastMessage = response;
         lastSentResponse = response;
     }
 
     public void addReceivedResponse(final Message response) {
-        timestamp = System.currentTimeMillis();
+        update();
         setRetries(0);
         lastMessage = response;
         lastReceivedResponse = response;
@@ -221,7 +227,6 @@ public class CallSession {
     }
 
     public void destroy() {
-
         userContactBind.clear();
         active = false;
     }
@@ -264,5 +269,13 @@ public class CallSession {
 
     public void setSessionCredit(SessionCredit sessionCredit) {
         this.sessionCredit = sessionCredit;
+    }
+
+    public SessionUpdateListener getSessionUpdateListener() {
+        return sessionUpdateListener;
+    }
+
+    public void setSessionUpdateListener(SessionUpdateListener sessionUpdateListener) {
+        this.sessionUpdateListener = sessionUpdateListener;
     }
 }
