@@ -62,7 +62,9 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     @Override
     public void receivedError(IqRequest iqRequest) {
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
-            prepareStatesManager.prepareCall((JingleIQ) iqRequest.getOriginalPacket(), null);
+            if (iqRequest.getRequest().getChildElement().getNamespace().getURI().equals(creditServiceProcessor.getNamespace())) {
+                prepareStatesManager.prepareCall((JingleIQ) iqRequest.getOriginalPacket(), null);
+            }
         }
     }
 
