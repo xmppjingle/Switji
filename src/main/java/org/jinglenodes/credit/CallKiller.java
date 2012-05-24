@@ -73,9 +73,30 @@ public class CallKiller {
         }
     }
 
+    public boolean immediateKill(final String sid, final Reason reason) {
+        final CallSession session = jingleProcessor.getCallSessionMapper().getSession(sid);
+        if (session != null) {
+            immediateKill(session, reason);
+            return true;
+        }
+        return false;
+    }
+
     public void immediateKill(final CallSession session, final Reason reason) {
         log.warn("Immediate Killing Call: " + session.getId());
         final CallKillerTask task = new CallKillerTask(session, jingleProcessor, reason);
         timerExecutor.submit(task);
     }
+
+    public int killAll(final Reason reason) {
+        int i = 0;
+        for (final CallSession session : jingleProcessor.getCallSessionMapper().getSessions()) {
+            log.warn("Immediate Killing Call(killAll): " + session.getId());
+            final CallKillerTask task = new CallKillerTask(session, jingleProcessor, reason);
+            timerExecutor.submit(task);
+            i++;
+        }
+        return i;
+    }
+
 }

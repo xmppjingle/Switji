@@ -24,7 +24,7 @@
 
 package org.jinglenodes.stats;
 
-public interface SIPGatewayStats {
+public interface SwitjiStats {
 
     //TODO create all the other methods used for statistics
 

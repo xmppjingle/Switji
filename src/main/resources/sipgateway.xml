@@ -158,4 +158,34 @@
         <property name="password" value="${xmpp.password}"/>
     </bean>
 
+    <bean id="switjiStats" class="org.jinglenodes.stats.SwitjiStatsImpl">
+    </bean>
+
+    <bean id="switjiAdmin" class="org.jinglenodes.stats.SwitjiAdminImpl">
+    </bean>
+
+    <bean id="jmxExporter" class="org.springframework.jmx.export.MBeanExporter">
+        <property name="beans">
+            <map>
+                <entry key="Sipgateway:name=management">
+                    <ref local="switjiAdmin"/>
+                </entry>
+                <entry key="Sipgateway:name=statistics">
+                    <ref local="switjiStats"/>
+                </entry>
+            </map>
+        </property>
+        <property name="assembler">
+            <bean
+                    class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
+                <property name="managedInterfaces">
+                    <list>
+                        <value>org.jinglenodes.stats.SwitjiAdmin</value>
+                        <value>org.jinglenodes.stats.SwitjiStats</value>
+                    </list>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
 </beans>

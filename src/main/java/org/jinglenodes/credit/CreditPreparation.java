@@ -90,7 +90,7 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public boolean proceedInitiate(JingleIQ iq, CallSession session) {
-        return true;
+        return verifyCredits(session);
     }
 
     public CreditServiceProcessor getCreditServiceProcessor() {
@@ -173,7 +173,20 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public boolean proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
-        return true;
+        return verifyCredits(session);
+    }
+
+    private boolean verifyCredits(CallSession session) {
+        if (session != null) {
+            final SessionCredit sessionCredit = session.getSessionCredit();
+            if (sessionCredit == null || sessionCredit.getMaxDurationInSeconds() < 1) {
+                callKiller.cancelKill(session);
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

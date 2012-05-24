@@ -6,10 +6,10 @@ package org.jinglenodes.stats;
 /**
  * @author bhlangonijr
  */
-public class SIPGatewayStatsImpl implements SIPGatewayStats {
+public class SwitjiStatsImpl implements SwitjiStats {
 
     /* (non-Javadoc)
-      * @see org.jinglenodes.stats.SIPGatewayStats#getOpenSessions()
+      * @see org.jinglenodes.stats.SwitjiStats#getOpenSessions()
       */
     @Override
     public int getOpenSessions() {
@@ -18,7 +18,7 @@ public class SIPGatewayStatsImpl implements SIPGatewayStats {
     }
 
     /* (non-Javadoc)
-      * @see org.jinglenodes.stats.SIPGatewayStats#getSessionMapperSize()
+      * @see org.jinglenodes.stats.SwitjiStats#getSessionMapperSize()
       */
     @Override
     public int getSessionMapperSize() {

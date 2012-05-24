@@ -35,6 +35,7 @@ import org.zoolu.sip.message.SipParsingException;
 import org.zoolu.tools.NamingThreadFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -212,6 +213,10 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
     public String getSessionId(final JingleIQ iq) {
         final String id = iq.getJingle().getSid();// + "x" + iq.getFrom().toBareJID();
         return id;
+    }
+
+    public Collection<CallSession> getSessions() {
+        return sessionMap.values();
     }
 
     public List<CallSession> getTimeoutSessions(final int ms, final int max) {

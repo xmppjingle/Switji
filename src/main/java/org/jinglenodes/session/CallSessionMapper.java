@@ -29,6 +29,7 @@ import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.Message;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface CallSessionMapper {
@@ -60,6 +61,8 @@ public interface CallSessionMapper {
     public CallSession addReceivedJingle(JingleIQ jingle);
 
     public List<CallSession> getTimeoutSessions(int ms, int max);
+
+    public Collection<CallSession> getSessions();
 
     public int getSessionCount();
 
