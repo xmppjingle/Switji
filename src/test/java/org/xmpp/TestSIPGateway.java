@@ -2,23 +2,21 @@ package org.xmpp;
 
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.jinglenodes.Main;
-import org.jinglenodes.component.SIPGatewayApplication;
 import org.jinglenodes.jingle.Jingle;
 import org.jinglenodes.jingle.Reason;
+import org.jinglenodes.jingle.content.Content;
+import org.jinglenodes.jingle.description.Description;
+import org.jinglenodes.jingle.description.Payload;
 import org.jinglenodes.jingle.processor.JingleProcessor;
+import org.jinglenodes.jingle.transport.Candidate;
+import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.jinglenodes.sip.router.SipRoutingError;
 import org.jinglenodes.sip.router.SipRoutingListener;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.Message;
 
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -57,7 +55,7 @@ public class TestSIPGateway extends TestCase {
         };
         Main.getSipGatewayApplication().getSipGatewayComponent().getGatewaySipRouter().addRoutingListener(sipRoutingListener);
 
-        final JingleIQ init = TestGatewayFlow.fakeJingleInitiate("initiator@abc.com", "responder@abc.com", "sip.abc.com");
+        final JingleIQ init = fakeJingleInitiate("initiator@abc.com", "responder@abc.com", "sip.abc.com");
 
         jingleProcessor.processIQ(init);
         Thread.sleep(1000);
@@ -73,5 +71,15 @@ public class TestSIPGateway extends TestCase {
 
     }
 
+    public static JingleIQ fakeJingleInitiate(final String initiator, final String responder, final String to) {
+        final Jingle jingle = new Jingle("abc", initiator, responder, Jingle.SESSION_INITIATE);
+        jingle.setContent(new Content("initiator", "audio", "both", new Description("audio"), new RawUdpTransport(new Candidate("10.166.108.22", "10000", "0"))));
+        jingle.getContent().getDescription().addPayload(Payload.G729);
+        final JingleIQ jingleIQ = new JingleIQ(jingle);
+        jingleIQ.setTo(to);
+        jingleIQ.setFrom(initiator);
+        log.debug(jingle.toString());
+        return jingleIQ;
+    }
 
 }
