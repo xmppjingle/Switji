@@ -8,4 +8,6 @@ package org.jinglenodes.session;
  */
 public interface SessionUpdateListener {
     public void sessionUpdated(final CallSession session);
+
+    public void sessionDestroyed(final CallSession session);
 }

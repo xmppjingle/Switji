@@ -21,9 +21,12 @@ public class JedisConnection extends JedisPool {
 
     public static JedisConnection getInstance(String server, final int port) {
 
-        if (self.containsKey(port) == false)
-            self.put(port, new JedisConnection(server, port));
-        return self.get(port);
+        JedisConnection jc = self.get(port);
+        if (jc == null) {
+            jc = new JedisConnection(server, port);
+            self.put(port, jc);
+        }
+        return jc;
 
     }
 }

@@ -229,6 +229,9 @@ public class CallSession {
     public void destroy() {
         userContactBind.clear();
         active = false;
+        if (sessionUpdateListener != null) {
+            sessionUpdateListener.sessionDestroyed(this);
+        }
     }
 
     public RelayIQ getRelayIQ() {
