@@ -126,7 +126,10 @@ public class Jingle extends BaseElement {
 
     public Jingle clone() {
         Jingle jingle = (Jingle) super.clone();
-        jingle.setInfo(jingle.getInfo());
+        Info info = jingle.getInfo();
+        if (null != info){
+            jingle.setInfo((Info)info.clone());
+        }
         return jingle;
     }
 
@@ -134,7 +137,7 @@ public class Jingle extends BaseElement {
         final Jingle jingle;
         if (element instanceof Jingle) {
             jingle = (Jingle) element;
-            return (Jingle) jingle.clone();
+            return jingle.clone();
         }
 
         if (!element.getName().equals(NAME))
@@ -167,7 +170,7 @@ public class Jingle extends BaseElement {
                 jingle.setReason(reason);
         }
         List<Element> list = element.elements();
-        Info aux = null;
+        Info aux;
         Info info = null;
         for (Element child : list) {
             aux = Info.fromElement(child);
