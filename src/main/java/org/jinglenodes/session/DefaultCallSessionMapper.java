@@ -57,7 +57,7 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
     final protected int purgeTime; // In Seconds
 
     public DefaultCallSessionMapper() {
-        this(1440, 120, 220);
+        this(1500, 120, 200);
     }
 
     public DefaultCallSessionMapper(final int maxSessionTtl, final int purgeTime, final int unfinishedSessionTtl) {

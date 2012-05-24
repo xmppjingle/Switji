@@ -408,9 +408,8 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
                         to = usr;
                     }
                 }
-                if (callSession.getLastReceivedJingle() != null) {
-                    //TODO Dynamic Configure XMPP Route
-                    responder = new JID(callSession.getLastReceivedJingle().getJingle().getResponder().split("@")[0] + "@sip.yuilop.tv");
+                if (callSession.getInitiateIQ() != null) {
+                    responder = new JID(callSession.getInitiateIQ().getJingle().getResponder());
                 }
             }
 
