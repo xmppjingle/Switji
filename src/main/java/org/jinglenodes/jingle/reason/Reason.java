@@ -22,38 +22,27 @@
  *   Thiago Camargo (barata7@gmail.com)
  */
 
-package org.jinglenodes.jingle;
+package org.jinglenodes.jingle.reason;
 
 import org.dom4j.Element;
 import org.dom4j.tree.BaseElement;
 
+import java.util.List;
+
 public class Reason extends BaseElement {
 
-    private Type type;
     private static final String NAME = "reason";
     private static final String TEXT = "text";
+    private ReasonType reasonType;
 
-    public static Reason fromElement(Element element) {
-        //TODO
-        return null;  //To change body of created methods use File | Settings | File Templates.
+    public Reason(final ReasonType type) {
+        this(type, null);
     }
 
-    public enum Type {
-        security_error, alternative_session, busy, connectivity_error, decline, general_error, media_error, no_error, success, unsupported_applications, unsupported_transports, timeout;
-
-        public String toString() {
-            return this.name().replace('_', '-');
-        }
-    }
-
-    public Reason(final Type type) {
-        this(null, type);
-    }
-
-    public Reason(final String text, final Type type) {
+    public Reason(final ReasonType type, final String text) {
         super(NAME);
-        this.type = type;
-        this.addElement(type.toString());
+        this.add(type);
+        this.reasonType = type;
         if (null != text)
             this.addElement(TEXT).addCDATA(text);
     }
@@ -69,13 +58,44 @@ public class Reason extends BaseElement {
             this.addElement(TEXT).addCDATA(text);
     }
 
-    public Type getType() {
-        return this.type;
+    public ReasonType getType() {
+        return reasonType;
     }
 
-    public void setType(final Type type) {
-        this.type = type;
-        //TODO remove old element
-        this.addElement(type.toString());
+    public Reason clone() {
+        return new Reason(this.reasonType, this.getText());
+    }
+
+    public static Reason fromElement(Element element) {
+        final Reason reason;
+
+        if (element instanceof Reason) {
+            reason = (Reason) element;
+            return reason.clone();
+        }
+
+        if (!element.getName().equals(NAME))
+            return null;
+
+        List<Element> list = element.elements();
+        if (list.isEmpty()) {
+            return null;
+        }
+
+        String text = null;
+        ReasonType reasonType = null;
+        ReasonType aux;
+        for (Element child : list) {
+            if (child.getName().equals(TEXT)) {
+                text = child.elementText(TEXT);
+            }
+            aux = ReasonType.fromElement(child);
+            if (null != aux) {
+                reasonType = aux;
+            }
+        }
+        if (null == reasonType)
+            return null;
+        return new Reason(reasonType, text);
     }
 }

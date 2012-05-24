@@ -25,11 +25,12 @@
 package org.jinglenodes.jingle.processor;
 
 import org.apache.log4j.Logger;
-import org.jinglenodes.jingle.Info;
+import org.jinglenodes.jingle.info.Info;
 import org.jinglenodes.jingle.Jingle;
-import org.jinglenodes.jingle.Reason;
+import org.jinglenodes.jingle.reason.Reason;
 import org.jinglenodes.jingle.content.Content;
 import org.jinglenodes.jingle.description.Description;
+import org.jinglenodes.jingle.reason.ReasonType;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.jinglenodes.prepare.CallPreparation;
@@ -78,8 +79,8 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
         } catch (JingleException e) {
             if (iq != null) {
-                if (Jingle.SESSION_INITIATE.equals(iq.getJingle().getAction())) {
-                    cancelCall(iq, "Not Allowed.", Reason.Type.decline);
+                if (Jingle.Action.session_initiate.equals(iq.getJingle().getAction())) {
+                    cancelCall(iq, "Not Allowed.", ReasonType.Name.decline);
                 }
             }
             log.error("Error Processing Jingle", e);
@@ -94,9 +95,9 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     public void processJingle(final JingleIQ iq) throws JingleException {
 
         final CallSession session = callSessionMapper.addReceivedJingle(iq);
-        final String action = iq.getJingle().getAction();
+        final Jingle.Action action = iq.getJingle().getAction();
 
-        if (action.equals(Jingle.SESSION_INITIATE)) {
+        if (action.equals(Jingle.Action.session_initiate)) {
             for (final CallPreparation p : preparations) {
                 session.addCallPreparation(p);
             }
@@ -112,8 +113,8 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             session = callSessionMapper.getSession(iq);
         }
         if (session != null) {
-            final String action = iq.getJingle().getAction();
-            if (action.equals(Jingle.SESSION_INITIATE)) {
+            final Jingle.Action action = iq.getJingle().getAction();
+            if (action.equals(Jingle.Action.session_initiate)) {
                 for (CallPreparation preparation = session.popCallPreparation(); preparation != null; preparation = session.popCallPreparation()) {
                     session.addCallProceed(preparation);
                     if (!preparation.prepareInitiate(iq, session)) return;
@@ -125,17 +126,17 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
     public void proceedCall(final JingleIQ iq, final CallSession session) {
 
-        final String action = iq.getJingle().getAction();
+        final Jingle.Action action = iq.getJingle().getAction();
 
-        if (action.equals(Jingle.SESSION_INITIATE)) {
+        if (action.equals(Jingle.Action.session_initiate)) {
             executeInitiateProceeds(iq, session);
             sendSipInvite(iq);
-        } else if (action.equals(Jingle.SESSION_TERMINATE)) {
+        } else if (action.equals(Jingle.Action.session_terminate)) {
             executeTerminateProceeds(iq, session);
             sendSipTermination(iq);
-        } else if (action.equals(Jingle.SESSION_INFO)) {
+        } else if (action.equals(Jingle.Action.session_info)) {
             sendSipRinging(iq);
-        } else if (action.equals(Jingle.SESSION_ACCEPT)) {
+        } else if (action.equals(Jingle.Action.session_accept)) {
             executeAcceptProceeds(iq, session);
             sendSipInviteOk(iq);
         }
@@ -242,12 +243,12 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     }
 
     public void cancelCall(final JingleIQ iq, final String reasonText) {
-        cancelCall(iq, reasonText, Reason.Type.general_error);
+        cancelCall(iq, reasonText, ReasonType.Name.general_error);
     }
 
-    public void cancelCall(final JingleIQ iq, final String reasonText, final Reason.Type type) {
+    public void cancelCall(final JingleIQ iq, final String reasonText, final ReasonType.Name type) {
         if (iq != null) {
-            IQ reply = createJingleTermination(iq, new Reason(reasonText, type));
+            IQ reply = createJingleTermination(iq, new Reason(new ReasonType(type), reasonText));
             reply.setTo(iq.getFrom());
             gatewayRouter.send(reply);
         }
@@ -286,7 +287,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
             if (lastResponse != null && (lastResponse.isRinging() || lastResponse.isTrying())) {
 
-                if (iq.getJingle().getReason() != null && iq.getJingle().getReason().getType().equals(Reason.Type.media_error)) {
+                if (iq.getJingle().getReason() != null && iq.getJingle().getReason().getType().getNameType().equals(ReasonType.Name.media_error)) {
                     lastResponse.setStatusLine(new StatusLine(415, "Unsupported Media Type"));
                 } else {
                     lastResponse.setStatusLine(new StatusLine(480, "Unavailable"));
@@ -479,7 +480,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         if (c != null) {
             if (!Candidate.RELAY.equals(c.getType())) {
                 c.setIp(relayIQ.getHost());
-                c.setPort(Jingle.SESSION_INITIATE.equals(iq.getJingle().getAction()) ? relayIQ.getLocalport() : relayIQ.getRemoteport());
+                c.setPort(Jingle.Action.session_initiate.equals(iq.getJingle().getAction()) ? relayIQ.getLocalport() : relayIQ.getRemoteport());
                 log.debug("Updated Transport: " + iq.toXML() + " with: " + relayIQ.toXML());
                 return JingleIQ.clone(iq);
             }
@@ -488,7 +489,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     }
 
     public static JingleIQ createJingleInitialization(final JID initiator, final JID responder, final String to, final Content content, final String sid) {
-        final Jingle jingle = new Jingle(sid, initiator.toString(), responder.toString(), Jingle.SESSION_INITIATE);
+        final Jingle jingle = new Jingle(sid, initiator.toString(), responder.toString(), Jingle.Action.session_initiate);
         jingle.setContent(content);
         final JingleIQ iq = new JingleIQ(jingle);
         iq.setTo(to);
@@ -497,7 +498,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     }
 
     public static JingleIQ createJingleEarlyMedia(final JID initiator, final JID responder, final String to, final Content content, final String sid) {
-        final Jingle jingle = new Jingle(sid, initiator.toString(), responder.toString(), Jingle.CONTENT_ADD);
+        final Jingle jingle = new Jingle(sid, initiator.toString(), responder.toString(), Jingle.Action.content_add);
         jingle.setContent(content);
         final JingleIQ iq = new JingleIQ(jingle);
         iq.setTo(to);
@@ -506,7 +507,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     }
 
     public static JingleIQ createJingleAccept(final JID initiator, final JID responder, final String to, final Content content, final String sid) {
-        final Jingle jingle = new Jingle(sid, initiator.toString(), responder.toString(), Jingle.SESSION_ACCEPT);
+        final Jingle jingle = new Jingle(sid, initiator.toString(), responder.toString(), Jingle.Action.session_accept);
         jingle.setContent(content);
         final JingleIQ iq = new JingleIQ(jingle);
         iq.setTo(to);
@@ -515,7 +516,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     }
 
     public static JingleIQ createJingleTermination(final JID initiator, final JID responder, final String to, final Reason reason, final String sid) {
-        final Jingle jingle = new Jingle(sid, initiator.toString(), responder.toString(), Jingle.SESSION_TERMINATE);
+        final Jingle jingle = new Jingle(sid, initiator.toString(), responder.toString(), Jingle.Action.session_terminate);
         jingle.setReason(reason);
         final JingleIQ iq = new JingleIQ(jingle);
         iq.setTo(to);
@@ -525,7 +526,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     }
 
     public static JingleIQ createJingleTermination(final JingleIQ initiate, final Reason reason) {
-        final Jingle jingle = new Jingle(initiate.getJingle().getSid(), initiate.getJingle().getInitiator(), initiate.getJingle().getResponder(), Jingle.SESSION_TERMINATE);
+        final Jingle jingle = new Jingle(initiate.getJingle().getSid(), initiate.getJingle().getInitiator(), initiate.getJingle().getResponder(), Jingle.Action.session_terminate);
         jingle.setReason(reason);
         final JingleIQ iq = new JingleIQ(jingle);
         iq.setTo(initiate.getFrom());
@@ -534,7 +535,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     }
 
     public static JingleIQ createJingleSessionInfo(final JID initiator, final JID responder, final String to, final String sid, final Info.Type type) throws JingleSipException {
-        final Jingle jingle = new Jingle(sid, initiator.toString(), responder.toString(), Jingle.SESSION_INFO);
+        final Jingle jingle = new Jingle(sid, initiator.toString(), responder.toString(), Jingle.Action.session_info);
         jingle.setInfo(new Info(Info.Type.ringing));
         final JingleIQ iq = new JingleIQ(jingle);
         iq.setTo(to);

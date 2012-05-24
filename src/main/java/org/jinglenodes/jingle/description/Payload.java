@@ -41,11 +41,7 @@ public class Payload extends BaseElement {
     public static final Payload GSM = new Payload("3", "GSM");
 
     public Payload(String id, String name) {
-        super(NAME);
-        this.addAttribute("id", id);
-        this.addAttribute("name", name);
-        this.addAttribute("clockrate", String.valueOf(CLOCKRATE));
-        this.addAttribute("channels", String.valueOf(CHANNELS));
+        this(id, name, CLOCKRATE, CHANNELS);
     }
 
     public Payload(String id, String name, int clockrate, int channels) {
@@ -75,10 +71,6 @@ public class Payload extends BaseElement {
     public void setClockrate(int clockrate) {
         this.addAttribute("clockrate", String.valueOf(clockrate));
     }
-//
-//    public void setChannels(int channels) {
-//        this.channels = channels;
-//    }
 
     public static Payload getPayload(final int id) {
 
@@ -97,13 +89,10 @@ public class Payload extends BaseElement {
 
     }
 
-    public Payload clone() {
-        return new Payload(this.getId(), this.getName(), this.getClockrate(), this.getChannels());
-    }
-
     public static List<Payload> fromElement(Element element) {
+        //TODO check if no exist
         final List<Payload> payloadList = new ArrayList<Payload>();
-        final List<Element> elementList = (List<Element>) element.elements();
+        final List<Element> elementList = element.elements();
         String id, name, clockrate, channels;
         Payload payload;
         for (Element pay : elementList) {

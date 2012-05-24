@@ -3,6 +3,7 @@ package org.xmpp.tinder;
 import org.dom4j.Element;
 import org.jinglenodes.jingle.Jingle;
 import org.jinglenodes.jingle.content.Content;
+import org.jinglenodes.jingle.reason.Reason;
 import org.xmpp.packet.IQ;
 
 public class JingleIQ extends IQ {
@@ -14,23 +15,15 @@ public class JingleIQ extends IQ {
 
     public static JingleIQ fromXml(final IQ iq) {
         Element je = iq.getChildElement();
-        Element ce = null;
         if (je == null) {
             je = iq.getElement();
-            ce = iq.getElement().element("content");
         }
         if (je != null) {
             if (!"jingle".equals(je.getName())) {
                 je = je.element("jingle");
             }
-            if (null == ce){
-                ce = je.element("content");
-            }
 
             final Jingle jingle = Jingle.fromElement(je);
-
-            final Content content = Content.fromElement(ce);
-            jingle.setContent(content);
 
             final JingleIQ jingleIQ = new JingleIQ(jingle);
             jingleIQ.setTo(iq.getTo());

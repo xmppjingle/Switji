@@ -23,7 +23,7 @@ public class TestGatewayFlow extends TestCase {
     }
 
     public static JingleIQ fakeJingleInitiate(final String initiator, final String responder, final String to) {
-        final Jingle jingle = new Jingle("abc", initiator, responder, Jingle.SESSION_INITIATE);
+        final Jingle jingle = new Jingle("abc", initiator, responder, Jingle.Action.session_initiate);
         jingle.setContent(new Content(Content.Creator.initiator, "audio", Content.Senders.both, new Description("audio"), new RawUdpTransport(new Candidate("10.166.108.22", "10000", "0"))));
         jingle.getContent().getDescription().addPayload(Payload.G729);
         final JingleIQ jingleIQ = new JingleIQ(jingle);

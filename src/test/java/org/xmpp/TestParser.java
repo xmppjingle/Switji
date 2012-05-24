@@ -4,13 +4,13 @@ import junit.framework.TestCase;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.jinglenodes.jingle.Info;
+import org.jinglenodes.jingle.info.Info;
 import org.jinglenodes.jingle.Jingle;
-import org.jinglenodes.jingle.Reason;
+import org.jinglenodes.jingle.reason.Reason;
 import org.jinglenodes.jingle.content.Content;
 import org.jinglenodes.jingle.description.Description;
 import org.jinglenodes.jingle.description.Payload;
+import org.jinglenodes.jingle.reason.ReasonType;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.xmpp.packet.IQ;
@@ -31,7 +31,7 @@ public class TestParser extends TestCase {
     final String responder = "b@b.com";
 
     public void testGenParser() {
-        final Jingle jingle = new Jingle("abc", initiator, responder, Jingle.SESSION_INITIATE);
+        final Jingle jingle = new Jingle("abc", initiator, responder, Jingle.Action.session_initiate);
         jingle.setContent(new Content(Content.Creator.initiator, "audio", Content.Senders.both, new Description("audio"), new RawUdpTransport(new Candidate("10.166.108.22", "10000", "0"))));
         jingle.getContent().getDescription().addPayload(Payload.G729);
         final JingleIQ jingleIQ = new JingleIQ(jingle);
@@ -68,11 +68,11 @@ public class TestParser extends TestCase {
         assertTrue(newJingle.getJingle().getContent().getDescription() != null);
     }
 
-    public void atestGenParserTerminate() {
-        final Jingle jingle = new Jingle("abc", initiator, responder, Jingle.SESSION_TERMINATE);
-        jingle.setReason(new Reason(Reason.Type.no_error));
+    public void testGenParserTerminate() {
+        final Jingle jingle = new Jingle("abc", initiator, responder, Jingle.Action.session_terminate);
+        jingle.setReason(new Reason(new ReasonType(ReasonType.Name.success)));
         final JingleIQ jingleIQ = new JingleIQ(jingle);
-        assertEquals(jingleIQ.getChildElement().element("jingle").asXML(), sourceTerminate);
+        assertEquals(jingleIQ.getChildElement().asXML(), sourceTerminate);
         System.out.println(jingleIQ.toXML());
         final JingleIQ jingleIQParsed = JingleIQ.fromXml(jingleIQ);
         System.out.println(jingleIQParsed.getChildElement().element("jingle").asXML());
@@ -80,12 +80,23 @@ public class TestParser extends TestCase {
         assertEquals(jingleIQParsed.getJingle().getInitiator(), initiator);
     }
 
+    public void testGenInfo() throws DocumentException{
+        final String packet = "<iq from=\"juliet@capulet.lit/balcony\" id=\"hg4891f5\" to=\"romeo@montague.lit/orchard\" type=\"set\"> <jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-info\" initiator=\"romeo@montague.lit/orchard\" sid=\"a73sjjvkla37jfea\"> <mute xmlns=\"urn:xmpp:jingle:apps:rtp:info:1\" creator=\"responder\" name=\"voice\"/> </jingle> </iq>";
+        Document doc = DocumentHelper.parseText(packet);
+
+        final IQ iq = new IQ(doc.getRootElement());
+        final JingleIQ jingleIQ = JingleIQ.fromXml(iq);
+        System.out.println(jingleIQ);
+        Info info = jingleIQ.getJingle().getInfo();
+        System.out.println(info);
+    }
+
     public void testRingingPacket(){
 
         final String initiator = "romeo@localhost";
         final String responder = "juliet@localhost";
 
-        final Jingle jingle = new Jingle("12121", initiator, responder, Jingle.SESSION_INFO);
+        final Jingle jingle = new Jingle("12121", initiator, responder, Jingle.Action.session_info);
         jingle.setInfo(new Info(Info.Type.ringing));
         final JingleIQ iq = new JingleIQ(jingle);
         iq.setTo(initiator);

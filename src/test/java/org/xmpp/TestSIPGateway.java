@@ -2,23 +2,17 @@ package org.xmpp;
 
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.jinglenodes.Main;
-import org.jinglenodes.component.SIPGatewayApplication;
 import org.jinglenodes.jingle.Jingle;
-import org.jinglenodes.jingle.Reason;
+import org.jinglenodes.jingle.reason.Reason;
 import org.jinglenodes.jingle.processor.JingleProcessor;
+import org.jinglenodes.jingle.reason.ReasonType;
 import org.jinglenodes.sip.router.SipRoutingError;
 import org.jinglenodes.sip.router.SipRoutingListener;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.Message;
 
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -62,8 +56,8 @@ public class TestSIPGateway extends TestCase {
         jingleProcessor.processIQ(init);
         Thread.sleep(1000);
 
-        final Jingle jt = new Jingle(init.getJingle().getSid(), init.getJingle().getInitiator(), init.getJingle().getResponder(), Jingle.SESSION_TERMINATE);
-        jt.setReason(new Reason(Reason.Type.no_error));
+        final Jingle jt = new Jingle(init.getJingle().getSid(), init.getJingle().getInitiator(), init.getJingle().getResponder(), Jingle.Action.session_terminate);
+        jt.setReason(new Reason(new ReasonType(ReasonType.Name.success))); //before no_error
         jingleProcessor.processIQ(new JingleIQ(jt));
 
         for (int i = 0; i < 5; i++)

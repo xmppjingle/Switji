@@ -88,6 +88,7 @@ public class Candidate extends BaseElement {
     }
 
     public static List<Candidate> fromElement(Element element) {
+        //TODO check if no exist
         final List<Candidate> candidateList = new ArrayList<Candidate>();
         final List<Element> elementList = (List<Element>) element.elements();
         for (Element candidate : elementList) {

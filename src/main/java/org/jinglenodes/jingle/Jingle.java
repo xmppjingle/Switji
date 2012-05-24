@@ -28,17 +28,22 @@ import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.tree.BaseElement;
 import org.jinglenodes.jingle.content.Content;
+import org.jinglenodes.jingle.info.Info;
+import org.jinglenodes.jingle.reason.Reason;
+
+import java.util.List;
 
 
 public class Jingle extends BaseElement {
+    private final static String NAME = "jingle";
+    private final static String SID = "sid";
+    private final static String INITIATOR = "initiator";
+    private final static String RESPONDER = "responder";
+    private final static String ACTION = "action";
 
-    public final static String SESSION_INITIATE = "session-initiate";
-    public final static String SESSION_TERMINATE = "session-terminate";
-    public final static String SESSION_ACCEPT = "session-accept";
-    public final static String CONTENT_MODIFY = "content-modify";
-    public final static String CONTENT_ADD = "content-add";
-    public final static String SESSION_INFO = "session-info";
-    public final static String TRANSPORT_INFO = "transport-info";
+    private Info info;
+
+    public static final String NAMESPACE = "urn:xmpp:jingle:1";
 
     public enum Action {
         session_initiate, session_terminate, session_accept, content_modify, content_add, session_info, transport_info;
@@ -48,23 +53,12 @@ public class Jingle extends BaseElement {
         }
     }
 
-    private final static String NAME = "jingle";
-    private final static String SID = "sid";
-    private final static String INITIATOR = "initiator";
-    private final static String RESPONDER = "responder";
-    private final static String ACTION = "action";
-
-    public static final String NAMESPACE = "urn:xmpp:jingle:1";
-
-    private Reason reason;
-    private Info info;
-
-    public Jingle(String sid, String initiator, String responder, String action) {
+    public Jingle(String sid, String initiator, String responder, Action action) {
         super(NAME, Namespace.get(NAMESPACE));
         this.addAttribute(SID, sid);
         this.addAttribute(INITIATOR, initiator);
         this.addAttribute(RESPONDER, responder);
-        this.addAttribute(ACTION, action);
+        this.addAttribute(ACTION, action.toString());
     }
 
     public void setContent(Content content) {
@@ -73,9 +67,9 @@ public class Jingle extends BaseElement {
 
     public Content getContent() {
         Element element = this.element("content");
-        if (element instanceof Content){
+        if (element instanceof Content) {
             return (Content) this.element("content");
-        }else{
+        } else {
             return Content.fromElement(element);
         }
     }
@@ -92,8 +86,8 @@ public class Jingle extends BaseElement {
         return this.attributeValue(RESPONDER);
     }
 
-    public String getAction() {
-        return this.attributeValue(ACTION);
+    public Action getAction() {
+        return Action.valueOf(this.attributeValue(ACTION).replace('-', '_'));
     }
 
     public String toString() {
@@ -106,9 +100,9 @@ public class Jingle extends BaseElement {
 
     public Reason getReason() {
         Element element = this.element("reason");
-        if (element instanceof Reason){
+        if (element instanceof Reason) {
             return (Reason) this.element("reason");
-        }else{
+        } else {
             return Reason.fromElement(element);
         }
     }
@@ -118,49 +112,73 @@ public class Jingle extends BaseElement {
     }
 
     public Info getInfo() {
-        Element element = this.element(null, Namespace.get("urn:xmpp:jingle:apps:rtp:info:1"));
-        if (element instanceof Info){
-            return (Info) this.element("info");
-        }else{
-            return Info.fromElement(element);
-        }
+        return info;
     }
 
     public void setInfo(Info info) {
         this.add(info);
+        this.info = info;
     }
 
     public void setResponder(String responder) {
         this.addAttribute(RESPONDER, responder);
     }
 
-    public static Jingle fromElement(Element element) {
-        final String sid = element.attributeValue("sid");
-        final String initiator = element.attributeValue("initiator");
-        final String responder = element.attributeValue("responder");
-        final String action = element.attributeValue("action");
-        final Jingle jingle = new Jingle(sid, initiator, responder, action);
-        Element e = element.element("content");
-        if (null!= e){
-            jingle.setContent(Content.fromElement(e));
-        }
-        e = element.element("reason");
-        if (null!= e){
-            jingle.setReason(Reason.fromElement(e));
-        }
-        //TODO get info sub-element
-        /*if (null!= e){
-            jingle.setInfo(Info.fromElement(e));
-        }*/
+    public Jingle clone() {
+        Jingle jingle = (Jingle) super.clone();
+        jingle.setInfo(jingle.getInfo());
         return jingle;
     }
 
-    /*
-   public Jingle clone() {
-       Jingle jingle = new Jingle(this.getSid(), this.getInitiator(), this.getResponder(), this.getAction());
-       jingle.setContent(this.getContent());
-       jingle.setInfo(this.getInfo());
-       jingle.setReason(this.getReason());
-       return jingle;
-   } */
+    public static Jingle fromElement(Element element) {
+        final Jingle jingle;
+        if (element instanceof Jingle) {
+            jingle = (Jingle) element;
+            return (Jingle) jingle.clone();
+        }
+
+        if (!element.getName().equals(NAME))
+            return null;
+
+        final String sid = element.attributeValue("sid");
+        final String initiator = element.attributeValue("initiator");
+        final String responder = element.attributeValue("responder");
+        final String stringAction = element.attributeValue("action");
+        Action action;
+        try {
+            if (null != stringAction)
+                action = Action.valueOf(stringAction.replace('-', '_'));
+            else return null;
+        } catch (Exception e) {
+            return null;
+        }
+
+        jingle = new Jingle(sid, initiator, responder, action);
+        Element e = element.element("content");
+        if (null != e) {
+            Content content = Content.fromElement(e);
+            if (null != content)
+                jingle.setContent(content);
+        }
+        e = element.element("reason");
+        if (null != e) {
+            Reason reason = Reason.fromElement(e);
+            if (null != reason)
+                jingle.setReason(reason);
+        }
+        List<Element> list = element.elements();
+        Info aux = null;
+        Info info = null;
+        for (Element child : list) {
+            aux = Info.fromElement(child);
+            if (null != aux) {
+                info = aux;
+            }
+        }
+        if (null != info) {
+            jingle.setInfo(info);
+        }
+        return jingle;
+    }
+
 }

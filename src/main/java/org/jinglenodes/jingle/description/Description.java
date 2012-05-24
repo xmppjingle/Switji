@@ -27,6 +27,7 @@ package org.jinglenodes.jingle.description;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.tree.BaseElement;
+
 import java.util.List;
 
 public class Description extends BaseElement {
@@ -45,8 +46,8 @@ public class Description extends BaseElement {
     }
 
     public void addPayload(List<Payload> payloads) {
-        for (Payload payload: payloads){
-             this.add(payload);
+        for (Payload payload : payloads) {
+            this.add(payload);
         }
     }
 

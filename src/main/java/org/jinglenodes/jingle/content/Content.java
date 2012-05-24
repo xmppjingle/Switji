@@ -58,18 +58,6 @@ public class Content extends BaseElement {
         this.transport = transport;
     }
 
-    public static Content fromElement(Element element){
-        final Content.Creator creator = Content.Creator.valueOf(element.attributeValue("creator"));
-        final String name = element.attributeValue("name");
-        final Content.Senders senders = Content.Senders.valueOf(element.attributeValue("senders"));
-        final Element de = element.element("description");
-
-        final Description description = Description.fromElement(de);
-        final Element te = element.element("transport");
-        final RawUdpTransport raw = RawUdpTransport.fromElement(te);
-        return new Content(creator, name, senders, description, raw);
-    }
-
     public String getCreator() {
         return this.attributeValue(CREATOR);
     }
@@ -102,10 +90,35 @@ public class Content extends BaseElement {
         this.addAttribute(DISPOSITION, disposition);
     }
 
-    public Content clone(){
-        Content content = new Content(Creator.valueOf(this.getCreator()), this.getAttributeName(), Senders.valueOf(this.getSenders()), this.getDescription(), this.getTransport());
-        content.setDisposition(this.getDisposition());
-        return content;
+    public Content clone() {
+        return new Content(Creator.valueOf(this.getCreator()), this.getAttributeName(), Senders.valueOf(this.getSenders()), this.getDescription(), this.getTransport());
+    }
+
+    public static Content fromElement(Element element) {
+        final Content content;
+        if (element instanceof Content) {
+            content = (Content) element;
+            return content.clone();
+        }
+
+        if (!element.getName().equals(ELEMENT_NAME))
+            return null;
+
+        Creator creator;
+        Senders senders;
+        try {
+            creator = Creator.valueOf(element.attributeValue("creator"));
+            senders = Senders.valueOf(element.attributeValue("senders"));
+        } catch (Exception e) {
+            return null;
+        }
+        final String name = element.attributeValue("name");
+        final Element de = element.element("description");
+
+        final Description description = Description.fromElement(de);
+        final Element te = element.element("transport");
+        final RawUdpTransport raw = RawUdpTransport.fromElement(te);
+        return new Content(creator, name, senders, description, raw);
     }
 
 }
