@@ -400,6 +400,9 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
             final CallSession callSession = callSessions.getSession(msg);
             if (callSession != null) {
+
+                callSession.setConnected(true);
+
                 if (sipToJingleBind != null) {
                     to = sipToJingleBind.getXmppTo(initiator, callSession.getLastReceivedJingle());
                 }

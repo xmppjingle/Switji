@@ -209,6 +209,8 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
                 throw new JingleSipException("No CallSession Found.");
             }
 
+            callSession.setConnected(true);
+
             if (callSession.getRelayIQ() != null) {
                 iq = updateJingleTransport(iq, callSession.getRelayIQ());
             }
