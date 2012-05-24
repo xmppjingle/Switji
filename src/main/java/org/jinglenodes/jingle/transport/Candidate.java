@@ -26,33 +26,27 @@ package org.jinglenodes.jingle.transport;
 
 import org.dom4j.Element;
 import org.dom4j.tree.BaseElement;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Candidate extends BaseElement {
     private static final String NAME = "candidate";
+
     private static final String COMPONENT = "component";
-    private static final String FUNDATION = "fundation";
-    private static final String GENERATION = "genetarion";
+    private static final String GENERATION = "generation";
     private static final String ID = "id";
     private static final String IP = "ip";
-    private static final String NETWORK = "network";
     private static final String PORT = "port";
-    private static final String PRIORITY = "priority";
-    private static final String PROTOCOL = "protocol";
     private static final String TYPE = "type";
 
-    public static final String PEER_REFLEX = "prflx";
-    public static final String RELAY = "relay";
-    public static final String HOST = "host";
+    public enum Type { host, prflx, relay, srflx }
 
     public Candidate(String ip, String port, String generation) {
         super(NAME);
         this.addAttribute(IP, ip);
         this.addAttribute(PORT, port);
         this.addAttribute(GENERATION, generation);
-        this.addAttribute(TYPE, HOST);
+        this.addAttribute(TYPE, Type.host.toString());
     }
 
     public String getIp() {
@@ -67,12 +61,12 @@ public class Candidate extends BaseElement {
         return this.attributeValue(GENERATION);
     }
 
-    public String getType() {
-        return this.attributeValue(TYPE);
+    public Type getType() {
+        return Type.valueOf(this.attributeValue(TYPE));
     }
 
-    public void setType(String type) {
-        this.addAttribute(TYPE, type);
+    public void setType(Type type) {
+        this.addAttribute(TYPE, type.toString());
     }
 
     public void setIp(String ip) {
@@ -88,7 +82,6 @@ public class Candidate extends BaseElement {
     }
 
     public static List<Candidate> fromElement(Element element) {
-        //TODO check if no exist
         final List<Candidate> candidateList = new ArrayList<Candidate>();
         final List<Element> elementList = (List<Element>) element.elements();
         for (Element candidate : elementList) {

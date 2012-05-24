@@ -7,7 +7,7 @@ import org.dom4j.Element;
  * User: pepe
  * Date: 24/05/12
  * Time: 12:05
- * To change this template use File | Settings | File Templates.
+ * Subclass of ReasonType to element alternative-session
  */
 public class AlternativeSession extends ReasonType {
     private final static String SID = "sid";

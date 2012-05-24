@@ -2,8 +2,6 @@ package org.xmpp.tinder;
 
 import org.dom4j.Element;
 import org.jinglenodes.jingle.Jingle;
-import org.jinglenodes.jingle.content.Content;
-import org.jinglenodes.jingle.reason.Reason;
 import org.xmpp.packet.IQ;
 
 public class JingleIQ extends IQ {

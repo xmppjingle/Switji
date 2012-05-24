@@ -36,8 +36,10 @@ public class Content extends BaseElement {
     private final static String SENDERS = "senders";
     private final static String DISPOSITION = "disposition";
 
-    private Description description;
-    private RawUdpTransport transport;
+    private final static String DESCRIPTION = "description";
+    private final static String TRANSPORT = "transport";
+    private final Description description;
+    private final RawUdpTransport transport;
 
     public enum Senders {
         initiator, none, responder, both
@@ -49,9 +51,11 @@ public class Content extends BaseElement {
 
     public Content(Creator creator, String name, Senders senders, Description description, RawUdpTransport transport) {
         super(ELEMENT_NAME);
-        this.addAttribute(CREATOR, creator.toString());
+        if (null != creator)
+            this.addAttribute(CREATOR, creator.toString());
         this.addAttribute(NAME, name);
-        this.addAttribute(SENDERS, senders.toString());
+        if (null != senders)
+            this.addAttribute(SENDERS, senders.toString());
         this.add(description);
         this.add(transport);
         this.description = description;
@@ -104,19 +108,24 @@ public class Content extends BaseElement {
         if (!element.getName().equals(ELEMENT_NAME))
             return null;
 
-        Creator creator;
-        Senders senders;
+        String ct, sd;
+        Creator creator = null;
+        Senders senders = null;
+        ct = element.attributeValue(CREATOR);
+        sd = element.attributeValue(SENDERS);
         try {
-            creator = Creator.valueOf(element.attributeValue("creator"));
-            senders = Senders.valueOf(element.attributeValue("senders"));
-        } catch (Exception e) {
+            if (null != ct)
+                creator = Creator.valueOf(ct);
+            if (null != sd)
+                senders = Senders.valueOf(sd);
+        } catch (IllegalArgumentException e) {
             return null;
         }
-        final String name = element.attributeValue("name");
-        final Element de = element.element("description");
+        final String name = element.attributeValue(NAME);
+        final Element de = element.element(DESCRIPTION);
 
         final Description description = Description.fromElement(de);
-        final Element te = element.element("transport");
+        final Element te = element.element(TRANSPORT);
         final RawUdpTransport raw = RawUdpTransport.fromElement(te);
         return new Content(creator, name, senders, description, raw);
     }

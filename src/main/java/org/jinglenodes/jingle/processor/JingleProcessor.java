@@ -226,7 +226,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             if (iq.getJingle().getContent() != null) {
                 try {
                     final Content content = iq.getJingle().getContent();
-                    final String body = SipProcessor.createSipSDP((Description) content.getDescription(), (RawUdpTransport) content.getTransport(), sipProviderInfo).toString();
+                    final String body = SipProcessor.createSipSDP(content.getDescription(), content.getTransport(), sipProviderInfo).toString();
                     ok.setBody(body);
                 } catch (SdpException e) {
                     log.error("SDP Parsing Error", e);
@@ -478,7 +478,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         final Candidate c = iq.getJingle().getContent().getTransport().getCandidates().get(0);
         log.debug("Updating Transport: " + iq.toXML() + " with: " + relayIQ.toXML());
         if (c != null) {
-            if (!Candidate.RELAY.equals(c.getType())) {
+            if (!Candidate.Type.relay.equals(c.getType())) {
                 c.setIp(relayIQ.getHost());
                 c.setPort(Jingle.Action.session_initiate.equals(iq.getJingle().getAction()) ? relayIQ.getLocalport() : relayIQ.getRemoteport());
                 log.debug("Updated Transport: " + iq.toXML() + " with: " + relayIQ.toXML());

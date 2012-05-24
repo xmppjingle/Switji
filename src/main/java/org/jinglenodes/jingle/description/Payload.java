@@ -26,12 +26,20 @@ package org.jinglenodes.jingle.description;
 
 import org.dom4j.Element;
 import org.dom4j.tree.BaseElement;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Payload extends BaseElement {
     private static final String NAME = "payload-type";
+
+    private static final String ID_ATR = "id";
+    private static final String NAME_ATR = "name";
+    private static final String CLOCKRATE_ATR = "clockrate";
+    private static final String CHANNELS_ATR = "channels";
+    private static final String MAXPTIME_ATR = "maxptime";
+    private static final String PTIME_ATR = "ptime";
+
+
     private static final int CLOCKRATE = 8000;
     private static final int CHANNELS = 1;
 
@@ -46,30 +54,34 @@ public class Payload extends BaseElement {
 
     public Payload(String id, String name, int clockrate, int channels) {
         super(NAME);
-        this.addAttribute("id", id);
-        this.addAttribute("name", name);
-        this.addAttribute("clockrate", String.valueOf(clockrate));
-        this.addAttribute("channels", String.valueOf(channels));
+        this.addAttribute(ID_ATR, id);
+        this.addAttribute(NAME_ATR, name);
+        this.addAttribute(CLOCKRATE_ATR, String.valueOf(clockrate));
+        this.addAttribute(CHANNELS_ATR, String.valueOf(channels));
     }
 
     public String getId() {
-        return this.attributeValue("id");
+        return this.attributeValue(ID_ATR);
     }
 
     public String getName() {
-        return this.attributeValue("name");
+        return this.attributeValue(NAME_ATR);
     }
 
     public int getClockrate() {
-        return Integer.parseInt(this.attributeValue("clockrate"));
+        return Integer.parseInt(this.attributeValue(CLOCKRATE_ATR));
     }
 
     public int getChannels() {
-        return Integer.parseInt(this.attributeValue("channels"));
+        return Integer.parseInt(this.attributeValue(CHANNELS_ATR));
     }
 
     public void setClockrate(int clockrate) {
-        this.addAttribute("clockrate", String.valueOf(clockrate));
+        this.addAttribute(CLOCKRATE_ATR, String.valueOf(clockrate));
+    }
+
+    public void setChannels(int channels) {
+        this.addAttribute(CHANNELS_ATR, String.valueOf(channels));
     }
 
     public static Payload getPayload(final int id) {
@@ -90,21 +102,20 @@ public class Payload extends BaseElement {
     }
 
     public static List<Payload> fromElement(Element element) {
-        //TODO check if no exist
         final List<Payload> payloadList = new ArrayList<Payload>();
         final List<Element> elementList = element.elements();
         String id, name, clockrate, channels;
         Payload payload;
         for (Element pay : elementList) {
-            id = pay.attributeValue("id");
-            name = pay.attributeValue("name");
-            clockrate = pay.attributeValue("clockrate");
-            channels = pay.attributeValue("channels");
+            id = pay.attributeValue(ID_ATR);
+            name = pay.attributeValue(NAME_ATR);
+            clockrate = pay.attributeValue(CLOCKRATE_ATR);
+            channels = pay.attributeValue(CHANNELS_ATR);
             payload = new Payload(id, name);
             if (null != clockrate)
                 payload.setClockrate(Integer.parseInt(clockrate));
             if (null != channels)
-                payload.setClockrate(Integer.parseInt(channels));
+                payload.setChannels(Integer.parseInt(channels));
             payloadList.add(payload);
         }
         return payloadList;

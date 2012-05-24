@@ -27,7 +27,6 @@ package org.jinglenodes.jingle.transport;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.tree.BaseElement;
-
 import java.util.List;
 
 public class RawUdpTransport extends BaseElement {
@@ -42,12 +41,10 @@ public class RawUdpTransport extends BaseElement {
     }
 
     public RawUdpTransport(List<Candidate> candidateList) {
-        super(ELEMENT_NAME);
-        this.addAttribute("xmlns", NAMESPACE);
+        super(ELEMENT_NAME, Namespace.get(NAMESPACE));
         for (Candidate candidate : candidateList) {
             this.add(candidate);
         }
-
     }
 
     public List<Candidate> getCandidates() {

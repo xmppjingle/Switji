@@ -8,7 +8,7 @@ import org.dom4j.tree.BaseElement;
  * User: pepe
  * Date: 24/05/12
  * Time: 11:59
- * To change this template use File | Settings | File Templates.
+ * Class to create reason types
  */
 public class ReasonType extends BaseElement {
 
@@ -41,7 +41,7 @@ public class ReasonType extends BaseElement {
     }
 
     public Name getNameType() {
-        Name name = null;
+        Name name;
         try {
             name = Name.valueOf(this.getName().replace('-', '_'));
         } catch (Exception e) {
@@ -58,7 +58,7 @@ public class ReasonType extends BaseElement {
         if (elementName.equals(Name.alternative_session.toString())) {
             return AlternativeSession.fromElement(element);
         } else {
-            Name name = null;
+            Name name;
             try {
                 name = Name.valueOf(elementName.replace('-', '_'));
             } catch (Exception e) {

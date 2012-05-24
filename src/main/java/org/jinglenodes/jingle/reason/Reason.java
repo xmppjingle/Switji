@@ -33,7 +33,7 @@ public class Reason extends BaseElement {
 
     private static final String NAME = "reason";
     private static final String TEXT = "text";
-    private ReasonType reasonType;
+    private final ReasonType reasonType;
 
     public Reason(final ReasonType type) {
         this(type, null);
