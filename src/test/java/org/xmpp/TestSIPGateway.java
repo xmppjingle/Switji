@@ -1,7 +1,5 @@
 package org.xmpp;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.jinglenodes.Main;
@@ -14,6 +12,7 @@ import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.jinglenodes.session.CallSession;
+import org.jinglenodes.session.persistence.PersistentCallSessionMapper;
 import org.jinglenodes.sip.router.SipRoutingError;
 import org.jinglenodes.sip.router.SipRoutingListener;
 import org.xmpp.packet.JID;
@@ -70,12 +69,33 @@ public class TestSIPGateway extends TestCase {
         for (int i = 0; i < 5; i++)
             Thread.sleep(200);
 
-        XStream xStream = new XStream(new DomDriver());
-        xStream.processAnnotations(CallSession.class);
-        final CallSession cs = jingleProcessor.getCallSessionMapper().getSession("abc");
-        System.out.println(xStream.toXML(cs));
+        PersistentCallSessionMapper sessionMapper = new PersistentCallSessionMapper();
 
-        final CallSession cs2 = (CallSession) xStream.fromXML(xStream.toXML(cs));
+        final CallSession cs = jingleProcessor.getCallSessionMapper().getSession("abc");
+
+        String x = "";
+        byte[] ba = null;
+        long st = System.currentTimeMillis();
+        for (int i = 0; i < 100; i++) {
+            try {
+                x = sessionMapper.toXml(cs);
+                ba = sessionMapper.zip(x);
+                x = sessionMapper.unzip(ba);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Elapsed " + (System.currentTimeMillis() - st) + " for 100 marshal. Compressed to: " + ba.length);
+
+        st = System.currentTimeMillis();
+        for (int i = 0; i < 100; i++) {
+            try {
+                final CallSession cs2 = sessionMapper.fromXml(x);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Elapsed " + (System.currentTimeMillis() - st) + " for 100 unmarshal");
 
         assertEquals(1, sipInviteSent.get());
 

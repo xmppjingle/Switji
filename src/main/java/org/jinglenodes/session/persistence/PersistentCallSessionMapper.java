@@ -13,6 +13,7 @@ import org.zoolu.sip.message.Message;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -28,8 +29,8 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
     final private static Logger log = Logger.getLogger(PersistentCallSessionMapper.class);
     final private XStream xStream;
     final private String ENCODE = "UTF-8";
-
     private PersistenceWriterQueue persistenceWriterQueue;
+    private PersistenceWriter writer;
 
     public PersistentCallSessionMapper() {
         super();
@@ -41,7 +42,29 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
         xStream.omitField(Message.class, "arrivedAt");
         xStream.omitField(Message.class, "participants");
 
-        persistenceWriterQueue = new PersistenceWriterQueue();
+    }
+
+    public void init() {
+        persistenceWriterQueue = new PersistenceWriterQueue(writer);
+        load();
+    }
+
+    private void load() {
+
+        final List<byte[]> data = writer.loadData();
+
+        for (final byte[] entry : data) {
+
+            try {
+                final CallSession cs = fromXml(unzip(entry));
+                log.debug("Loaded CallSession: " + cs.getId());
+                sessionMap.put(cs.getId(), cs);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
     }
 
     @Override
@@ -129,6 +152,6 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
     }
 
     public void setWriter(final PersistenceWriter writer) {
-        persistenceWriterQueue.setWriter(writer);
+        this.writer = writer;
     }
 }

@@ -12,13 +12,9 @@ public class PersistenceWriterQueue {
 
     private final BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<Runnable>(50);
     private final ExecutorService executorService = new ThreadPoolExecutor(1, 1, 15, TimeUnit.SECONDS, linkedBlockingDeque, new ThreadPoolExecutor.CallerRunsPolicy());
-    private PersistenceWriter writer;
+    final private PersistenceWriter writer;
 
-    public PersistenceWriter getWriter() {
-        return writer;
-    }
-
-    public void setWriter(PersistenceWriter writer) {
+    public PersistenceWriterQueue(PersistenceWriter writer) {
         this.writer = writer;
     }
 

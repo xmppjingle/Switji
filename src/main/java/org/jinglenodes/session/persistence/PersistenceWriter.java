@@ -1,5 +1,7 @@
 package org.jinglenodes.session.persistence;
 
+import java.util.List;
+
 /**
  * Created by IntelliJ IDEA.
  * User: thiago
@@ -11,5 +13,7 @@ public interface PersistenceWriter {
     public void write(final String id, final byte[] data);
 
     public void delete(final String id);
+
+    public List<byte[]> loadData();
 
 }
