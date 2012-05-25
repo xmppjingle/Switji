@@ -25,63 +25,78 @@ public class RedisWriter implements PersistenceWriter {
 
     @Override
     public void write(String id, byte[] data) {
-        JedisConnection connection = JedisConnection.getInstance(redisHost, redisPort);
-        Jedis jedis = connection.getResource();
-
-        if (jedis == null) return;
-
         try {
-            log.debug("Persisting CallSession");
-            jedis.setex(id.getBytes(ENCODE), 3600, data);
-        } catch (UnsupportedEncodingException e) {
-            log.error("Unsupported Encoding on CallSession ID", e);
-        } finally {
-            connection.returnResource(jedis);
+            JedisConnection connection = JedisConnection.getInstance(redisHost, redisPort);
+            Jedis jedis = connection.getResource();
+
+            if (jedis == null) return;
+
+            try {
+                log.debug("Persisting CallSession");
+                jedis.setex(id.getBytes(ENCODE), 3600, data);
+            } catch (UnsupportedEncodingException e) {
+                log.error("Unsupported Encoding on CallSession ID", e);
+            } finally {
+                connection.returnResource(jedis);
+            }
+        } catch (Exception e) {
+            log.error("Could not Write: " + id, e);
         }
 
     }
 
     @Override
     public void delete(String id) {
-        JedisConnection connection = JedisConnection.getInstance(redisHost, redisPort);
-        Jedis jedis = connection.getResource();
-
-        if (jedis == null) return;
-
         try {
-            log.debug("Deleting Persistent CallSession");
-            jedis.del(id.getBytes(ENCODE));
-        } catch (UnsupportedEncodingException e) {
-            log.error("Unsupported Encoding on CallSession ID", e);
-        } finally {
-            connection.returnResource(jedis);
-        }
-    }
+            JedisConnection connection = JedisConnection.getInstance(redisHost, redisPort);
+            Jedis jedis = connection.getResource();
 
-    public List<byte[]> loadData() {
+            if (jedis == null) return;
 
-        JedisConnection connection = JedisConnection.getInstance(redisHost, redisPort);
-        Jedis jedis = connection.getResource();
-
-        if (jedis == null) return null;
-
-        final Set<String> keys = jedis.keys("*");
-        final List<byte[]> data = new ArrayList<byte[]>(keys.size());
-
-        log.debug("Loading Persistent CallSession...");
-        for (final String key : keys) {
             try {
-                log.debug("Loaded Key: " + key);
-                final byte[] b = jedis.get(key.getBytes(ENCODE));
-                data.add(b);
+                log.debug("Deleting Persistent CallSession");
+                jedis.del(id.getBytes(ENCODE));
             } catch (UnsupportedEncodingException e) {
                 log.error("Unsupported Encoding on CallSession ID", e);
             } finally {
                 connection.returnResource(jedis);
             }
+        } catch (Exception e) {
+            log.error("Could not Delete: " + id, e);
         }
 
-        return data;
+    }
+
+    public List<byte[]> loadData() {
+
+        try {
+            JedisConnection connection = JedisConnection.getInstance(redisHost, redisPort);
+            Jedis jedis = connection.getResource();
+
+            if (jedis == null) return null;
+
+            final Set<String> keys = jedis.keys("*");
+            final List<byte[]> data = new ArrayList<byte[]>(keys.size());
+
+            log.debug("Loading Persistent CallSession...");
+            for (final String key : keys) {
+                try {
+                    log.debug("Loaded Key: " + key);
+                    final byte[] b = jedis.get(key.getBytes(ENCODE));
+                    data.add(b);
+                } catch (UnsupportedEncodingException e) {
+                    log.error("Unsupported Encoding on CallSession ID", e);
+                } finally {
+                    connection.returnResource(jedis);
+                }
+            }
+
+            return data;
+        } catch (Exception e) {
+            log.error("Could not Load Data", e);
+        }
+
+        return null;
     }
 
     public String getRedisHost() {
