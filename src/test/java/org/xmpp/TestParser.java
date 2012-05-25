@@ -18,9 +18,11 @@ import org.xmpp.tinder.JingleIQ;
 
 public class TestParser extends TestCase {
 
-    final private String source = "<jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-initiate\" sid=\"abc\" initiator=\"a@a.com\" responder=\"b@b.com\">\n" +
+    final private String source = "<jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"abc\" initiator=\"a@a.com\" responder=\"b@b.com\" action=\"session-initiate\">\n" +
             "  <content creator=\"initiator\" name=\"audio\" senders=\"both\">\n" +
-            "    <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\"></description>\n" +
+            "    <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\">\n" +
+            "      <payload-type xmlns=\"\" id=\"18\" name=\"G729\" clockrate=\"8000\" channels=\"1\"/>\n" +
+            "    </description>\n" +
             "    <transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\">\n" +
             "      <candidate ip=\"10.166.108.22\" port=\"10000\" generation=\"0\" type=\"host\"/>\n" +
             "    </transport>\n" +
@@ -35,26 +37,26 @@ public class TestParser extends TestCase {
         jingle.setContent(new Content(Content.Creator.initiator, "audio", Content.Senders.both, new Description("audio"), new RawUdpTransport(new Candidate("10.166.108.22", "10000", "0"))));
         jingle.getContent().getDescription().addPayload(Payload.G729);
         final JingleIQ jingleIQ = new JingleIQ(jingle);
-        //assertEquals(jingleIQ.getChildElement().element("jingle").asXML(), source);
-        System.out.println(jingleIQ.toXML());
+        //assertEquals(source, jingleIQ.getChildElement().asXML());
+        System.out.println(jingleIQ.toString());
+
         final JingleIQ jingleIQParsed = JingleIQ.fromXml(jingleIQ);
-        final String jingleString = jingleIQParsed.getJingle().toString();
         System.out.println(jingleIQParsed.getJingle().asXML());
-        assertEquals(source, jingleIQParsed.getJingle().asXML());
-        assertEquals(jingleIQParsed.getJingle().getInitiator(), initiator);
-        System.out.println(source);
+
+        assertEquals(source, jingleIQParsed.getJingle().toString());
+        assertEquals(initiator, jingleIQParsed.getJingle().getInitiator());
     }
 
-    final private String sourceTerminate = "<jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-terminate\" sid=\"abc\" initiator=\"a@a.com\" responder=\"b@b.com\">\n" +
+    final private String sourceTerminate = "<jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"abc\" initiator=\"a@a.com\" responder=\"b@b.com\" action=\"session-terminate\">\n" +
             "<reason/>\n" +
-            "</jingle>";
+            "  <success/>\n    </reason>\n</jingle>";
 
 
     public void testDoubleParse() throws DocumentException {
 
         final String initiator = "romeo@localhost";
         final String responder = "juliet@localhost";
-        final String packet = "<jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-initiate\" initiator=\"" + initiator + "\" responder=\"" + responder + "\" sid=\"37665\"><content xmlns=\"\" creator=\"initiator\" name=\"audio\" senders=\"both\"><description xmlns=\"urn:xmpp:jingle:apps:rtp:1\"><payload-type xmlns=\"\" id=\"0\" name=\"PCMU\"/></description><transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\"><candidate xmlns=\"\" ip=\"192.168.20.172\" port=\"22000\" generation=\"0\"/></transport></content></jingle>";
+        final String packet = "<jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"37665\" initiator=\"" + initiator + "\" responder=\"" + responder + "\" action=\"session-initiate\"><content xmlns=\"\" creator=\"initiator\" name=\"audio\" senders=\"both\"><description xmlns=\"urn:xmpp:jingle:apps:rtp:1\"><payload-type xmlns=\"\" id=\"0\" name=\"PCMU\" clockrate=\"8000\" channels=\"1\"/></description><transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\"><candidate xmlns=\"\" ip=\"192.168.20.172\" port=\"22000\" generation=\"0\" type=\"host\"/></transport></content></jingle>";
 
         Document doc = DocumentHelper.parseText(packet);
 
@@ -62,9 +64,9 @@ public class TestParser extends TestCase {
         final JingleIQ jingleIQ = JingleIQ.fromXml(iq);
         jingleIQ.setFrom(initiator);
         jingleIQ.setTo("sip.localhost");
+        assertEquals(doc.getRootElement().asXML(), jingleIQ.getJingle().toString());
 
         final JingleIQ newJingle = JingleIQ.fromXml(jingleIQ);
-        Content c = newJingle.getJingle().getContent();
         assertTrue(newJingle.getJingle().getContent().getDescription() != null);
     }
 
@@ -72,27 +74,30 @@ public class TestParser extends TestCase {
         final Jingle jingle = new Jingle("abc", initiator, responder, Jingle.Action.session_terminate);
         jingle.setReason(new Reason(new ReasonType(ReasonType.Name.success)));
         final JingleIQ jingleIQ = new JingleIQ(jingle);
-        assertEquals(jingleIQ.getChildElement().asXML(), sourceTerminate);
+
         System.out.println(jingleIQ.toXML());
+        assertEquals(sourceTerminate, jingleIQ.getChildElement().toString());
+
         final JingleIQ jingleIQParsed = JingleIQ.fromXml(jingleIQ);
-        System.out.println(jingleIQParsed.getChildElement().element("jingle").asXML());
-        assertEquals(sourceTerminate, jingleIQParsed.getChildElement().element("jingle").asXML());
-        assertEquals(jingleIQParsed.getJingle().getInitiator(), initiator);
+        System.out.println(jingleIQParsed.getChildElement().asXML());
+        assertEquals(sourceTerminate, jingleIQParsed.getChildElement().asXML());
+        assertEquals(initiator, jingleIQParsed.getJingle().getInitiator());
     }
 
     public void testGenInfo() throws DocumentException{
-        final String packet = "<iq from=\"juliet@capulet.lit/balcony\" id=\"hg4891f5\" to=\"romeo@montague.lit/orchard\" type=\"set\"> <jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-info\" initiator=\"romeo@montague.lit/orchard\" sid=\"a73sjjvkla37jfea\"> <mute xmlns=\"urn:xmpp:jingle:apps:rtp:info:1\" creator=\"responder\" name=\"voice\"/> </jingle> </iq>";
+        final String packet = "<iq type=\"set\" id=\"hg4891f5\" to=\"romeo@montague.lit/orchard\" from=\"juliet@capulet.lit/balcony\"> <jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"a73sjjvkla37jfea\" initiator=\"romeo@montague.lit/orchard\" action=\"session-info\"> <mute xmlns=\"urn:xmpp:jingle:apps:rtp:info:1\" name=\"voice\" creator=\"responder\"/> </jingle> </iq>";
         Document doc = DocumentHelper.parseText(packet);
 
         final IQ iq = new IQ(doc.getRootElement());
         final JingleIQ jingleIQ = JingleIQ.fromXml(iq);
         System.out.println(jingleIQ);
         Info info = jingleIQ.getJingle().getInfo();
-        System.out.println(info);
+        System.out.println(info.asXML());
+
+        assertEquals(iq.toString(), jingleIQ.toString());
     }
 
     public void testRingingPacket(){
-
         final String initiator = "romeo@localhost";
         final String responder = "juliet@localhost";
 
@@ -102,9 +107,8 @@ public class TestParser extends TestCase {
         iq.setTo(initiator);
         iq.setFrom(responder);
 
-        System.out.println(jingle.toString());
-        System.out.println(iq.toXML());
-
+        assertEquals(jingle.toString(), iq.getJingle().toString());
+        assertEquals(Info.Type.valueOf("ringing"), iq.getJingle().getInfo().getType());
     }
 
     final String initiateExample = "<iq type=\"set\" id=\"880BF095-217C-4723-A544-8AB154E17BA0\" to=\"sip.yuilop.tv\" from=\"+4915634567890" +
@@ -174,10 +178,10 @@ public class TestParser extends TestCase {
     }
 
     final String terminateExample = "<iq type=\"set\" id=\"758-53\" to=\"+4915634567890@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\" from=\"004" +
-            "915738512829@sip.yuilop.tv/as5a1f65c0\">\n<jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-terminate\" sid=\"2E9C45EB2AF84F59BDB4D281060B63AF\" initiator=\"+4915634567890@194.183.72.28/sip\" responder=\"0049157\n" +
-            "38512829@sip.yuilop.tv/as5a1f65c0\">\n" +
+            "915738512829@sip.yuilop.tv/as5a1f65c0\">\n<jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"2E9C45EB2AF84F59BDB4D281060B63AF\" initiator=\"+4915634567890@194.183.72.28/sip\" responder=\"0049157\n" +
+            "38512829@sip.yuilop.tv/as5a1f65c0\" action=\"session-terminate\">\n" +
             "  <reason>\n" +
-            "    <type>general-error</type>\n" +
+            "    <general-error/>\n" +
             "  </reason>\n" +
             "</jingle>\n</iq>";
 
@@ -199,7 +203,6 @@ public class TestParser extends TestCase {
         final IQ iq = new IQ(doc.getRootElement());
         final JingleIQ jingleIQ = JingleIQ.fromXml(iq);
         assertEquals(iq.toString(), jingleIQ.toString());
-        //assertEquals(infoExample, jingleIQ.toString());
     }
 
 }
