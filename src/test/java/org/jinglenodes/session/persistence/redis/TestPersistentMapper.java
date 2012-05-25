@@ -1,4 +1,4 @@
-package org.xmpp;
+package org.jinglenodes.session.persistence.redis;
 
 import junit.framework.TestCase;
 import org.jinglenodes.session.persistence.PersistentCallSessionMapper;
@@ -32,5 +32,7 @@ public class TestPersistentMapper extends TestCase{
     public void testUnmarshal(){
 
     }
+
+
 
 }

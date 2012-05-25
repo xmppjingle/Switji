@@ -109,8 +109,7 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
         baos.close();
         byte[] output = baos.toByteArray();
 
-        System.out.println("Original: " + input.length);
-        System.out.println("Compressed: " + output.length);
+        log.debug("Original: " + input.length + "b - Compressed: " + output.length + "b");
         return output;
     }
 

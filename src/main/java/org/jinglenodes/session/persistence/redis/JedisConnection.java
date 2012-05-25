@@ -1,4 +1,4 @@
-package org.jinglenodes.session.persistence;
+package org.jinglenodes.session.persistence.redis;
 
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;

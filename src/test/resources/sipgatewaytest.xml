@@ -38,7 +38,7 @@
         <constructor-arg index="4" value="${sip.localport}"/>
     </bean>
 
-    <bean id="redisWriter" class="org.jinglenodes.session.persistence.RedisWriter">
+    <bean id="redisWriter" class="org.jinglenodes.session.persistence.redis.RedisWriter">
         <property name="redisHost" value="${redis.host}"/>
         <property name="redisPort" value="${redis.port}"/>
     </bean>

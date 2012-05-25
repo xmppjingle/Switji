@@ -1,7 +1,7 @@
-package org.jinglenodes.session.persistence;
+package org.jinglenodes.session.persistence.redis;
 
 import org.apache.log4j.Logger;
-import org.jinglenodes.session.CallSession;
+import org.jinglenodes.session.persistence.PersistenceWriter;
 import redis.clients.jedis.Jedis;
 
 import java.io.UnsupportedEncodingException;
