@@ -53,6 +53,11 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
 
         final List<byte[]> data = writer.loadData();
 
+        if (data == null) {
+            log.warn("No Session Data to Restore!");
+            return;
+        }
+
         for (final byte[] entry : data) {
 
             try {

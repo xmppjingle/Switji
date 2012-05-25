@@ -25,6 +25,7 @@ public class RedisWriter implements PersistenceWriter {
 
     @Override
     public void write(String id, byte[] data) {
+        log.debug("Writing Data: " + id);
         try {
             JedisConnection connection = JedisConnection.getInstance(redisHost, redisPort);
             Jedis jedis = connection.getResource();
@@ -47,6 +48,7 @@ public class RedisWriter implements PersistenceWriter {
 
     @Override
     public void delete(String id) {
+        log.debug("Deleting Data: " + id);
         try {
             JedisConnection connection = JedisConnection.getInstance(redisHost, redisPort);
             Jedis jedis = connection.getResource();
@@ -69,14 +71,17 @@ public class RedisWriter implements PersistenceWriter {
 
     public List<byte[]> loadData() {
 
-        try {
-            JedisConnection connection = JedisConnection.getInstance(redisHost, redisPort);
-            Jedis jedis = connection.getResource();
+        final List<byte[]> data = new ArrayList<byte[]>();
+        JedisConnection connection = null;
+        Jedis jedis = null;
 
-            if (jedis == null) return null;
+        try {
+            connection = JedisConnection.getInstance(redisHost, redisPort);
+            jedis = connection.getResource();
+
+            if (jedis == null) return data;
 
             final Set<String> keys = jedis.keys("*");
-            final List<byte[]> data = new ArrayList<byte[]>(keys.size());
 
             log.debug("Loading Persistent CallSession...");
             for (final String key : keys) {
@@ -86,17 +91,18 @@ public class RedisWriter implements PersistenceWriter {
                     data.add(b);
                 } catch (UnsupportedEncodingException e) {
                     log.error("Unsupported Encoding on CallSession ID", e);
-                } finally {
-                    connection.returnResource(jedis);
                 }
             }
 
-            return data;
         } catch (Exception e) {
             log.error("Could not Load Data", e);
+        } finally {
+            if (connection != null && jedis != null) {
+                connection.returnResource(jedis);
+            }
         }
 
-        return null;
+        return data;
     }
 
     public String getRedisHost() {
