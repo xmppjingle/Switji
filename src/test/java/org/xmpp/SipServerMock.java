@@ -103,7 +103,7 @@ public class SipServerMock implements DatagramListener {
 
     private void reply(final Message message) {
         try {
-            final int bytesSent = channel.send(ByteBuffer.wrap(message.toString().getBytes("UTF-8")), message.getSendTo());
+            final int bytesSent = channel.send(ByteBuffer.wrap((message.toString()).getBytes("UTF-8")), message.getSendTo());
             log.debug("[" + ((InetSocketAddress) message.getSendTo()).getHostName() + ":" + ((InetSocketAddress) message.getSendTo()).getPort() + "]Bytes sent: " + bytesSent);
         } catch (IOException e) {
             log.error("Could NOT Send packet.", e);

@@ -538,8 +538,10 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
             final JingleIQ terminate = JingleProcessor.createJingleTermination(initiator, responder, to.toString(), reason, msg.getCallIdHeader().getCallId());
 
-            for (final CallPreparation preparation : callSession.getProceeds()) {
-                preparation.proceedSIPTerminate(terminate, callSession, null);
+            if (callSession.getProceeds() != null) {
+                for (final CallPreparation preparation : callSession.getProceeds()) {
+                    preparation.proceedSIPTerminate(terminate, callSession, null);
+                }
             }
 
             callSessions.addSentJingle(terminate);
@@ -640,8 +642,10 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             callSession.setInitiateIQ(initialization);
             callSession.addContact(initiator.toBareJID(), msg.getContactHeader());
 
-            for (final CallPreparation preparation : callSession.getProceeds()) {
-                preparation.proceedSIPInitiate(initialization, callSession, null);
+            if (callSession.getProceeds() != null) {
+                for (final CallPreparation preparation : callSession.getProceeds()) {
+                    preparation.proceedSIPInitiate(initialization, callSession, null);
+                }
             }
 
             gatewayRouter.send(initialization);

@@ -54,6 +54,7 @@ import org.zoolu.sip.provider.SipProviderInfoInterface;
 import javax.sdp.SdpException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager {
 
@@ -66,6 +67,15 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     private List<CallPreparation> preparations = new ArrayList<CallPreparation>();
 
     public void init() {
+        for(final CallSession cs:callSessionMapper.getSessions()){
+            if(cs.getPreparations()==null){
+                cs.setPreparations(new ConcurrentLinkedQueue<CallPreparation>());
+            }
+            if(cs.getProceeds()==null)  {
+                cs.setProceeds(new ConcurrentLinkedQueue<CallPreparation>());
+                cs.getProceeds().addAll(preparations.subList(0,preparations.size()));
+            }
+        }
     }
 
     public IQ processIQ(final IQ xmppIQ) {

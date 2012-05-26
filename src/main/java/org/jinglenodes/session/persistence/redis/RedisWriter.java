@@ -19,7 +19,6 @@ public class RedisWriter implements PersistenceWriter {
 
     final private static Logger log = Logger.getLogger(RedisWriter.class);
     final private String ENCODE = "UTF-8";
-    private JedisConnection jedisConnection;
     private String redisHost = "localhost";
     private int redisPort = 6379;
 
@@ -34,7 +33,8 @@ public class RedisWriter implements PersistenceWriter {
 
             try {
                 log.debug("Persisting CallSession");
-                jedis.setex(id.getBytes(ENCODE), 3600, data);
+                final byte[] bkey = id.getBytes(ENCODE);
+                jedis.setex(bkey, 3600, data);
             } catch (UnsupportedEncodingException e) {
                 log.error("Unsupported Encoding on CallSession ID", e);
             } finally {

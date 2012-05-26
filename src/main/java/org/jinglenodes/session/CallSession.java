@@ -50,7 +50,7 @@ public class CallSession {
 
     @XStreamOmitField
     private static final Logger log = Logger.getLogger(CallSession.class);
-    private final String id;
+    private String id;
     private final List<JID> user = new CopyOnWriteArrayList<JID>();
     private Message lastSentRequest;
     private Message lastSentResponse;
@@ -61,9 +61,9 @@ public class CallSession {
     private JingleIQ receivedJingle;
     private JingleIQ initiateIQ;
     @XStreamOmitField
-    private final ConcurrentLinkedQueue<CallPreparation> preparations = new ConcurrentLinkedQueue<CallPreparation>();
+    private ConcurrentLinkedQueue<CallPreparation> preparations;
     @XStreamOmitField
-    private final ConcurrentLinkedQueue<CallPreparation> proceeds = new ConcurrentLinkedQueue<CallPreparation>();
+    private ConcurrentLinkedQueue<CallPreparation> proceeds;
     private final Map<String, ContactHeader> userContactBind = (new ConcurrentHashMap<String, ContactHeader>());
     private int retries = 0;
     private long timestamp;
@@ -79,6 +79,8 @@ public class CallSession {
         this.id = id;
         this.user.add(user);
         this.timestamp = System.currentTimeMillis();
+        preparations = new ConcurrentLinkedQueue<CallPreparation>();
+        proceeds = new ConcurrentLinkedQueue<CallPreparation>();
     }
 
     private void update() {
@@ -280,5 +282,17 @@ public class CallSession {
 
     public void setSessionUpdateListener(SessionUpdateListener sessionUpdateListener) {
         this.sessionUpdateListener = sessionUpdateListener;
+    }
+
+    public void setProceeds(ConcurrentLinkedQueue<CallPreparation> proceeds) {
+        this.proceeds = proceeds;
+    }
+
+    public void setPreparations(ConcurrentLinkedQueue<CallPreparation> preparations) {
+        this.preparations = preparations;
+    }
+
+    public ConcurrentLinkedQueue<CallPreparation> getPreparations() {
+        return preparations;
     }
 }

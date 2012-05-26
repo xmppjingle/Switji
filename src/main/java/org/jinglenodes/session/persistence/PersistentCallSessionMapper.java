@@ -61,9 +61,13 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
         for (final byte[] entry : data) {
 
             try {
-                final CallSession cs = fromXml(unzip(entry));
-                log.debug("Loaded CallSession: " + cs.getId());
-                sessionMap.put(cs.getId(), cs);
+                final CallSession cs = fromXml(new String(entry, ENCODE));
+
+                if (cs != null) {
+
+                    log.debug("Loaded CallSession: " + cs.getId());
+                    sessionMap.put(cs.getId(), cs);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -137,7 +141,7 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
     public void sessionUpdated(CallSession session) {
         if (persistenceWriterQueue != null) {
             try {
-                persistenceWriterQueue.persist(session.getId(), zip(toXml(session)));
+                persistenceWriterQueue.persist(session.getId(), toXml(session).getBytes(ENCODE));
             } catch (Exception e) {
                 log.error("Could Not Persist CallSession", e);
             }
