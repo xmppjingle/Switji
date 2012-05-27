@@ -91,16 +91,16 @@ public class CallSession {
     }
 
     public void addSentRequest(final Message request) {
-        update();
         lastMessage = request;
         lastSentRequest = request;
         sentRequestsCounter.incrementAndGet();
+        update();
     }
 
     public void addReceivedRequest(final Message request) {
-        update();
         lastMessage = request;
         lastReceivedRequest = request;
+        update();
     }
 
     public int getSentRequests() {
@@ -112,16 +112,16 @@ public class CallSession {
     }
 
     public void addSentResponse(final Message response) {
-        update();
         lastMessage = response;
         lastSentResponse = response;
+        update();
     }
 
     public void addReceivedResponse(final Message response) {
-        update();
         setRetries(0);
         lastMessage = response;
         lastReceivedResponse = response;
+        update();
     }
 
     public String getId() {

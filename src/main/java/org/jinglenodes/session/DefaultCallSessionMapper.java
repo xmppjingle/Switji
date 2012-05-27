@@ -280,8 +280,12 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
     }
 
     public void destroy() {
-        sessionMap.clear();
+        clear();
         purgeTimer.shutdownNow();
+    }
+
+    public void clear() {
+        sessionMap.clear();
     }
 
     public int getUnfinishedSessionTtl() {

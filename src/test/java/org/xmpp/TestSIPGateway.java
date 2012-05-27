@@ -57,10 +57,17 @@ public class TestSIPGateway extends TestCase {
         };
         Main.getSipGatewayApplication().getSipGatewayComponent().getGatewaySipRouter().addRoutingListener(sipRoutingListener);
 
-        final JingleIQ init = fakeJingleInitiate("initiator@abc.com", "responder@abc.com", "sip.abc.com");
+        final String sid = String.valueOf(Math.random() * 5000 + 1000);
+
+        final JingleIQ init = fakeJingleInitiate("initiator@abc.com", "responder@abc.com", "sip.abc.com", sid);
 
         jingleProcessor.processIQ(init);
-        Thread.sleep(500);
+        Thread.sleep(100);
+
+        PersistentCallSessionMapper sessionMapper = (PersistentCallSessionMapper) jingleProcessor.getCallSessionMapper();
+        sessionMapper.clear();
+
+        sessionMapper.load();
 
         final Jingle jt = new Jingle(init.getJingle().getSid(), init.getJingle().getInitiator(), init.getJingle().getResponder(), Jingle.SESSION_TERMINATE);
         jt.setReason(new Reason(Reason.Type.no_error));
@@ -69,9 +76,7 @@ public class TestSIPGateway extends TestCase {
         for (int i = 0; i < 5; i++)
             Thread.sleep(200);
 
-        PersistentCallSessionMapper sessionMapper = new PersistentCallSessionMapper();
-
-        final CallSession cs = jingleProcessor.getCallSessionMapper().getSession("abcd");
+        final CallSession cs = jingleProcessor.getCallSessionMapper().getSession(sid);
 
         assertNotNull(cs.getProceeds());
 
@@ -107,8 +112,8 @@ public class TestSIPGateway extends TestCase {
 
     }
 
-    public static JingleIQ fakeJingleInitiate(final String initiator, final String responder, final String to) {
-        final Jingle jingle = new Jingle("abcd", initiator, responder, Jingle.SESSION_INITIATE);
+    public static JingleIQ fakeJingleInitiate(final String initiator, final String responder, final String to, final String sid) {
+        final Jingle jingle = new Jingle(sid, initiator, responder, Jingle.SESSION_INITIATE);
         jingle.setContent(new Content("initiator", "audio", "both", new Description("audio"), new RawUdpTransport(new Candidate("10.166.108.22", "10000", "0"))));
         jingle.getContent().getDescription().addPayload(Payload.G729);
         final JingleIQ jingleIQ = new JingleIQ(jingle);

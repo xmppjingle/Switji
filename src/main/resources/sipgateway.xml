@@ -39,6 +39,11 @@
     <bean id="callSessionMapper" class="org.jinglenodes.session.persistence.PersistentCallSessionMapper"
           init-method="init">
         <property name="writer" ref="redisWriter"/>
+        <property name="preparations">
+            <list>
+                <ref bean="creditPreparation"/>
+            </list>
+        </property>
     </bean>
 
     <bean id="redisWriter" class="org.jinglenodes.session.persistence.redis.RedisWriter">

@@ -4,6 +4,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import org.apache.log4j.Logger;
 import org.jinglenodes.jingle.processor.JingleException;
+import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.DefaultCallSessionMapper;
 import org.jinglenodes.session.SessionUpdateListener;
@@ -13,7 +14,9 @@ import org.zoolu.sip.message.Message;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -31,6 +34,7 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
     final private String ENCODE = "UTF-8";
     private PersistenceWriterQueue persistenceWriterQueue;
     private PersistenceWriter writer;
+    private List<CallPreparation> preparations = new ArrayList<CallPreparation>();
 
     public PersistentCallSessionMapper() {
         super();
@@ -49,7 +53,7 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
         load();
     }
 
-    private void load() {
+    public void load() {
 
         final List<byte[]> data = writer.loadData();
 
@@ -64,8 +68,18 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
                 final CallSession cs = fromXml(new String(entry, ENCODE));
 
                 if (cs != null) {
-
                     log.debug("Loaded CallSession: " + cs.getId());
+
+                    if (cs.getPreparations() == null) {
+                        cs.setPreparations(new ConcurrentLinkedQueue<CallPreparation>());
+                    }
+                    if (cs.getProceeds() == null) {
+                        cs.setProceeds(new ConcurrentLinkedQueue<CallPreparation>());
+                        cs.getProceeds().addAll(preparations.subList(0, preparations.size()));
+                    }
+
+                    cs.setSessionUpdateListener(this);
+
                     sessionMap.put(cs.getId(), cs);
                 }
             } catch (Exception e) {
@@ -161,5 +175,9 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
 
     public void setWriter(final PersistenceWriter writer) {
         this.writer = writer;
+    }
+
+    public void setPreparations(List<CallPreparation> preparations) {
+        this.preparations = preparations;
     }
 }
