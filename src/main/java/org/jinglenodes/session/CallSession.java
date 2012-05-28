@@ -24,7 +24,7 @@
 
 package org.jinglenodes.session;
 
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
+
 import org.apache.log4j.Logger;
 import org.jinglenodes.credit.SessionCredit;
 import org.jinglenodes.prepare.CallPreparation;
@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CallSession {
 
-    @XStreamOmitField
+
     private static final Logger log = Logger.getLogger(CallSession.class);
     private String id;
     private final List<JID> user = new CopyOnWriteArrayList<JID>();
@@ -60,9 +60,9 @@ public class CallSession {
     private JingleIQ sentJingle;
     private JingleIQ receivedJingle;
     private JingleIQ initiateIQ;
-    @XStreamOmitField
+
     private ConcurrentLinkedQueue<CallPreparation> preparations;
-    @XStreamOmitField
+
     private ConcurrentLinkedQueue<CallPreparation> proceeds;
     private final Map<String, ContactHeader> userContactBind = (new ConcurrentHashMap<String, ContactHeader>());
     private int retries = 0;
@@ -72,7 +72,7 @@ public class CallSession {
     private RelayIQ relayIQ;
     private boolean connected = false;
     private SessionCredit sessionCredit;
-    @XStreamOmitField
+
     private SessionUpdateListener sessionUpdateListener;
 
     public CallSession(final String id, final JID user) {

@@ -26,8 +26,9 @@ package org.jinglenodes.relay;
 
 import org.apache.log4j.Logger;
 import org.jinglenodes.credit.CallKiller;
-import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.processor.JingleProcessor;
+import org.jinglenodes.jingle.reason.Reason;
+import org.jinglenodes.jingle.reason.ReasonType;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.prepare.PrepareStatesManager;
@@ -231,7 +232,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
         if (iq.getChannelId() != null) {
             final CallSession session = sessions.remove(iq.getChannelId());
             if (session != null && callKiller != null) {
-                callKiller.immediateKill(session, new Reason(Reason.Type.connectivity_error));
+                callKiller.immediateKill(session, new Reason( new ReasonType(ReasonType.Name.connectivity_error)));
             }
         }
 

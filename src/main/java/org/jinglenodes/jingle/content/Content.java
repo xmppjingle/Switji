@@ -24,43 +24,58 @@
 
 package org.jinglenodes.jingle.content;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import org.dom4j.Element;
+import org.dom4j.tree.BaseElement;
 import org.jinglenodes.jingle.description.Description;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+public class Content extends BaseElement {
+    private final static String ELEMENT_NAME = "content";
+    private final static String NAME = "name";
+    private final static String CREATOR = "creator";
+    private final static String SENDERS = "senders";
+    private final static String DISPOSITION = "disposition";
 
-@XStreamAlias("content")
-@XmlRootElement(name = "content")
-public class Content {
+    private final static String DESCRIPTION = "description";
+    private final static String TRANSPORT = "transport";
+    private final Description description;
+    private final RawUdpTransport transport;
 
-    @XStreamAsAttribute
-    @XmlAttribute
-    private String creator, name, senders;
+    public enum Senders {
+        initiator, none, responder, both
+    }
 
-    private Description description;
-    private RawUdpTransport transport;
+    public enum Creator {
+        initiator, responder
+    }
 
-    public Content(String creator, String name, String senders, Description description, RawUdpTransport transport) {
-        this.creator = creator;
-        this.name = name;
-        this.senders = senders;
+    public Content(Creator creator, String name, Senders senders, Description description, RawUdpTransport transport) {
+        super(ELEMENT_NAME);
+        if (null != creator)
+            this.addAttribute(CREATOR, creator.toString());
+        this.addAttribute(NAME, name);
+        if (null != senders)
+            this.addAttribute(SENDERS, senders.toString());
+        this.add(description);
+        this.add(transport);
         this.description = description;
         this.transport = transport;
     }
 
     public String getCreator() {
-        return creator;
+        return this.attributeValue(CREATOR);
     }
 
-    public String getName() {
-        return name;
+    public String getAttributeName() {
+        return this.attributeValue(NAME);
     }
 
     public String getSenders() {
-        return senders;
+        return this.attributeValue(SENDERS);
+    }
+
+    public String getDisposition() {
+        return this.attributeValue(DISPOSITION);
     }
 
     public Description getDescription() {
@@ -71,7 +86,48 @@ public class Content {
         return transport;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAttributeName(String name) {
+        this.addAttribute(NAME, name);
     }
+
+    public void setDisposition(String disposition) {
+        this.addAttribute(DISPOSITION, disposition);
+    }
+
+    public Content clone() {
+        return new Content(Creator.valueOf(this.getCreator()), this.getAttributeName(), Senders.valueOf(this.getSenders()), this.getDescription(), this.getTransport());
+    }
+
+    public static Content fromElement(Element element) {
+        final Content content;
+        if (element instanceof Content) {
+            content = (Content) element;
+            return content.clone();
+        }
+
+        if (!element.getName().equals(ELEMENT_NAME))
+            return null;
+
+        String ct, sd;
+        Creator creator = null;
+        Senders senders = null;
+        ct = element.attributeValue(CREATOR);
+        sd = element.attributeValue(SENDERS);
+        try {
+            if (null != ct)
+                creator = Creator.valueOf(ct);
+            if (null != sd)
+                senders = Senders.valueOf(sd);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+        final String name = element.attributeValue(NAME);
+        final Element de = element.element(DESCRIPTION);
+
+        final Description description = Description.fromElement(de);
+        final Element te = element.element(TRANSPORT);
+        final RawUdpTransport raw = RawUdpTransport.fromElement(te);
+        return new Content(creator, name, senders, description, raw);
+    }
+
 }

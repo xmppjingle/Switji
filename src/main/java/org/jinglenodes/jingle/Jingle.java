@@ -24,89 +24,91 @@
 
 package org.jinglenodes.jingle;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import org.dom4j.Element;
 import org.dom4j.Namespace;
+import org.dom4j.tree.BaseElement;
 import org.jinglenodes.jingle.content.Content;
-import org.xmpp.tinder.parser.XStreamIQ;
+import org.jinglenodes.jingle.info.Info;
+import org.jinglenodes.jingle.reason.Reason;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
-@XStreamAlias("jingle")
-@XmlRootElement(name = "jingle")
-public class Jingle {
 
-    public final static String SESSION_INITIATE = "session-initiate";
-    public final static String SESSION_TERMINATE = "session-terminate";
-    public final static String SESSION_ACCEPT = "session-accept";
-    public final static String CONTENT_MODIFY = "content-modify";
-    public final static String CONTENT_ADD = "content-add";
-    public final static String SESSION_INFO = "session-info";
-    public final static String TRANSPORT_INFO = "transport-info";
-    public final static String NAME = "jingle";
-    public static final Namespace Q_NAMESPACE = new Namespace("", "urn:xmpp:jingle:1");
+public class Jingle extends BaseElement {
+    private final static String NAME = "jingle";
+    private final static String SID = "sid";
+    private final static String INITIATOR = "initiator";
+    private final static String RESPONDER = "responder";
+    private final static String ACTION = "action";
 
-    @XStreamAsAttribute
-    @XStreamAlias("xmlns")
-    @XmlAttribute(name = "xmlns")
-    public final String NAMESPACE = "urn:xmpp:jingle:1";
-    public static final String XMLNS = "urn:xmpp:jingle:1";
-
-    @XStreamAsAttribute
-    @XmlAttribute
-    private String action, sid, initiator, responder;
-
-    private Content content;
-    private Reason reason;
-    @XStreamAlias("ringing")
     private Info info;
 
-    public Jingle(String sid, String initiator, String responder, String action) {
-        this.sid = sid;
-        this.initiator = initiator;
-        this.responder = responder;
-        this.action = action;
+    public static final String NAMESPACE = "urn:xmpp:jingle:1";
+
+    public enum Action {
+        session_initiate, session_terminate, session_accept, content_modify, content_add, session_info, transport_info;
+
+        public String toString() {
+            return this.name().replace('_', '-');
+        }
+    }
+
+    public Jingle(String sid, String initiator, String responder, Action action) {
+        super(NAME, Namespace.get(NAMESPACE));
+        this.addAttribute(SID, sid);
+        this.addAttribute(INITIATOR, initiator);
+        this.addAttribute(RESPONDER, responder);
+        this.addAttribute(ACTION, action.toString());
     }
 
     public void setContent(Content content) {
-        this.content = content;
+        this.add(content);
     }
 
     public Content getContent() {
-        return content;
+        Element element = this.element("content");
+        if (element instanceof Content) {
+            return (Content) this.element("content");
+        } else {
+            return Content.fromElement(element);
+        }
     }
 
     public String getSid() {
-        return sid;
+        return this.attributeValue(SID);
     }
 
     public String getInitiator() {
-        return initiator;
+        return this.attributeValue(INITIATOR);
     }
 
     public String getResponder() {
-        return responder;
+        return this.attributeValue(RESPONDER);
     }
 
-    public String getAction() {
-        return action;
+    public Action getAction() {
+        return Action.valueOf(this.attributeValue(ACTION).replace('-', '_'));
     }
 
     public String toString() {
-        return XStreamIQ.getStream().toXML(this);
+        return this.asXML();
     }
 
     public void setInitiator(String initiator) {
-        this.initiator = initiator;
+        this.addAttribute(INITIATOR, initiator);
     }
 
     public Reason getReason() {
-        return reason;
+        Element element = this.element("reason");
+        if (element instanceof Reason) {
+            return (Reason) this.element("reason");
+        } else {
+            return Reason.fromElement(element);
+        }
     }
 
     public void setReason(Reason reason) {
-        this.reason = reason;
+        this.add(reason);
     }
 
     public Info getInfo() {
@@ -114,10 +116,72 @@ public class Jingle {
     }
 
     public void setInfo(Info info) {
+        this.add(info);
         this.info = info;
     }
 
     public void setResponder(String responder) {
-        this.responder = responder;
+        this.addAttribute(RESPONDER, responder);
     }
+
+    public Jingle clone() {
+        Jingle jingle = (Jingle) super.clone();
+        Info info = jingle.getInfo();
+        if (null != info){
+            jingle.setInfo((Info)info.clone());
+        }
+        return jingle;
+    }
+
+    public static Jingle fromElement(Element element) {
+        final Jingle jingle;
+        if (element instanceof Jingle) {
+            jingle = (Jingle) element;
+            return jingle.clone();
+        }
+
+        if (!element.getName().equals(NAME))
+            return null;
+
+        final String sid = element.attributeValue("sid");
+        final String initiator = element.attributeValue("initiator");
+        final String responder = element.attributeValue("responder");
+        final String stringAction = element.attributeValue("action");
+        Action action;
+        try {
+            if (null != stringAction)
+                action = Action.valueOf(stringAction.replace('-', '_'));
+            else return null;
+        } catch (Exception e) {
+            return null;
+        }
+
+        jingle = new Jingle(sid, initiator, responder, action);
+        Element e = element.element("content");
+        if (null != e) {
+            Content content = Content.fromElement(e);
+            if (null != content)
+                jingle.setContent(content);
+        }
+        e = element.element("reason");
+        if (null != e) {
+            Reason reason = Reason.fromElement(e);
+            if (null != reason)
+                jingle.setReason(reason);
+        }
+        List<Element> list = element.elements();
+        Info aux;
+        Info info = null;
+        for (Element child : list) {
+            aux = Info.fromElement(child);
+            if (null != aux) {
+                info = aux;
+            }
+        }
+        if (null != info) {
+            jingle.setInfo(info);
+        }
+        return jingle;
+    }
+
 }

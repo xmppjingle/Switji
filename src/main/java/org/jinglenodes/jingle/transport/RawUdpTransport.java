@@ -24,34 +24,35 @@
 
 package org.jinglenodes.jingle.transport;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
-
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
+import org.dom4j.Element;
+import org.dom4j.Namespace;
+import org.dom4j.tree.BaseElement;
 import java.util.List;
 
-@XStreamAlias("transport")
-@XmlRootElement(name = "transport")
-public class RawUdpTransport {
+public class RawUdpTransport extends BaseElement {
 
-    @XStreamAsAttribute
-    @XStreamAlias("xmlns")
-    @XmlAttribute(name = "xmlns")
-    public final String NAMESPACE = "urn:xmpp:jingle:transports:raw-udp:1";
-
-    @XStreamImplicit
-    @XStreamAlias("candidate")
-    @XmlAttribute(name = "candidate")
-    private final ArrayList<Candidate> candidates = new ArrayList<Candidate>();
+    private final static String ELEMENT_NAME = "transport";
+    public final static String NAMESPACE = "urn:xmpp:jingle:transports:raw-udp:1";
 
     public RawUdpTransport(Candidate candidate) {
-        this.candidates.add(candidate);
+        super(ELEMENT_NAME, Namespace.get(NAMESPACE));
+        this.addAttribute("xmlns", NAMESPACE);
+        this.add(candidate);
+    }
+
+    public RawUdpTransport(List<Candidate> candidateList) {
+        super(ELEMENT_NAME, Namespace.get(NAMESPACE));
+        for (Candidate candidate : candidateList) {
+            this.add(candidate);
+        }
     }
 
     public List<Candidate> getCandidates() {
-        return candidates;
+        return (List<Candidate>) this.elements();
+    }
+
+    public static RawUdpTransport fromElement(Element element) {
+        final List<Candidate> candidateList = Candidate.fromElement(element);
+        return new RawUdpTransport(candidateList);
     }
 }

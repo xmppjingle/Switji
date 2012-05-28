@@ -1,52 +1,37 @@
 package org.xmpp.tinder;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.jinglenodes.jingle.Jingle;
 import org.xmpp.packet.IQ;
-import org.xmpp.tinder.parser.XStreamIQ;
 
-import java.io.StringReader;
-
-public class JingleIQ extends XStreamIQ<Jingle> {
-
-    private final Jingle jingle;
+public class JingleIQ extends IQ {
 
     public JingleIQ(final Jingle element) {
-        this.setType(Type.set);
-        this.jingle = element;
-        final Document originalDoc;
-        try {
-            originalDoc = new SAXReader().read(new StringReader(element.toString()));
-            this.element.add(originalDoc.getRootElement().createCopy());
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        }
+        super(Type.set);
+        this.setChildElement(element);
     }
 
     public static JingleIQ fromXml(final IQ iq) {
-        Element e = iq.getChildElement();
-        if (e == null) {
-            e = iq.getElement();
+        Element je = iq.getChildElement();
+        if (je == null) {
+            je = iq.getElement();
         }
-        if (e != null) {
-            if (!"jingle".equals(e.getName())) {
-                e = e.element("jingle");
+        if (je != null) {
+            if (!"jingle".equals(je.getName())) {
+                je = je.element("jingle");
             }
-            final String child = e.asXML().replace("\n", "");
-            final Jingle j = (Jingle) JingleIQ.getStream().fromXML(child);
+            final Jingle jingle = Jingle.fromElement(je);
 
             //Force Initiator and Responder
-            if (j.getInitiator() == null || j.getInitiator().length() < 3) {
-                j.setInitiator(iq.getFrom().toString());
+            if (jingle.getInitiator() == null || jingle.getInitiator().length() < 3) {
+                jingle.setInitiator(iq.getFrom().toString());
             }
-            if (j.getResponder() == null || j.getResponder().length() < 3) {
-                j.setResponder(iq.getTo().toString());
+            if (jingle.getResponder() == null || jingle.getResponder().length() < 3) {
+                jingle.setResponder(iq.getTo().toString());
             }
 
-            final JingleIQ jingleIQ = new JingleIQ(j);
+            final JingleIQ jingleIQ = new JingleIQ(jingle);
+
             jingleIQ.setTo(iq.getTo());
             jingleIQ.setFrom(iq.getFrom());
             jingleIQ.setID(iq.getID());
@@ -67,6 +52,11 @@ public class JingleIQ extends XStreamIQ<Jingle> {
     }
 
     public Jingle getJingle() {
-        return jingle;
+        Element element = this.getChildElement();
+        if (element instanceof Jingle){
+            return (Jingle) element;
+        }else{
+            return Jingle.fromElement(element);
+        }
     }
 }

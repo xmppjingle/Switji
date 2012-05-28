@@ -24,8 +24,9 @@
 package org.jinglenodes.credit;
 
 import org.apache.log4j.Logger;
-import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.processor.JingleProcessor;
+import org.jinglenodes.jingle.reason.Reason;
+import org.jinglenodes.jingle.reason.ReasonType;
 import org.jinglenodes.session.CallSession;
 import org.zoolu.tools.ConcurrentTimelineHashMap;
 import org.zoolu.tools.NamingThreadFactory;
@@ -60,7 +61,8 @@ public class CallKiller {
 
     public void scheduleKill(final CallSession session) {
         log.warn("Scheduling for Killing Call: " + session.getId() + " in " + session.getSessionCredit().getMaxDurationInSeconds() + " seconds");
-        final CallKillerTask task = new CallKillerTask(session, jingleProcessor, new Reason(Reason.Type.payment));
+
+        final CallKillerTask task = new CallKillerTask(session, jingleProcessor, new Reason(new ReasonType(ReasonType.Name.payment)));
         tasks.put(session.getId(), task);
         timerExecutor.schedule(task, session.getSessionCredit().getMaxDurationInSeconds(), TimeUnit.SECONDS);
     }

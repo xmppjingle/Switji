@@ -24,9 +24,9 @@
 package org.jinglenodes.credit;
 
 import org.apache.log4j.Logger;
-import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.processor.JingleException;
 import org.jinglenodes.jingle.processor.JingleProcessor;
+import org.jinglenodes.jingle.reason.Reason;
 import org.jinglenodes.session.CallSession;
 import org.xmpp.tinder.JingleIQ;
 

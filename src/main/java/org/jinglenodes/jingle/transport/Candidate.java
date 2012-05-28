@@ -24,64 +24,69 @@
 
 package org.jinglenodes.jingle.transport;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import org.dom4j.Element;
+import org.dom4j.tree.BaseElement;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+public class Candidate extends BaseElement {
+    private static final String NAME = "candidate";
 
-@XStreamAlias("candidate")
-@XmlRootElement(name = "candidate")
-public class Candidate {
+    private static final String COMPONENT = "component";
+    private static final String GENERATION = "generation";
+    private static final String ID = "id";
+    private static final String IP = "ip";
+    private static final String PORT = "port";
+    private static final String TYPE = "type";
 
-    public static final String PEER_REFLEX = "prflx";
-    public static final String RELAY = "relay";
-    public static final String HOST = "host";
-
-    @XStreamAsAttribute
-    @XmlAttribute
-    private String ip, port, generation;
-
-    @XStreamAsAttribute
-    @XmlAttribute
-    private String type;
+    public enum Type { host, prflx, relay, srflx }
 
     public Candidate(String ip, String port, String generation) {
-        this.ip = ip;
-        this.port = port;
-        this.generation = generation;
-        this.type = HOST;
+        super(NAME);
+        this.addAttribute(IP, ip);
+        this.addAttribute(PORT, port);
+        this.addAttribute(GENERATION, generation);
+        this.addAttribute(TYPE, Type.host.toString());
     }
 
     public String getIp() {
-        return ip;
+        return this.attributeValue(IP);
     }
 
     public String getPort() {
-        return port;
+        return this.attributeValue(PORT);
     }
 
     public String getGeneration() {
-        return generation;
+        return this.attributeValue(GENERATION);
     }
 
-    public String getType() {
-        return type;
+    public Type getType() {
+        return Type.valueOf(this.attributeValue(TYPE));
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setType(Type type) {
+        this.addAttribute(TYPE, type.toString());
     }
 
     public void setIp(String ip) {
-        this.ip = ip;
+        this.addAttribute(IP, ip);
     }
 
     public void setPort(String port) {
-        this.port = port;
+        this.addAttribute(PORT, port);
     }
 
     public void setGeneration(String generation) {
-        this.generation = generation;
+        this.addAttribute(GENERATION, generation);
+    }
+
+    public static List<Candidate> fromElement(Element element) {
+        final List<Candidate> candidateList = new ArrayList<Candidate>();
+        final List<Element> elementList = (List<Element>) element.elements();
+        for (Element candidate : elementList) {
+            candidateList.add(new Candidate(candidate.attributeValue("ip"), candidate.attributeValue("port"), candidate.attributeValue("generation")));
+        }
+        return candidateList;
     }
 }

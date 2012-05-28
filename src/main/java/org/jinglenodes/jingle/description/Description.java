@@ -24,50 +24,46 @@
 
 package org.jinglenodes.jingle.description;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+import org.dom4j.Element;
+import org.dom4j.Namespace;
+import org.dom4j.tree.BaseElement;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
-@XStreamAlias("description")
-@XmlRootElement(name = "description")
-public class Description {
+public class Description extends BaseElement {
 
-    @XStreamAsAttribute
-    @XStreamAlias("xmlns")
-    public final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:1";
-
-    @XStreamAsAttribute
-    @XmlAttribute
-    private final String media;
-
-    @XStreamImplicit
-    @XStreamAlias("payload-type")
-    @XmlAttribute
-    private final List<Payload> payloads = new ArrayList<Payload>();
+    private static final String NAME = "description";
+    private static final String MEDIA = "media";
+    public static final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:1";
 
     public Description(String media) {
-        this.media = media;
+        super(NAME, Namespace.get(NAMESPACE));
+        this.addAttribute(MEDIA, media);
     }
 
     public void addPayload(final Payload payload) {
-        payloads.add(payload);
+        this.add(payload);
     }
 
     public void addPayload(List<Payload> payloads) {
-        this.payloads.addAll(payloads);
+        for (Payload payload : payloads) {
+            this.add(payload);
+        }
     }
 
     public List<Payload> getPayloads() {
-        return payloads;
+        return (List<Payload>) this.elements();
     }
 
     public String getMedia() {
-        return media;
+        return this.attributeValue(MEDIA);
+    }
+
+    public static Description fromElement(Element element) {
+        final List<Payload> payloadList = Payload.fromElement(element);
+        final Description description = new Description(element.attributeValue("media"));
+        description.addPayload(payloadList);
+        return description;
     }
 }
 

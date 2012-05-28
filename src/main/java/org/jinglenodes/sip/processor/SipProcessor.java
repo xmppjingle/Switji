@@ -25,15 +25,16 @@
 package org.jinglenodes.sip.processor;
 
 import org.apache.log4j.Logger;
-import org.jinglenodes.jingle.Info;
+import org.jinglenodes.jingle.info.Info;
 import org.jinglenodes.jingle.Jingle;
-import org.jinglenodes.jingle.Reason;
+import org.jinglenodes.jingle.reason.Reason;
 import org.jinglenodes.jingle.content.Content;
 import org.jinglenodes.jingle.description.Description;
 import org.jinglenodes.jingle.description.Payload;
 import org.jinglenodes.jingle.processor.JingleException;
 import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.jingle.processor.JingleSipException;
+import org.jinglenodes.jingle.reason.ReasonType;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.jinglenodes.prepare.CallPreparation;
@@ -568,10 +569,10 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
         final Reason reason;
         switch (code) {
             case 602:
-                reason = new Reason(code + " - " + msg.getStatusLine().getReason(), Reason.Type.decline);
+                reason = new Reason(new ReasonType(ReasonType.Name.decline), code + " - " + msg.getStatusLine().getReason());
                 break;
             case 402:
-                reason = new Reason((code) + " - " + msg.getStatusLine().getReason(), Reason.Type.general_error);
+                reason = new Reason(new ReasonType(ReasonType.Name.general_error), (code) + " - " + msg.getStatusLine().getReason());
                 break;
             case 483:
             case 404:
@@ -580,24 +581,24 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             case 414:
             case 484:
             case 485:
-                reason = new Reason((code) + " - " + msg.getStatusLine().getReason(), Reason.Type.connectivity_error);
+                reason = new Reason(new ReasonType(ReasonType.Name.connectivity_error), (code) + " - " + msg.getStatusLine().getReason());
                 break;
             case 486:
             case 480:
-                reason = new Reason((code) + " - " + msg.getStatusLine().getReason(), Reason.Type.busy);
+                reason = new Reason(new ReasonType(ReasonType.Name.busy), (code) + " - " + msg.getStatusLine().getReason());
                 break;
             case 415:
-                reason = new Reason((code) + " - " + msg.getStatusLine().getReason(), Reason.Type.media_error);
+                reason = new Reason(new ReasonType(ReasonType.Name.media_error), (code) + " - " + msg.getStatusLine().getReason());
                 break;
             case 403:
-                reason = new Reason((code) + " - " + msg.getStatusLine().getReason(), Reason.Type.security_error);
+                reason = new Reason(new ReasonType(ReasonType.Name.security_error), (code) + " - " + msg.getStatusLine().getReason());
                 break;
             case 487:
             case -1:
-                reason = new Reason(Reason.Type.no_error);
+                reason = new Reason(new ReasonType(ReasonType.Name.success)); // before no_error
                 break;
             default:
-                reason = new Reason(code > 0 ? (code) + " - " + msg.getStatusLine().getReason() : String.valueOf(code), Reason.Type.no_error);
+                reason = new Reason(new ReasonType(ReasonType.Name.success), code > 0 ? (code) + " - " + msg.getStatusLine().getReason() : String.valueOf(code)); //before no_error
         }
         return reason;
     }
@@ -632,7 +633,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             final String display = msg.getFromHeader().getNameAddress().getDisplayName();
 
             if (display != null && !display.trim().equals("")) {
-                content.setName(display.trim());
+                content.setAttributeName(display.trim());
             }
 
             final JingleIQ initialization = JingleProcessor.createJingleInitialization(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
@@ -890,7 +891,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
     public static Message createSipInvite(final Jingle iq, final SipProviderInfoInterface sipProvider) throws JingleSipException, SdpException {
 
         // Checks to verify if the conversion is supported
-        if (!iq.getAction().equals(Jingle.SESSION_INITIATE)) {
+        if (!iq.getAction().equals(Jingle.Action.session_initiate)) {
             throw new JingleSipException("The IQ MUST have a session-initiate action.");
         }
         if (iq.getContent() == null) {
@@ -920,9 +921,11 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
     public static Message createSipBye(final JingleIQ iq, final SipProviderInfoInterface sipProvider, final Message lastResponse, final CallSession callSession) throws JingleSipException, SipParsingException {
 
         // Checks to verify if the conversion is supported
+
 //        if (!iq.getJingle().getAction().equals(Jingle.SESSION_TERMINATE)) {
 //            throw new JingleSipException("The IQ MUST have a session-terminate action.");
 //        }
+
 
         if (lastResponse == null) {
             throw new JingleSipException("No related Message Found.");
@@ -1038,7 +1041,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             rtpDescription = new Description(type);
             rtpDescription.addPayload(sdpPayloads);
             rawTransport = new RawUdpTransport(new Candidate(sdp.getConnection().getAddress(), String.valueOf(md.getMedia().getMediaPort()), "0"));
-            return new Content("initiator", sdp.getOrigin().getUsername(), "both", rtpDescription, rawTransport);
+            return new Content(Content.Creator.initiator, sdp.getOrigin().getUsername(), Content.Senders.both, rtpDescription, rawTransport);
 
         } catch (SdpParseException e) {
             throw new JingleSipException("SDP Parsing Error.");

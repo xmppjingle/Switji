@@ -2,7 +2,8 @@ package org.jinglenodes.stats;
 
 import org.jinglenodes.component.SIPGatewayApplication;
 import org.jinglenodes.credit.CallKiller;
-import org.jinglenodes.jingle.Reason;
+import org.jinglenodes.jingle.reason.Reason;
+import org.jinglenodes.jingle.reason.ReasonType;
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,12 +18,12 @@ public class SwitjiAdminImpl implements SwitjiAdmin {
 
     @Override
     public boolean killSession(String sessionId) {
-        return callKiller.immediateKill(sessionId, new Reason(Reason.Type.general_error));
+        return callKiller.immediateKill(sessionId, new Reason( new ReasonType(ReasonType.Name.general_error)));
     }
 
     @Override
     public int killAll() {
-        return callKiller.killAll(new Reason(Reason.Type.general_error));
+        return callKiller.killAll(new Reason(new ReasonType(ReasonType.Name.general_error)));
     }
 
     public CallKiller getCallKiller() {
