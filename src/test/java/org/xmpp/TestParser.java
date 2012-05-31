@@ -22,15 +22,15 @@ import org.zoolu.sip.message.Message;
 
 public class TestParser extends TestCase {
 
-    final private String source = "<jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"abc\" initiator=\"a@a.com\" responder=\"b@b.com\" action=\"session-initiate\">\n" +
-            "  <content creator=\"initiator\" name=\"audio\" senders=\"both\">\n" +
-            "    <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\">\n" +
-            "      <payload-type xmlns=\"\" id=\"18\" name=\"G729\" clockrate=\"8000\" channels=\"1\"/>\n" +
-            "    </description>\n" +
-            "    <transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\">\n" +
-            "      <candidate ip=\"10.166.108.22\" port=\"10000\" generation=\"0\" type=\"host\"/>\n" +
-            "    </transport>\n" +
-            "  </content>\n" +
+    final private String source = "<jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"abc\" initiator=\"a@a.com\" responder=\"b@b.com\" action=\"session-initiate\">" +
+            "<content xmlns=\"\" creator=\"initiator\" name=\"audio\" senders=\"both\">" +
+            "<description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\">" +
+            "<payload-type xmlns=\"\" id=\"18\" name=\"G729\" clockrate=\"8000\" channels=\"1\"/>" +
+            "</description>" +
+            "<transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\">" +
+            "<candidate xmlns=\"\" ip=\"10.166.108.22\" port=\"10000\" generation=\"0\" type=\"host\"/>" +
+            "</transport>" +
+            "</content>" +
             "</jingle>";
     final private String altSource = "<jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-initiate\" sid=\"abc\" initiator=\"a@a.com\" responder=\"b@b.com\">  <content creator=\"initiator\" name=\"audio\" senders=\"both\"><description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\">      <payload-type id=\"18\" name=\"G729\" clockrate=\"0\" channels=\"1\"/></description><transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\">      <candidate ip=\"10.166.108.22\" port=\"10000\" generation=\"0\" type=\"host\"/></transport></content></jingle>";
     final String initiator = "a@a.com";
@@ -51,9 +51,9 @@ public class TestParser extends TestCase {
         assertEquals(initiator, jingleIQParsed.getJingle().getInitiator());
     }
 
-    final private String sourceTerminate = "<jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"abc\" initiator=\"a@a.com\" responder=\"b@b.com\" action=\"session-terminate\">\n" +
-            "<reason/>\n" +
-            "  <success/>\n    </reason>\n</jingle>";
+    final private String sourceTerminate = "<jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"abc\" initiator=\"a@a.com\" responder=\"b@b.com\" action=\"session-terminate\">" +
+            "<reason xmlns=\"\">" +
+            "<success/></reason></jingle>";
 
 
     public void testDoubleParse() throws DocumentException {
@@ -68,7 +68,8 @@ public class TestParser extends TestCase {
         final JingleIQ jingleIQ = JingleIQ.fromXml(iq);
         jingleIQ.setFrom(initiator);
         jingleIQ.setTo("sip.localhost");
-        assertEquals(doc.getRootElement().asXML(), jingleIQ.getJingle().toString());
+
+        assertEquals(packet, jingleIQ.getJingle().toString());
 
         final JingleIQ newJingle = JingleIQ.fromXml(jingleIQ);
         assertTrue(newJingle.getJingle().getContent().getDescription() != null);
@@ -84,13 +85,13 @@ public class TestParser extends TestCase {
 
         final JingleIQ jingleIQParsed = JingleIQ.fromXml(jingleIQ);
         System.out.println(jingleIQParsed.getChildElement().asXML());
-        assertEquals(sourceTerminate, jingleIQParsed.getChildElement().asXML());
+        assertEquals(sourceTerminate, jingleIQParsed.getChildElement().toString());
         assertEquals(initiator, jingleIQParsed.getJingle().getInitiator());
     }
 
 
     public void testGenInfo() throws DocumentException{
-        final String packet = "<iq type=\"set\" id=\"hg4891f5\" to=\"romeo@montague.lit/orchard\" from=\"juliet@capulet.lit/balcony\"> <jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"a73sjjvkla37jfea\" initiator=\"romeo@montague.lit/orchard\" action=\"session-info\"> <mute xmlns=\"urn:xmpp:jingle:apps:rtp:info:1\" name=\"voice\" creator=\"responder\"/> </jingle> </iq>";
+        final String packet = "<iq type=\"set\" id=\"hg4891f5\" to=\"romeo@montague.lit/orchard\" from=\"juliet@capulet.lit/balcony\"><jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"a73sjjvkla37jfea\" initiator=\"romeo@montague.lit/orchard\" responder=\"romeo@montague.lit/orchard\" action=\"session-info\"><mute xmlns=\"urn:xmpp:jingle:apps:rtp:info:1\" name=\"voice\" creator=\"responder\"/></jingle></iq>";
         Document doc = DocumentHelper.parseText(packet);
 
         final IQ iq = new IQ(doc.getRootElement());
@@ -99,7 +100,7 @@ public class TestParser extends TestCase {
         Info info = jingleIQ.getJingle().getInfo();
         System.out.println(info.asXML());
 
-        assertEquals(iq.toString(), jingleIQ.toString());
+        assertEquals(packet, jingleIQ.toXML());
     }
 
     public void testRingingPacket(){
@@ -152,88 +153,87 @@ public class TestParser extends TestCase {
     }
 
 
-    final String initiateExample = "<iq type=\"set\" id=\"880BF095-217C-4723-A544-8AB154E17BA0\" to=\"sip.yuilop.tv\" from=\"+4915634567890" +
-            "@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\">\n<jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"65A377CF25AD46D7B5A324F063002247\" initiator=\"+4915634567890@yuilop.tv/I(1.4.0" +
+    final String initiateExample = "\n<iq type=\"set\" id=\"880BF095-217C-4723-A544-8AB154E17BA0\" to=\"sip.yuilop.tv\" from=\"+4915634567890" +
+            "@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\">\n  <jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"65A377CF25AD46D7B5A324F063002247\" initiator=\"+4915634567890@yuilop.tv/I(1.4.0" +
             ".20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\" responder=\"004915738512829@sip.yuilop.tv\" action=\"session-initiate\">\n" +
-            "  <content creator=\"initiator\" name=\"voice\">\n" +
-            "    <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\">\n" +
-            "      <payload-type id=\"0\" name=\"PCMU\" clockrate=\"8000\" channels=\"1\"/>\n" +
-            "      <payload-type id=\"8\" name=\"PCMA\" clockrate=\"8000\" channels=\"1\"/>\n" +
-            "      <payload-type id=\"104\" name=\"iLBC\" clockrate=\"8000\" channels=\"1\"/>\n" +
-            "      <payload-type id=\"18\" name=\"G729\" clockrate=\"8000\" channels=\"1\"/>\n" +
-            "      <payload-type id=\"3\" name=\"GSM\" clockrate=\"8000\" channels=\"1\"/>\n" +
-            "    </description>\n" +
-            "    <transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\">\n" +
-            "      <candidate ip=\"10.166.108.174\" port=\"4000\" type=\"host\"/>\n" +
-            "    </transport>\n" +
-            "  </content>\n" +
-            "</jingle>\n</iq> ";
+            "    <content xmlns=\"\" creator=\"initiator\" name=\"voice\">\n" +
+            "      <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\">\n" +
+            "        <payload-type xmlns=\"\" id=\"0\" name=\"PCMU\" clockrate=\"8000\" channels=\"1\"/>\n" +
+            "        <payload-type xmlns=\"\" id=\"8\" name=\"PCMA\" clockrate=\"8000\" channels=\"1\"/>\n" +
+            "        <payload-type xmlns=\"\" id=\"104\" name=\"iLBC\" clockrate=\"8000\" channels=\"1\"/>\n" +
+            "        <payload-type xmlns=\"\" id=\"18\" name=\"G729\" clockrate=\"8000\" channels=\"1\"/>\n" +
+            "        <payload-type xmlns=\"\" id=\"3\" name=\"GSM\" clockrate=\"8000\" channels=\"1\"/>\n" +
+            "      </description>\n" +
+            "      <transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\">\n" +
+            "        <candidate xmlns=\"\" ip=\"10.166.108.174\" port=\"4000\" type=\"host\"/>\n" +
+            "      </transport>\n" +
+            "    </content>\n" +
+            "  </jingle>\n</iq>";
 
     public void testInitiate() throws DocumentException{
         Document doc = DocumentHelper.parseText(initiateExample);
         final IQ iq = new IQ(doc.getRootElement());
         final JingleIQ jingleIQ = JingleIQ.fromXml(iq);
-        assertEquals(iq.toString(), jingleIQ.toString());
+        assertEquals(initiateExample, jingleIQ.toString());
     }
 
-    final String initiateNoPayloadExample = "<iq type=\"set\" id=\"880BF095-217C-4723-A544-8AB154E17BA0\" to=\"sip.yuilop.tv\" from=\"+4915634567890" +
-            "@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\">\n<jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"65A377CF25AD46D7B5A324F063002247\" initiator=\"+4915634567890@yuilop.tv/I(1.4.0" +
+    final String initiateNoPayloadExample = "\n<iq type=\"set\" id=\"880BF095-217C-4723-A544-8AB154E17BA0\" to=\"sip.yuilop.tv\" from=\"+4915634567890" +
+            "@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\">\n  <jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"65A377CF25AD46D7B5A324F063002247\" initiator=\"+4915634567890@yuilop.tv/I(1.4.0" +
             ".20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\" responder=\"004915738512829@sip.yuilop.tv\" action=\"session-initiate\">\n" +
-            "  <content creator=\"initiator\" name=\"voice\">\n" +
-            "    <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\">\n" +
-            "    </description>\n" +
-            "    <transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\">\n" +
-            "      <candidate ip=\"10.166.108.174\" port=\"4000\" type=\"host\"/>\n" +
-            "    </transport>\n" +
-            "  </content>\n" +
-            "</jingle>\n</iq> ";
+            "    <content xmlns=\"\" creator=\"initiator\" name=\"voice\">\n" +
+            "      <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\"/>\n" +
+            "      <transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\">\n" +
+            "        <candidate xmlns=\"\" ip=\"10.166.108.174\" port=\"4000\" type=\"host\"/>\n" +
+            "      </transport>\n" +
+            "    </content>\n" +
+            "  </jingle>\n</iq>";
 
     public void testInitiateNoPayload() throws DocumentException{
         Document doc = DocumentHelper.parseText(initiateNoPayloadExample);
         final IQ iq = new IQ(doc.getRootElement());
         final JingleIQ jingleIQ = JingleIQ.fromXml(iq);
-        assertEquals(iq.toString(), jingleIQ.toString());
+        assertEquals(initiateNoPayloadExample, jingleIQ.toString());
     }
 
-     final String acceptExample = "<iq type=\"set\" id=\"73-62\" to=\"+4915634567890@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\" from=\"0049" +
-             "15738512829@sip.yuilop.tv\">\n<jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"65A377CF25AD46D7B5A324F063002247\" initiator=\"+4915634567890@194.183.72.28/sip\" responder=\"004915738512829@sip.yu" +
+     final String acceptExample = "\n<iq type=\"set\" id=\"73-62\" to=\"+4915634567890@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\" from=\"0049" +
+             "15738512829@sip.yuilop.tv\">\n  <jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"65A377CF25AD46D7B5A324F063002247\" initiator=\"+4915634567890@194.183.72.28/sip\" responder=\"004915738512829@sip.yu" +
              "ilop.tv\" action=\"session-accept\">\n" +
-             "  <content creator=\"initiator\" name=\"root\" senders=\"both\">\n" +
-             "    <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\">\n" +
-             "      <payload-type id=\"18\" name=\"G729\" clockrate=\"8000\" channels=\"1\"/>\n" +
-             "      <payload-type id=\"3\" name=\"GSM\" clockrate=\"8000\" channels=\"1\"/>\n" +
-             "      <payload-type id=\"8\" name=\"PCMA\" clockrate=\"8000\" channels=\"1\"/>\n" +
-             "      <payload-type id=\"0\" name=\"PCMU\" clockrate=\"8000\" channels=\"1\"/>\n" +
-             "    </description>\n" +
-             "    <transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\">\n" +
-             "      <candidate ip=\"87.230.83.87\" port=\"6070\" generation=\"0\" type=\"host\"/>\n" +
-             "    </transport>\n" +
-             "  </content>\n" +
-             "</jingle>\n</iq>";
+             "    <content xmlns=\"\" creator=\"initiator\" name=\"root\" senders=\"both\">\n" +
+             "      <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\">\n" +
+             "        <payload-type xmlns=\"\" id=\"18\" name=\"G729\" clockrate=\"8000\" channels=\"1\"/>\n" +
+             "        <payload-type xmlns=\"\" id=\"3\" name=\"GSM\" clockrate=\"8000\" channels=\"1\"/>\n" +
+             "        <payload-type xmlns=\"\" id=\"8\" name=\"PCMA\" clockrate=\"8000\" channels=\"1\"/>\n" +
+             "        <payload-type xmlns=\"\" id=\"0\" name=\"PCMU\" clockrate=\"8000\" channels=\"1\"/>\n" +
+             "      </description>\n" +
+             "      <transport xmlns=\"urn:xmpp:jingle:transports:raw-udp:1\">\n" +
+             "        <candidate xmlns=\"\" ip=\"87.230.83.87\" port=\"6070\" generation=\"0\" type=\"host\"/>\n" +
+             "      </transport>\n" +
+             "    </content>\n" +
+             "  </jingle>\n</iq>";
 
     public void testAccept() throws DocumentException{
         Document doc = DocumentHelper.parseText(acceptExample);
         final IQ iq = new IQ(doc.getRootElement());
         final JingleIQ jingleIQ = JingleIQ.fromXml(iq);
-        assertEquals(iq.toString(), jingleIQ.toString());
+        assertEquals(acceptExample, jingleIQ.toString());
     }
 
-    final String terminateExample = "<iq type=\"set\" id=\"758-53\" to=\"+4915634567890@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\" from=\"004" +
-            "915738512829@sip.yuilop.tv/as5a1f65c0\">\n<jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"2E9C45EB2AF84F59BDB4D281060B63AF\" initiator=\"+4915634567890@194.183.72.28/sip\" responder=\"0049157\n" +
+    final String terminateExample = "\n<iq type=\"set\" id=\"758-53\" to=\"+4915634567890@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\" from=\"004" +
+            "915738512829@sip.yuilop.tv/as5a1f65c0\">\n  <jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"2E9C45EB2AF84F59BDB4D281060B63AF\" initiator=\"+4915634567890@194.183.72.28/sip\" responder=\"0049157" +
             "38512829@sip.yuilop.tv/as5a1f65c0\" action=\"session-terminate\">\n" +
-            "  <reason>\n" +
-            "    <general-error/>\n" +
-            "  </reason>\n" +
-            "</jingle>\n</iq>";
+            "    <reason xmlns=\"\">\n" +
+            "      <general-error/>\n" +
+            "    </reason>\n" +
+            "  </jingle>\n</iq>";
 
     public void testTerminate() throws DocumentException{
         Document doc = DocumentHelper.parseText(terminateExample);
         final IQ iq = new IQ(doc.getRootElement());
         final JingleIQ jingleIQ = JingleIQ.fromXml(iq);
-        assertEquals(iq.toString(), jingleIQ.toString());
+        assertEquals(terminateExample, jingleIQ.toString());
     }
 
-    final String infoExample = "<iq type=\"set\" id=\"134-61\" to=\"+4915634567890@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\" from=\"004" +
+    final String infoExample = "\n<iq type=\"set\" id=\"134-61\" to=\"+4915634567890@yuilop.tv/I(1.4.0.20120515)(Xx/IHylQbJOau1uE6xiQua39scU=)\" from=\"004" +
             "915738512829@sip.yuilop.tv/as677d099c\">\n  <jingle xmlns=\"urn:xmpp:jingle:1\" sid=\"65A377CF25AD46D7B5A324F063002247\" initiator=\"+4915634567890@194.183.72.28/sip\" responder=\"004915738512" +
             "829@sip.yuilop.tv/as677d099c\" action=\"session-info\">\n" +
             "    <ringing xmlns=\"urn:xmpp:jingle:apps:rtp:info:1\"/>\n" +
@@ -243,7 +243,7 @@ public class TestParser extends TestCase {
         Document doc = DocumentHelper.parseText(infoExample);
         final IQ iq = new IQ(doc.getRootElement());
         final JingleIQ jingleIQ = JingleIQ.fromXml(iq);
-        assertEquals(iq.toString(), jingleIQ.toString());
+        assertEquals(infoExample, jingleIQ.toString());
     }
 
 }
