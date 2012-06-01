@@ -112,7 +112,7 @@ public class Main {
     /*
       * Kills application engine
       */
-    private static void stop() {
+    public static void stop() {
         if (sipGatewayApplication != null) {
             sipGatewayApplication.destroy();
         }

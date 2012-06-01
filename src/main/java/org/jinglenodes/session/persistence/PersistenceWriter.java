@@ -16,4 +16,6 @@ public interface PersistenceWriter {
 
     public List<byte[]> loadData();
 
+    public void reset();
+
 }

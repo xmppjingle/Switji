@@ -34,6 +34,7 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
     final private String ENCODE = "UTF-8";
     private PersistenceWriterQueue persistenceWriterQueue;
     private PersistenceWriter writer;
+    private boolean compressed = true;
     private List<CallPreparation> preparations = new ArrayList<CallPreparation>();
 
     public PersistentCallSessionMapper() {
@@ -65,7 +66,7 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
         for (final byte[] entry : data) {
 
             try {
-                final CallSession cs = fromXml(new String(entry, ENCODE));
+                final CallSession cs = fromXml(isCompressed() ? unzip(entry) : new String(entry, ENCODE));
 
                 if (cs != null) {
                     log.debug("Loaded CallSession: " + cs.getId());
@@ -88,6 +89,10 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
 
         }
 
+    }
+
+    public void reset() {
+        writer.reset();
     }
 
     @Override
@@ -155,7 +160,8 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
     public void sessionUpdated(CallSession session) {
         if (persistenceWriterQueue != null) {
             try {
-                persistenceWriterQueue.persist(session.getId(), toXml(session).getBytes(ENCODE));
+                final String s = toXml(session);
+                persistenceWriterQueue.persist(getPersistentId(session), isCompressed() ? zip(s) : s.getBytes(ENCODE));
             } catch (Exception e) {
                 log.error("Could Not Persist CallSession", e);
             }
@@ -166,11 +172,15 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
     public void sessionDestroyed(CallSession session) {
         if (persistenceWriterQueue != null) {
             try {
-                persistenceWriterQueue.delete(session.getId());
+                persistenceWriterQueue.delete(getPersistentId(session));
             } catch (Exception e) {
                 log.error("Could Not Persist CallSession", e);
             }
         }
+    }
+
+    private String getPersistentId(final CallSession cs) {
+        return "CS:" + cs.getId();
     }
 
     public void setWriter(final PersistenceWriter writer) {
@@ -179,5 +189,13 @@ public class PersistentCallSessionMapper extends DefaultCallSessionMapper implem
 
     public void setPreparations(List<CallPreparation> preparations) {
         this.preparations = preparations;
+    }
+
+    public boolean isCompressed() {
+        return compressed;
+    }
+
+    public void setCompressed(boolean compressed) {
+        this.compressed = compressed;
     }
 }

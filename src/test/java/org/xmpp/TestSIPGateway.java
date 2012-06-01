@@ -33,12 +33,18 @@ public class TestSIPGateway extends TestCase {
     private static final Logger log = Logger.getLogger(TestSIPGateway.class);
     private final AtomicInteger sipInviteSent = new AtomicInteger(0);
     private final AtomicInteger sipAcceptSent = new AtomicInteger(0);
+    private final AtomicInteger sipByeSent = new AtomicInteger(0);
+    private final AtomicInteger sipCancelSent = new AtomicInteger(0);
     private final SipServerMock sipServerMock = new SipServerMock();
 
-    public void testStart() throws Exception {
-
+    public TestSIPGateway() {
         Main.setAppDir(System.getProperty("user.dir") + "/target/test-classes/");
         Main.start("sipgatewaytest.xml");
+    }
+
+    public void testSessionPersistence() throws Exception {
+
+        resetCounters();
 
         final JingleProcessor jingleProcessor = Main.getSipGatewayApplication().getJingleProcessor();
         final SipRoutingListener sipRoutingListener = new SipRoutingListener() {
@@ -51,6 +57,10 @@ public class TestSIPGateway extends TestCase {
                 System.out.println("Sent SIP Packet: " + message.toString());
                 if (message.isInvite())
                     sipInviteSent.incrementAndGet();
+                if (message.isBye())
+                    sipByeSent.incrementAndGet();
+                if (message.isCancel())
+                    sipCancelSent.incrementAndGet();
             }
 
             @Override
@@ -61,6 +71,7 @@ public class TestSIPGateway extends TestCase {
 
         PersistentCallSessionMapper sessionMapper = (PersistentCallSessionMapper) jingleProcessor.getCallSessionMapper();
         sessionMapper.clear();
+        sessionMapper.reset();
 
         final String sid = String.valueOf(Math.random() * 5000 + 1000);
 
@@ -116,7 +127,19 @@ public class TestSIPGateway extends TestCase {
         final CallSession cs2 = sessionMapper.fromXml(x);
 
         assertEquals(1, sipInviteSent.get());
+        assertEquals(1, sipCancelSent.get());
 
+    }
+
+    public void testInvalidSipSDP(){
+
+    }
+
+    public void resetCounters() {
+        sipInviteSent.set(0);
+        sipAcceptSent.set(0);
+        sipByeSent.set(0);
+        sipCancelSent.set(0);
     }
 
     public static JingleIQ fakeJingleInitiate(final String initiator, final String responder, final String to, final String sid) {

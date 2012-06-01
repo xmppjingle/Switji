@@ -105,6 +105,25 @@ public class RedisWriter implements PersistenceWriter {
         return data;
     }
 
+    @Override
+    public void reset() {
+        try {
+            JedisConnection connection = JedisConnection.getInstance(redisHost, redisPort);
+            Jedis jedis = connection.getResource();
+
+            if (jedis == null) return;
+
+            try {
+                log.debug("Deleting All Persistent CallSessions");
+                jedis.flushAll();
+            } finally {
+                connection.returnResource(jedis);
+            }
+        } catch (Exception e) {
+            log.error("Could not Reset (FLUSHALL)", e);
+        }
+    }
+
     public String getRedisHost() {
         return redisHost;
     }
