@@ -70,7 +70,7 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public void timeoutRequest(IqRequest iqRequest) {
-
+        //TODO Implement Retry
     }
 
     @Override

@@ -123,6 +123,8 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
             } catch (IllegalFormatException ife) {
                 log.error("Invalid Credit Value Received: " + iq.toXML(), ife);
             }
+        }else{
+            log.debug("Call Initialized with Default Credits: " + iq.toXML());
         }
 
         return sessionCredit;
@@ -131,11 +133,12 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
     @Override
     protected void handleError(IqRequest iqRequest) {
         log.error("Failed to Retrieve Account: " + iqRequest.getResult().toXML());
-        final SessionCredit sessionCredit = new SessionCredit(SessionCredit.RouteType.pstn);
 
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
             final CallSession session = sessionMapper.getSession((JingleIQ) iqRequest.getOriginalPacket());
-            if (session != null) {
+            if (session != null && session.getSessionCredit() != null) {
+                log.warn("Forcing Call Credit for: " + iqRequest.getResult().toXML());
+                final SessionCredit sessionCredit = new SessionCredit(SessionCredit.RouteType.pstn);
                 session.setSessionCredit(sessionCredit);
             }
         }
