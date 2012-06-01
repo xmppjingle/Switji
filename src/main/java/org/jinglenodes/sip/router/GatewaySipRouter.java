@@ -41,6 +41,7 @@ import org.zoolu.tools.NamingThreadFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -96,7 +97,6 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
     }
 
     public void routeSIP(final Message message, final JID sender) {
-
 
         for (final SipRoutingListener routingListener : routingListeners) {
             routingListener.routingSIP(message, sender);
@@ -179,18 +179,28 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
     SocketAddress getDestinationAddress(final Message message, final JID sender) {
 
         if (message.getSendTo() != null) {
+            log.debug("Using sendTo Value for: " + message.toString());
             return message.getSendTo();
         }
 
         final SipAccount sipAccount = sipAccountProvider.getSipAccount(sender);
         if (sipAccount != null) {
+            log.debug("Using sipAccount Value for: " + message.toString());
             final SocketAddress result = CachedAddressResolver.getInstance().getSocketAddress(sipAccount.getOutboundproxy());
             message.setSendTo(result);
             return result;
         }
 
         if (message.getToHeader() != null) {
-            final SipURL sipUrl = message.getToHeader().getNameAddress().getAddress();
+            log.debug("Using message Header Value for: " + message.toString());
+            SipURL sipUrl = message.getContactHeader() != null ? message.getContactHeader().getNameAddress().getAddress() : null;
+            if (sipUrl == null) {
+                if (message.isRequest()) {
+                    sipUrl = message.getFromHeader().getNameAddress().getAddress();
+                } else {
+                    sipUrl = message.getFromHeader().getNameAddress().getAddress();
+                }
+            }
             final SocketAddress result = CachedAddressResolver.getInstance().getSIPSocketAddress(sipUrl.getHost(), sipUrl.getPort());
             message.setSendTo(result);
             return result;
@@ -275,6 +285,10 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
                 log.error("Could not Close Channel: " + id, e);
             }
         }
+    }
+
+    public SipAccountProvider getSipAccountProvider() {
+        return sipAccountProvider;
     }
 
     public void datagramReceived(ListenerDatagramChannel listenerDatagramChannel, ByteBuffer byteBuffer, SocketAddress address) {

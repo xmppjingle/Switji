@@ -71,4 +71,8 @@ public class CachedSipAccountProvider implements SipAccountProvider {
     public long getCachedAccountsSize() {
         return cachedAccounts.size();
     }
+
+    public void clearCachedAccounts(){
+        cachedAccounts.clear();
+    }
 }

@@ -13,6 +13,7 @@ import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.persistence.PersistentCallSessionMapper;
+import org.jinglenodes.sip.account.CachedSipAccountProvider;
 import org.jinglenodes.sip.router.SipRoutingError;
 import org.jinglenodes.sip.router.SipRoutingListener;
 import org.xmpp.packet.JID;
@@ -48,7 +49,8 @@ public class TestSIPGateway extends TestCase {
             @Override
             public void routedSIP(Message message, JID sender) {
                 System.out.println("Sent SIP Packet: " + message.toString());
-                sipInviteSent.incrementAndGet();
+                if (message.isInvite())
+                    sipInviteSent.incrementAndGet();
             }
 
             @Override
@@ -57,17 +59,22 @@ public class TestSIPGateway extends TestCase {
         };
         Main.getSipGatewayApplication().getSipGatewayComponent().getGatewaySipRouter().addRoutingListener(sipRoutingListener);
 
+        PersistentCallSessionMapper sessionMapper = (PersistentCallSessionMapper) jingleProcessor.getCallSessionMapper();
+        sessionMapper.clear();
+
         final String sid = String.valueOf(Math.random() * 5000 + 1000);
 
         final JingleIQ init = fakeJingleInitiate("initiator@abc.com", "responder@abc.com", "sip.abc.com", sid);
 
         jingleProcessor.processIQ(init);
         Thread.sleep(100);
-
-        PersistentCallSessionMapper sessionMapper = (PersistentCallSessionMapper) jingleProcessor.getCallSessionMapper();
         sessionMapper.clear();
+        final CachedSipAccountProvider sipAccountProvider = (CachedSipAccountProvider) Main.getSipGatewayApplication().getSipGatewayComponent().getGatewaySipRouter().getSipAccountProvider();
+        sipAccountProvider.clearCachedAccounts();
 
         sessionMapper.load();
+
+        assertEquals(1, sessionMapper.getSessionCount());
 
         final Jingle jt = new Jingle(init.getJingle().getSid(), init.getJingle().getInitiator(), init.getJingle().getResponder(), Jingle.SESSION_TERMINATE);
         jt.setReason(new Reason(Reason.Type.no_error));
