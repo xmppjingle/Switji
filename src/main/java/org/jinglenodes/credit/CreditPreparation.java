@@ -117,7 +117,7 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     }
 
     private void chargeCall(JingleIQ iq, CallSession session) {
-        if (session.getSessionCredit() != null || !session.getSessionCredit().isCharged()) {
+        if (session.getSessionCredit() != null && !session.getSessionCredit().isCharged()) {
             JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
             JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
             if (initiator != null && responder != null) {
