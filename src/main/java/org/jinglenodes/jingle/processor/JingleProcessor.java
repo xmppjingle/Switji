@@ -67,13 +67,13 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     private List<CallPreparation> preparations = new ArrayList<CallPreparation>();
 
     public void init() {
-        for(final CallSession cs:callSessionMapper.getSessions()){
-            if(cs.getPreparations()==null){
+        for (final CallSession cs : callSessionMapper.getSessions()) {
+            if (cs.getPreparations() == null) {
                 cs.setPreparations(new ConcurrentLinkedQueue<CallPreparation>());
             }
-            if(cs.getProceeds()==null)  {
+            if (cs.getProceeds() == null) {
                 cs.setProceeds(new ConcurrentLinkedQueue<CallPreparation>());
-                cs.getProceeds().addAll(preparations.subList(0,preparations.size()));
+                cs.getProceeds().addAll(preparations.subList(0, preparations.size()));
             }
         }
     }
@@ -139,16 +139,16 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         final String action = iq.getJingle().getAction();
 
         if (action.equals(Jingle.SESSION_INITIATE)) {
-            executeInitiateProceeds(iq, session);
-            sendSipInvite(iq);
+            if (executeInitiateProceeds(iq, session))
+                sendSipInvite(iq);
         } else if (action.equals(Jingle.SESSION_TERMINATE)) {
             executeTerminateProceeds(iq, session);
             sendSipTermination(iq);
         } else if (action.equals(Jingle.SESSION_INFO)) {
             sendSipRinging(iq);
         } else if (action.equals(Jingle.SESSION_ACCEPT)) {
-            executeAcceptProceeds(iq, session);
-            sendSipInviteOk(iq);
+            if (executeAcceptProceeds(iq, session))
+                sendSipInviteOk(iq);
         }
 
     }
@@ -163,16 +163,18 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         // Do Nothing
     }
 
-    private void executeAcceptProceeds(final JingleIQ iq, final CallSession session) {
+    private boolean executeAcceptProceeds(final JingleIQ iq, final CallSession session) {
         for (CallPreparation proceeds : session.getProceeds()) {
-            if (!proceeds.proceedAccept(iq, session)) return;
+            if (!proceeds.proceedAccept(iq, session)) return false;
         }
+        return true;
     }
 
-    private void executeInitiateProceeds(final JingleIQ iq, final CallSession session) {
+    private boolean executeInitiateProceeds(final JingleIQ iq, final CallSession session) {
         for (CallPreparation proceeds : session.getProceeds()) {
-            if (!proceeds.proceedInitiate(iq, session)) return;
+            if (!proceeds.proceedInitiate(iq, session)) return false;
         }
+        return true;
     }
 
     private void executeTerminateProceeds(final JingleIQ iq, final CallSession session) {
