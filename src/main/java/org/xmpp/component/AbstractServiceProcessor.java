@@ -66,7 +66,10 @@ public abstract class AbstractServiceProcessor implements NamespaceProcessor {
             if (iqRequest != null) {
                 log.debug("Request Timeout: " + iqRequest.getRequest().toXML());
                 handleTimeout(iqRequest);
-                iqRequest.getResultReceiver().timeoutRequest(iqRequest);
+                ResultReceiver rr = iqRequest.getResultReceiver();
+                if (rr != null) {
+                    rr.timeoutRequest(iqRequest);
+                }
             } else {
                 log.warn("null IqRequest Expired");
             }

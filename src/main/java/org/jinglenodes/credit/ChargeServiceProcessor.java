@@ -33,6 +33,7 @@ import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.CallSessionMapper;
 import org.xmpp.component.AbstractServiceProcessor;
 import org.xmpp.component.IqRequest;
+import org.xmpp.component.ServiceException;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
@@ -123,7 +124,11 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
 
     @Override
     protected void handleTimeout(IqRequest request) {
-
+        try {
+            queryService(request);
+        } catch (ServiceException e) {
+            log.error("Could NOT Retry Request: " + request.getRequest().toString(), e);
+        }
     }
 
     @Override
