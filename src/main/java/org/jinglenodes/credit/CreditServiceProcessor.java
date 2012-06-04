@@ -109,21 +109,30 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
       * the information retrieved from the iq
       */
     protected SessionCredit getSessionCredit(final IQ iq) {
-        String credit = null;
-        SessionCredit sessionCredit = new SessionCredit(SessionCredit.RouteType.pstn);
+        String maxseconds = null;
+        String type = null;
+        SessionCredit sessionCredit = new SessionCredit(SessionCredit.RouteType.ip);
+        sessionCredit.setMaxDurationInSeconds(0);
 
         log.debug("Get Credit Value Received: " + iq.toXML());
 
-        Element e = iq.getChildElement();
-        credit = e.attributeValue("maxseconds");
-        if (credit != null) {
+        final Element e = iq.getChildElement();
+        maxseconds = e.attributeValue("maxseconds");
+        type = e.attributeValue("type");
+        if (maxseconds != null && type != null) {
             try {
-                final int seconds = Integer.parseInt(credit);
+                final int seconds = Integer.parseInt(maxseconds);
                 sessionCredit.setMaxDurationInSeconds(seconds);
+
+                final SessionCredit.RouteType rt = SessionCredit.RouteType.valueOf(type);
+                sessionCredit.setRouteType(rt);
+
             } catch (IllegalFormatException ife) {
                 log.error("Invalid Credit Value Received: " + iq.toXML(), ife);
+            } catch (IllegalArgumentException ife) {
+                log.error("Invalid Route Type Value Received: " + iq.toXML(), ife);
             }
-        }else{
+        } else {
             log.debug("Call Initialized with Default Credits: " + iq.toXML());
         }
 

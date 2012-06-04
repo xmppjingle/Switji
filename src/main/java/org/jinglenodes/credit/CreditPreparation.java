@@ -117,7 +117,7 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     }
 
     private void chargeCall(JingleIQ iq, CallSession session) {
-        if (session.getSessionCredit() == null || !session.getSessionCredit().isCharged()) {
+        if (session.getSessionCredit() != null || !session.getSessionCredit().isCharged()) {
             JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
             JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
             if (initiator != null && responder != null) {
@@ -179,7 +179,7 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     private boolean verifyCredits(CallSession session) {
         if (session != null) {
             final SessionCredit sessionCredit = session.getSessionCredit();
-            if (sessionCredit == null || sessionCredit.getMaxDurationInSeconds() < 1) {
+            if (sessionCredit == null || sessionCredit.getMaxDurationInSeconds() < 1 || SessionCredit.RouteType.ip.equals(sessionCredit.getRouteType())) {
                 callKiller.cancelKill(session);
                 return false;
             } else {

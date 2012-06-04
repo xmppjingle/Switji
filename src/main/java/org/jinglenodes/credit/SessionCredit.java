@@ -45,6 +45,10 @@ public class SessionCredit {
         return routeType;
     }
 
+    public void setRouteType(RouteType routeType) {
+        this.routeType = routeType;
+    }
+
     public long getFinishTime() {
         return finishTime;
     }
