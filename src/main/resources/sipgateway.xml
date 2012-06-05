@@ -57,6 +57,7 @@
         <property name="sipProviderInfo" ref="sipProviderInfo"/>
         <property name="sipToJingleBind" ref="sipToJingleMapper"/>
         <property name="jingleProcessor" ref="jingleProcessor"/>
+        <property name="callKiller" ref="callKiller"/>
     </bean>
 
     <bean id="jingleProcessor" class="org.jinglenodes.jingle.processor.JingleProcessor" init-method="init">
@@ -74,7 +75,7 @@
         </property>
     </bean>
 
-    <bean id="callKiller" class="org.jinglenodes.credit.CallKiller">
+    <bean id="callKiller" class="org.jinglenodes.callkiller.CallKiller">
         <property name="jingleProcessor" ref="jingleProcessor"/>
     </bean>
 

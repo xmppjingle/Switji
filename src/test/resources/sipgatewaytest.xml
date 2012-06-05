@@ -61,6 +61,7 @@
         <property name="sipProviderInfo" ref="sipProviderInfo"/>
         <property name="sipToJingleBind" ref="sipToJingleBind"/>
         <property name="jingleProcessor" ref="jingleProcessor"/>
+        <property name="callKiller" ref="callKiller"/>
         <property name="preparations">
             <list>
                 <ref bean="creditPreparation"/>
@@ -84,7 +85,7 @@
         </property>
     </bean>
 
-    <bean id="callKiller" class="org.jinglenodes.credit.CallKiller">
+    <bean id="callKiller" class="org.jinglenodes.callkiller.CallKiller">
         <property name="jingleProcessor" ref="jingleProcessor"/>
     </bean>
 

@@ -4,7 +4,6 @@
 package org.jinglenodes.stats;
 
 import org.jinglenodes.component.SIPGatewayApplication;
-import org.jinglenodes.credit.CallKiller;
 
 /**
  * @author bhlangonijr

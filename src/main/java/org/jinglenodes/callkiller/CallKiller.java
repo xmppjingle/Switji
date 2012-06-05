@@ -21,7 +21,7 @@
  *   Benhur Langoni (bhlangonijr@gmail.com)
  *   Thiago Camargo (barata7@gmail.com)
  */
-package org.jinglenodes.credit;
+package org.jinglenodes.callkiller;
 
 import org.apache.log4j.Logger;
 import org.jinglenodes.jingle.Reason;

@@ -1,7 +1,7 @@
 package org.jinglenodes.stats;
 
 import org.jinglenodes.component.SIPGatewayApplication;
-import org.jinglenodes.credit.CallKiller;
+import org.jinglenodes.callkiller.CallKiller;
 import org.jinglenodes.jingle.Reason;
 
 /**

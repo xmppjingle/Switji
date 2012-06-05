@@ -205,10 +205,13 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
         } catch (JingleSipException e) {
             log.error("Jingle/SIP Conversion Error", e);
+            cancelCall(iq, "Invalid Packet", Reason.Type.general_error);
         } catch (SdpException e) {
             log.error("SDP Parsing Error", e);
+            cancelCall(iq, "Invalid Packet Media/Transport", Reason.Type.media_error);
         } catch (JingleException e) {
             log.error("Jingle/SIP Conversion Error", e);
+            cancelCall(iq, "Invalid Packet", Reason.Type.general_error);
         }
     }
 

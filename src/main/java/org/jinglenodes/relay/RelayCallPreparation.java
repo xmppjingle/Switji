@@ -25,7 +25,7 @@
 package org.jinglenodes.relay;
 
 import org.apache.log4j.Logger;
-import org.jinglenodes.credit.CallKiller;
+import org.jinglenodes.callkiller.CallKiller;
 import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.jingle.transport.Candidate;

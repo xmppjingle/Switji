@@ -25,6 +25,7 @@
 package org.jinglenodes.sip.processor;
 
 import org.apache.log4j.Logger;
+import org.jinglenodes.callkiller.CallKiller;
 import org.jinglenodes.jingle.Info;
 import org.jinglenodes.jingle.Jingle;
 import org.jinglenodes.jingle.Reason;
@@ -69,6 +70,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
     private CallSessionMapper callSessions;
     private JingleProcessor jingleProcessor;
     private SipToJingleBind sipToJingleBind;
+    private CallKiller callKiller;
     private boolean forceMapper = false;
 
     private List<CallPreparation> preparations = new ArrayList<CallPreparation>();
@@ -385,6 +387,8 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
     public final void sendJingleAccepted(final Message msg) {
 
         final Participants participants;
+        CallSession callSession = null;
+
         try {
 
             try {
@@ -398,7 +402,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             JID responder = participants.getResponder();
             JID to = initiator;
 
-            final CallSession callSession = callSessions.getSession(msg);
+            callSession = callSessions.getSession(msg);
             if (callSession != null) {
 
                 callSession.setConnected(true);
@@ -417,6 +421,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             }
 
             final Content content = getContent(msg.getBody());
+
             JingleIQ iq = JingleProcessor.createJingleAccept(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
 
             if (callSession != null) {
@@ -429,8 +434,14 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             gatewayRouter.send(iq);
         } catch (JingleSipException e) {
             log.error("Error creating Session-accept packet", e);
+            if (callKiller != null) {
+                callKiller.immediateKill(callSession, new Reason(Reason.Type.media_error));
+            }
         } catch (JingleException e) {
-            log.error("Error Sending Trying", e);
+            if (callKiller != null) {
+                callKiller.immediateKill(callSession, new Reason(Reason.Type.general_error));
+            }
+            log.error("Error Sending Accept", e);
         }
     }
 
@@ -1051,5 +1062,13 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
     public void setPreparations(List<CallPreparation> preparations) {
         this.preparations = preparations;
+    }
+
+    public CallKiller getCallKiller() {
+        return callKiller;
+    }
+
+    public void setCallKiller(CallKiller callKiller) {
+        this.callKiller = callKiller;
     }
 }

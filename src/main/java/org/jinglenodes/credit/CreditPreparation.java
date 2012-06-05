@@ -25,6 +25,7 @@
 package org.jinglenodes.credit;
 
 import org.apache.log4j.Logger;
+import org.jinglenodes.callkiller.CallKiller;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.prepare.PrepareStatesManager;
 import org.jinglenodes.session.CallSession;
