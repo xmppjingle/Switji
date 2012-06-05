@@ -47,6 +47,10 @@ public class Reason {
 //    public class NoError implements Type{
 //    }
 
+
+    public Reason() {
+    }
+
     public Reason(final Type type) {
         this(null, type);
     }

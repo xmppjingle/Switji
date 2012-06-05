@@ -20,6 +20,7 @@ import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.Message;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -35,11 +36,20 @@ public class TestSIPGateway extends TestCase {
     private final AtomicInteger sipAcceptSent = new AtomicInteger(0);
     private final AtomicInteger sipByeSent = new AtomicInteger(0);
     private final AtomicInteger sipCancelSent = new AtomicInteger(0);
-    private final SipServerMock sipServerMock = new SipServerMock();
+    static SipServerMock sipServerMock;
 
-    public TestSIPGateway() {
+    static {
         Main.setAppDir(System.getProperty("user.dir") + "/target/test-classes/");
         Main.start("sipgatewaytest.xml");
+        try {
+            sipServerMock = new SipServerMock();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public TestSIPGateway() throws IOException {
+
     }
 
     public void testSessionPersistence() throws Exception {
@@ -131,7 +141,7 @@ public class TestSIPGateway extends TestCase {
 
     }
 
-    public void testInvalidSipSDP(){
+    public void testInvalidSipSDP() {
 
     }
 

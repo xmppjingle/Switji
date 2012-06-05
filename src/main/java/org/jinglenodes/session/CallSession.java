@@ -170,10 +170,12 @@ public class CallSession {
 
     public void addReceivedJingle(final JingleIQ iq) {
         receivedJingle = iq;
+        update();
     }
 
     public void addSentJingle(final JingleIQ iq) {
         sentJingle = iq;
+        update();
     }
 
     public void setUser(final JID user) {

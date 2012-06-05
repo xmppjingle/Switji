@@ -69,6 +69,9 @@ public class Jingle {
         this.action = action;
     }
 
+    public Jingle() {
+    }
+
     public void setContent(Content content) {
         this.content = content;
     }

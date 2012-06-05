@@ -51,6 +51,9 @@ public class Content {
         this.transport = transport;
     }
 
+    public Content() {
+    }
+
     public String getCreator() {
         return creator;
     }

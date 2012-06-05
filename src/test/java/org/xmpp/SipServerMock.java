@@ -32,14 +32,10 @@ public class SipServerMock implements DatagramListener {
     private SelDatagramChannel channel = null;
     final private Random random = new Random();
 
-    public SipServerMock() {
+    public SipServerMock() throws IOException {
         for (int i = 0; channel == null && i < 10; i++, port++) {
-            try {
-                channel = SelDatagramChannel.open(this, new InetSocketAddress("127.0.0.1", port));
-                channel.setDatagramListener(this);
-            } catch (IOException e) {
-                channel = null;
-            }
+            channel = SelDatagramChannel.open(this, new InetSocketAddress("0.0.0.0", port));
+            channel.setDatagramListener(this);
         }
     }
 

@@ -53,7 +53,7 @@ public class MockExternalComponentManager extends ExternalComponentManager {
                     } else if (((IQ) packet).getChildElement().getNamespace().getStringValue().equals(creditServiceNamespace)) {
                         final IQ reply = IQ.createResultIQ((IQ) packet);
                         reply.setChildElement(((IQ) packet).getChildElement().createCopy());
-                        final Element e = reply.getChildElement().addElement("energy");
+                        final Element e = reply.getChildElement();//.addElement("energy");
                         e.addAttribute("type", "pstn");
                         e.addAttribute("maxseconds", "30");
                         externalComponent.handleIQResult(reply);
