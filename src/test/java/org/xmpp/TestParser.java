@@ -72,7 +72,7 @@ public class TestParser extends TestCase {
 
     public void atestGenParserTerminate() {
         final Jingle jingle = new Jingle("abc", initiator, responder, Jingle.SESSION_TERMINATE);
-        jingle.setReason(new Reason(Reason.Type.no_error));
+        jingle.setReason(new Reason(Reason.Type.success));
         final JingleIQ jingleIQ = new JingleIQ(jingle);
         assertEquals(jingleIQ.getChildElement().element("jingle").asXML(), sourceTerminate);
         System.out.println(jingleIQ.toXML());

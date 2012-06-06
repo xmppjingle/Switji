@@ -39,8 +39,32 @@ public class Reason {
     private static final String REASON = "reason";
     private static final String CONDITION = "condition";
 
+    /*
+    <xs:choice>
+        <xs:element name='alternative-session'
+                    type='alternativeSessionElementType'/>
+        <xs:element name='busy' type='empty'/>
+        <xs:element name='cancel' type='empty'/>
+        <xs:element name='connectivity-error' type='empty'/>
+        <xs:element name='decline' type='empty'/>
+        <xs:element name='expired' type='empty'/>
+        <xs:element name='failed-application' type='empty'/>
+        <xs:element name='failed-transport' type='empty'/>
+        <xs:element name='general-error' type='empty'/>
+        <xs:element name='gone' type='empty'/>
+        <xs:element name='incompatible-parameters' type='empty'/>
+        <xs:element name='media-error' type='empty'/>
+        <xs:element name='security-error' type='empty'/>
+        <xs:element name='success' type='empty'/>
+        <xs:element name='timeout' type='empty'/>
+        <xs:element name='unsupported-applications' type='empty'/>
+        <xs:element name='unsupported-transports' type='empty'/>
+      </xs:choice>
+
+     */
+
     public enum Type {
-        security_error, alternative_session, busy, connectivity_error, decline, general_error, media_error, no_error, success, unsupported_applications, unsupported_transports, timeout, payment
+        security_error, alternative_session, busy, connectivity_error, decline, general_error, media_error, success, unsupported_applications, unsupported_transports, timeout, payment
     }
 
 //    @XStreamAlias("no-error")

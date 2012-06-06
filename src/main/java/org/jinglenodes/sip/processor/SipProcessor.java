@@ -605,10 +605,10 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
                 break;
             case 487:
             case -1:
-                reason = new Reason(Reason.Type.no_error);
+                reason = new Reason(Reason.Type.success);
                 break;
             default:
-                reason = new Reason(code > 0 ? (code) + " - " + msg.getStatusLine().getReason() : String.valueOf(code), Reason.Type.no_error);
+                reason = new Reason(code > 0 ? (code) + " - " + msg.getStatusLine().getReason() : String.valueOf(code), Reason.Type.success);
         }
         return reason;
     }

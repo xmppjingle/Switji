@@ -98,7 +98,7 @@ public class TestSIPGateway extends TestCase {
         assertEquals(1, sessionMapper.getSessionCount());
 
         final Jingle jt = new Jingle(init.getJingle().getSid(), init.getJingle().getInitiator(), init.getJingle().getResponder(), Jingle.SESSION_TERMINATE);
-        jt.setReason(new Reason(Reason.Type.no_error));
+        jt.setReason(new Reason(Reason.Type.success));
         jingleProcessor.processIQ(new JingleIQ(jt));
 
         for (int i = 0; i < 5; i++)

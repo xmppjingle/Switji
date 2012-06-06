@@ -149,6 +149,8 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         } else if (action.equals(Jingle.SESSION_ACCEPT)) {
             if (executeAcceptProceeds(iq, session))
                 sendSipInviteOk(iq);
+        } else {
+            cancelCall(iq, "Malformat", Reason.Type.general_error);
         }
 
     }
