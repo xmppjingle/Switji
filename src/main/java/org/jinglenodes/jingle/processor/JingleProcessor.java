@@ -265,6 +265,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
     public void cancelCall(final JingleIQ iq, final String reasonText, final Reason.Type type) {
         if (iq != null) {
+            log.warn("Cancelling Call: " + iq.toXML());
             IQ reply = createJingleTermination(iq, new Reason(reasonText, type));
             reply.setTo(iq.getFrom());
             gatewayRouter.send(reply);
