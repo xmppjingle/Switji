@@ -166,6 +166,11 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
     }
 
+    @Override
+    public void cancelCall(Message msg, CallSession session, SipChannel channel, Reason reason) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     private void process2xxSipBye(Message msg) {
 
         try {
@@ -187,6 +192,11 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
     @Override
     public void proceedCall(JingleIQ iq, CallSession session) {
 
+    }
+
+    @Override
+    public void cancelCall(JingleIQ iq, CallSession session, Reason reason) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public SipProviderInfoInterface getSipProviderInfo() {

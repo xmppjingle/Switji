@@ -90,7 +90,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         } catch (JingleException e) {
             if (iq != null) {
                 if (Jingle.SESSION_INITIATE.equals(iq.getJingle().getAction())) {
-                    cancelCall(iq, "Not Allowed.", Reason.Type.decline);
+                    cancelCall(iq, null, new Reason("Not Allowed.", Reason.Type.decline));
                 }
             }
             log.error("Error Processing Jingle", e);
@@ -150,9 +150,19 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             if (executeAcceptProceeds(iq, session))
                 sendSipInviteOk(iq);
         } else {
-            cancelCall(iq, "Malformat", Reason.Type.general_error);
+            cancelCall(iq, session, new Reason("Malformat", Reason.Type.general_error));
         }
 
+    }
+
+    @Override
+    public void cancelCall(JingleIQ iq, CallSession session, Reason reason) {
+        if (iq != null) {
+            log.warn("Cancelling Call: " + iq.toXML());
+            IQ reply = createJingleTermination(iq, reason);
+            reply.setTo(iq.getFrom());
+            gatewayRouter.send(reply);
+        }
     }
 
     @Override
@@ -163,6 +173,11 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     @Override
     public void proceedCall(final Message msg, final CallSession session, final SipChannel channel) {
         // Do Nothing
+    }
+
+    @Override
+    public void cancelCall(Message msg, CallSession session, SipChannel channel, Reason reason) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     private boolean executeAcceptProceeds(final JingleIQ iq, final CallSession session) {
@@ -207,13 +222,13 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
         } catch (JingleSipException e) {
             log.error("Jingle/SIP Conversion Error", e);
-            cancelCall(iq, "Invalid Packet", Reason.Type.general_error);
+            cancelCall(iq, null, new Reason("Invalid Packet", Reason.Type.general_error));
         } catch (SdpException e) {
             log.error("SDP Parsing Error", e);
-            cancelCall(iq, "Invalid Packet Media/Transport", Reason.Type.media_error);
+            cancelCall(iq, null, new Reason("Invalid Packet Media/Transport", Reason.Type.media_error));
         } catch (JingleException e) {
             log.error("Jingle/SIP Conversion Error", e);
-            cancelCall(iq, "Invalid Packet", Reason.Type.general_error);
+            cancelCall(iq, null, new Reason("Invalid Packet", Reason.Type.general_error));
         }
     }
 
@@ -258,19 +273,6 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             gatewayRouter.routeSIP(ok, callSession.getUser());
         } catch (JingleSipException e) {
             log.warn("Error Sending 200 OK.", e);
-        }
-    }
-
-    public void cancelCall(final JingleIQ iq, final String reasonText) {
-        cancelCall(iq, reasonText, Reason.Type.general_error);
-    }
-
-    public void cancelCall(final JingleIQ iq, final String reasonText, final Reason.Type type) {
-        if (iq != null) {
-            log.warn("Cancelling Call: " + iq.toXML());
-            IQ reply = createJingleTermination(iq, new Reason(reasonText, type));
-            reply.setTo(iq.getFrom());
-            gatewayRouter.send(reply);
         }
     }
 

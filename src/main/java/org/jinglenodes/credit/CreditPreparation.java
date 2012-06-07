@@ -26,12 +26,14 @@ package org.jinglenodes.credit;
 
 import org.apache.log4j.Logger;
 import org.jinglenodes.callkiller.CallKiller;
+import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.prepare.PrepareStatesManager;
 import org.jinglenodes.session.CallSession;
 import org.xmpp.component.IqRequest;
 import org.xmpp.component.ResultReceiver;
 import org.xmpp.component.ServiceException;
+import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
@@ -63,9 +65,9 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     @Override
     public void receivedError(IqRequest iqRequest) {
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
-            if (iqRequest.getRequest().getChildElement().getNamespace().getURI().equals(creditServiceProcessor.getNamespace())) {
-                prepareStatesManager.prepareCall((JingleIQ) iqRequest.getOriginalPacket(), null);
-            }
+            final JingleIQ iq = (JingleIQ) iqRequest.getOriginalPacket();
+            prepareStatesManager.cancelCall(iq, null, new Reason(Reason.Type.forbidden));
+
         }
     }
 

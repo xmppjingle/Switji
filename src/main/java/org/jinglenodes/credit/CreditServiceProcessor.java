@@ -141,7 +141,7 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
 
     @Override
     protected void handleError(IqRequest iqRequest) {
-        log.error("Failed to Retrieve Account: " + iqRequest.getResult().toXML());
+        log.error("Failed to Lock Credits: " + iqRequest.getResult().toXML());
 
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
             final CallSession session = sessionMapper.getSession((JingleIQ) iqRequest.getOriginalPacket());

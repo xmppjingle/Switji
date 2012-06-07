@@ -101,8 +101,9 @@ public abstract class AbstractServiceProcessor implements NamespaceProcessor {
         }
 
         iqRequest = new IqRequest(object, serviceRequest, resultReceiver);
-        pendingServiceResult.put(iqRequest.getRequest().getID(), iqRequest);
+        pendingServiceResult.put(serviceRequest.getID(), iqRequest);
         pendingService.put(getRequestId(object), iqRequest);
+        log.debug("Added Pending IQ: " + iqRequest.getRequest().getID() + "\n" + iqRequest.getRequest().toXML());
         return iqRequest;
     }
 

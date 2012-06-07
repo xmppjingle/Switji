@@ -170,7 +170,8 @@ public class ExternalComponent extends AbstractComponent {
 
     @Override
     protected void handleIQError(final IQ iq) {
-        //
+
+        log.debug("Received Error: " + iq.toXML());
 
         // Get 'to'.
         final JID toJid = iq.getTo();
@@ -179,17 +180,6 @@ public class ExternalComponent extends AbstractComponent {
         // Get 'from'.
         final JID fromJid = iq.getFrom();
         if (null == fromJid) return;
-
-        // Get the child element.
-        final Element e = iq.getChildElement();
-        if (null == e) return;
-
-        // Get namespace.
-        final Namespace namespace = e.getNamespace();
-        if (null == namespace) return;
-
-        // Parse URI from namespace.
-        final String ns = namespace.getURI();
 
         for (final List<NamespaceProcessor> npl : processors.values()) {
             for (final NamespaceProcessor np : npl)

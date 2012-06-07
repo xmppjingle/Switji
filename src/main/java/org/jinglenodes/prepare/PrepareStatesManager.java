@@ -24,6 +24,7 @@
 
 package org.jinglenodes.prepare;
 
+import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.session.CallSession;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.Message;
@@ -40,7 +41,11 @@ public interface PrepareStatesManager {
 
     public void proceedCall(final JingleIQ iq, final CallSession session);
 
+    public void cancelCall(final JingleIQ iq, final CallSession session, final Reason reason);
+
     public void prepareCall(final Message msg, final CallSession session, final SipChannel channel);
 
     public void proceedCall(final Message msg, final CallSession session, final SipChannel channel);
+
+    public void cancelCall(final Message msg, final CallSession session, final SipChannel channel, final Reason reason);
 }
