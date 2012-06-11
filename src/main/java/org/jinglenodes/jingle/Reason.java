@@ -25,6 +25,7 @@
 package org.jinglenodes.jingle;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
@@ -35,6 +36,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Reason {
 
     private String text;
+    @XStreamOmitField
     private Type type;
     private static final String REASON = "reason";
     private static final String CONDITION = "condition";
@@ -102,11 +104,9 @@ public class Reason {
 
     public Element getElement() {
         final Element parent = DocumentHelper.createElement(REASON);
-        final Element inner = DocumentHelper.createElement(CONDITION);
         final Element child = DocumentHelper.createElement(getType().toString().replace('_', '-'));
 
-        inner.add(child);
-        parent.add(inner);
+        parent.add(child);
 
         if (text != null) {
             final Element text = DocumentHelper.createElement("text");

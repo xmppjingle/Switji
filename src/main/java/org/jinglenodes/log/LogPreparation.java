@@ -62,7 +62,7 @@ public class LogPreparation extends CallPreparation {
 
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
-        final StringBuilder str = new StringBuilder("INIT\t");
+        final StringBuilder str = new StringBuilder("ACCEPT\t");
         str.append(iq.getJingle().getSid()).append("\t");
         str.append(iq.getJingle().getInitiator()).append("\t");
         str.append(iq.getJingle().getResponder()).append("\t");

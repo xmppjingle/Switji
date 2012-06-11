@@ -2,17 +2,11 @@
 <!DOCTYPE log4j:configuration SYSTEM "http://logging.apache.org/log4j/docs/api/org/apache/log4j/xml/log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
-    <appender name="cdr" class="org.apache.log4j.ConsoleAppender">
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d{ABSOLUTE}\t%m\t%n"/>
-        </layout>
-    </appender>
-
-    <appender name="appender" class="org.apache.log4j.DailyRollingFileAppender">
+    <appender name="cdr" class="org.apache.log4j.DailyRollingFileAppender">
         <param name="DatePattern" value="'.'yyyyMMdd"/>
-        <param name="File" value="${sipgateway.home}/log/sipgateway.log"/>
+        <param name="File" value="${sipgateway.home}/log/cdr.log"/>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d{HH:mm:ss,SSS} %t %-5p %c - %m%n"/>
+            <param name="ConversionPattern" value="%d{ABSOLUTE}\t%m%n"/>
         </layout>
     </appender>
 
@@ -30,6 +24,11 @@
             <param name="ConversionPattern" value="%d{HH:mm:ss,SSS} %t %-5p %c - %m%n"/>
         </layout>
     </appender>
+
+    <logger name="org.jinglenodes.log.LogPreparation">
+        <level value="info"/>
+        <appender-ref ref="cdr"/>
+    </logger>
 
     <root>
         <priority value="debug"/>
