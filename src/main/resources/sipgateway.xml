@@ -60,6 +60,8 @@
         <property name="callKiller" ref="callKiller"/>
     </bean>
 
+    <bean id="callLogger" class="org.jinglenodes.log.LogPreparation"></bean>
+
     <bean id="jingleProcessor" class="org.jinglenodes.jingle.processor.JingleProcessor" init-method="init">
         <property name="gatewayRouter" ref="sipGatewayComponent"/>
         <property name="callSessionMapper" ref="callSessionMapper"/>
@@ -67,6 +69,7 @@
         <property name="sipToJingleBind" ref="sipToJingleMapper"/>
         <property name="preparations">
             <list>
+                <ref bean="callLogger"/>
                 <ref bean="detourPreparation"/>
                 <ref bean="creditPreparation"/>
                 <ref bean="accountPreparation"/>
