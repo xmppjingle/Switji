@@ -49,7 +49,7 @@ public class TestParser extends TestCase {
     }
 
     final private String sourceTerminate = "<jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-terminate\" sid=\"abc\" initiator=\"a@a.com\" responder=\"b@b.com\">\n" +
-            "<reason><success/></reason>\n" +
+            "  <reason><success/></reason>\n" +
             "</jingle>";
 
 

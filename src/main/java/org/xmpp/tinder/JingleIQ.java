@@ -1,17 +1,21 @@
 package org.xmpp.tinder;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.jinglenodes.jingle.Jingle;
+import org.jinglenodes.jingle.Reason;
 import org.xmpp.packet.IQ;
 import org.xmpp.tinder.parser.XStreamIQ;
 
 import java.io.StringReader;
+import java.util.List;
 
 public class JingleIQ extends XStreamIQ<Jingle> {
 
+    final static Logger log = Logger.getLogger(JingleIQ.class);
     private final Jingle jingle;
 
     public JingleIQ(final Jingle element) {
@@ -20,7 +24,14 @@ public class JingleIQ extends XStreamIQ<Jingle> {
         final Document originalDoc;
         try {
             originalDoc = new SAXReader().read(new StringReader(element.toString()));
-            this.element.add(originalDoc.getRootElement().createCopy());
+            final Element e = originalDoc.getRootElement().createCopy();
+            if (element.getReason() != null && element.getReason().getType() != null) {
+                final Element reason = e.element("reason");
+                if (reason != null) {
+                    reason.addElement(element.getReason().getType().toString());
+                }
+            }
+            this.element.add(e);
         } catch (DocumentException e) {
             e.printStackTrace();
         }
@@ -44,6 +55,21 @@ public class JingleIQ extends XStreamIQ<Jingle> {
             }
             if (j.getResponder() == null || j.getResponder().length() < 3) {
                 j.setResponder(iq.getTo().toString());
+            }
+
+            // Fix Terminate Reason
+            final Element reason = e.element("reason");
+            if (reason != null && j.getReason() != null) {
+                final List<Element> types = reason.elements();
+                if (types.size() > 0) {
+                    try {
+                        final Reason.Type t = Reason.Type.valueOf(types.get(0).getName());
+                        j.getReason().setType(t
+                        );
+                    } catch (IllegalArgumentException iae) {
+                        log.warn("Illegal Jingle Terminate Reason", iae);
+                    }
+                }
             }
 
             final JingleIQ jingleIQ = new JingleIQ(j);
