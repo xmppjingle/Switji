@@ -16,6 +16,7 @@ import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.jinglenodes.sip.processor.SipProcessor;
 import org.xmpp.packet.IQ;
+import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.Message;
 
@@ -68,6 +69,11 @@ public class TestParser extends TestCase {
 
         final JingleIQ newJingle = JingleIQ.fromXml(jingleIQ);
         assertTrue(newJingle.getJingle().getContent().getDescription() != null);
+    }
+
+    public void testGetNode(){
+        final String n = new JID("a@b.com").getNode();
+        assertEquals("a", n);
     }
 
     public void testGenParserTerminate() {

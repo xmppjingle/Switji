@@ -104,7 +104,7 @@ public class TestSIPGateway extends TestCase {
         for (int i = 0; i < 5; i++)
             Thread.sleep(200);
 
-        final CallSession cs = jingleProcessor.getCallSessionMapper().getSession(sid);
+        final CallSession cs = jingleProcessor.getCallSessionMapper().getSession(new JingleIQ(jt));
 
         assertNotNull(cs.getProceeds());
 

@@ -29,6 +29,9 @@ import org.jinglenodes.jingle.processor.JingleException;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.header.CallIdHeader;
+import org.zoolu.sip.header.FromHeader;
+import org.zoolu.sip.header.ToHeader;
+import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.Participants;
 import org.zoolu.sip.message.SipParsingException;
@@ -203,7 +206,21 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
             final CallIdHeader header = message.getCallIdHeader();
             if (header != null) {
                 final String cid = header.getCallId();
-                return cid;
+
+                final FromHeader fh = message.getFromHeader();
+                final ToHeader th = message.getToHeader();
+
+                final String p;
+
+                if(fh!=null&& th !=null){
+                    final String f = fh.getNameAddress().getBareAddress().getUserName();
+                    final String t = th.getNameAddress().getBareAddress().getUserName();
+                    p = getHigher(f, t);
+                }else{
+                    p="null";
+                }
+
+                return cid+"x"+ p;
                 //return (cid + "x" + (message.getArrivedAt() != null ? message.getArrivedAt().getId() : "U"));
             }
             throw new JingleException("Could NOT Calculate CallSession ID:" + message);
@@ -211,9 +228,21 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
         throw new JingleException("Could NOT Calculate CallSession ID.");
     }
 
+    public String getHigher(final String a, final String b){
+        final String p;
+
+        if(a.compareToIgnoreCase(b)>=0){
+            p=a;
+        }else {
+            p=b;
+        }
+
+        return p;
+    }
+
     public String getSessionId(final JingleIQ iq) {
-        final String id = iq.getJingle().getSid();// + "x" + iq.getFrom().toBareJID();
-        return id;
+        final String id = iq.getJingle().getSid();
+        return id+"x"+getHigher(JIDFactory.getInstance().getJID(iq.getJingle().getInitiator()).getNode(),JIDFactory.getInstance().getJID(iq.getJingle().getResponder()).getNode());
     }
 
     public Collection<CallSession> getSessions() {
