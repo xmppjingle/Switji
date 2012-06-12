@@ -26,6 +26,7 @@ package org.jinglenodes.detour;
 
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
+import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.prepare.PrepareStatesManager;
 import org.jinglenodes.session.CallSession;
@@ -60,8 +61,14 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
     private CallSessionMapper callSessions;
 
     @Override
-    public boolean prepareInitiate(JingleIQ iq, final CallSession session) {
+    public boolean prepareInitiate(final JingleIQ iq, final CallSession session) {
         JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
+
+        if(!iq.getFrom().toFullJID().equals(iq.getJingle().getInitiator())){
+            prepareStatesManager.cancelCall(iq,session,new Reason(Reason.Type.security_error));
+            return false;
+        }
+
         try {
             detourServiceProcessor.queryService(iq, null, responder.getNode(), this);
         } catch (ServiceException e) {
