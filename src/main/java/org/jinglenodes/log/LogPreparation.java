@@ -1,6 +1,8 @@
 package org.jinglenodes.log;
 
 import org.apache.log4j.Logger;
+import org.jinglenodes.jingle.Jingle;
+import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.jinglenodes.prepare.CallPreparation;
@@ -19,6 +21,8 @@ import org.zoolu.sip.message.SipChannel;
 public class LogPreparation extends CallPreparation {
 
     final static Logger log = Logger.getLogger(LogPreparation.class);
+    final static public String DEFAULT_BLANK = "-";
+    final static public String DEFAULT_UNKNOWN = "unknown";
 
     @Override
     public boolean prepareInitiate(JingleIQ iq, CallSession session) {
@@ -27,16 +31,19 @@ public class LogPreparation extends CallPreparation {
 
     @Override
     public boolean proceedInitiate(JingleIQ iq, CallSession session) {
-        final StringBuilder str = new StringBuilder("INIT\t");
-        str.append(iq.getJingle().getSid()).append("\t");
-        str.append(iq.getJingle().getInitiator()).append("\t");
-        str.append(iq.getJingle().getResponder()).append("\t");
-        str.append(getIp(iq)).append("\t");
-        log.info(str.toString());
+        log.info(_createLine(iq));
         return true;
     }
 
-    private String getIp(JingleIQ iq) {
+    private String getReason(final JingleIQ iq) {
+        if (iq.getJingle() != null && iq.getJingle().getReason() != null) {
+            final Reason.Type t = iq.getJingle().getReason().getType();
+            return t == null ? DEFAULT_BLANK : t.toString();
+        }
+        return DEFAULT_BLANK;
+    }
+
+    private String getIp(final JingleIQ iq) {
         if (iq.getJingle() != null && iq.getJingle().getContent() != null) {
             final RawUdpTransport transport = iq.getJingle().getContent().getTransport();
             if (transport != null && transport.getCandidates().size() > 0) {
@@ -46,29 +53,35 @@ public class LogPreparation extends CallPreparation {
                 }
             }
         }
-        return "unknown";
+        return DEFAULT_UNKNOWN;
     }
 
     @Override
     public boolean proceedTerminate(JingleIQ iq, CallSession session) {
-        final StringBuilder str = new StringBuilder("TERMINATE\t");
-        str.append(iq.getJingle().getSid()).append("\t");
-        str.append(iq.getJingle().getInitiator()).append("\t");
-        str.append(iq.getJingle().getResponder()).append("\t");
-        str.append(iq.getJingle().getReason().getType()).append("\t");
-        log.info(str.toString());
+        log.info(_createLine(iq));
         return true;
     }
 
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
-        final StringBuilder str = new StringBuilder("ACCEPT\t");
-        str.append(iq.getJingle().getSid()).append("\t");
-        str.append(iq.getJingle().getInitiator()).append("\t");
-        str.append(iq.getJingle().getResponder()).append("\t");
-        str.append(getIp(iq)).append("\t");
-        log.info(str.toString());
+        log.info(_createLine(iq));
         return true;
+    }
+
+    private String _createLine(final JingleIQ iq) {
+        final Jingle j = iq.getJingle();
+        return _createLine(j.getAction(), j.getSid(), getReason(iq), j.getInitiator(), j.getResponder(), getIp(iq));
+    }
+
+    private String _createLine(final String action, final String sid, final String reasonType, final String initiator, final String responder, final String ip) {
+        final StringBuilder str = new StringBuilder();
+        str.append(action).append("\t");
+        str.append(sid).append("\t");
+        str.append(initiator).append("\t");
+        str.append(responder).append("\t");
+        str.append(reasonType).append("\t");
+        str.append(ip).append("\t");
+        return str.toString();
     }
 
     @Override
