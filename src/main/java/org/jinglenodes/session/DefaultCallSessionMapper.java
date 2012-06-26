@@ -59,7 +59,7 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
     final protected ScheduledThreadPoolExecutor purgeTimer;
     final private int maxSessionTtl; // in Seconds
     final private int unfinishedSessionTtl;
-    final protected int purgeTime; // In Seconds
+    final protected int purgeTime; // in Seconds
 
     public DefaultCallSessionMapper() {
         this(1500, 120, 200);
@@ -206,22 +206,8 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
             final CallIdHeader header = message.getCallIdHeader();
             if (header != null) {
                 final String cid = header.getCallId();
-
-                final FromHeader fh = message.getFromHeader();
-                final ToHeader th = message.getToHeader();
-
-                final String p;
-
-                if(fh!=null&& th !=null){
-                    final String f = fh.getNameAddress().getBareAddress().getUserName();
-                    final String t = th.getNameAddress().getBareAddress().getUserName();
-                    p = getHigher(f, t);
-                }else{
-                    p="null";
-                }
-
-                return cid+"x"+ p;
-                //return (cid + "x" + (message.getArrivedAt() != null ? message.getArrivedAt().getId() : "U"));
+                final String p="null";
+                return cid+"x"+p;
             }
             throw new JingleException("Could NOT Calculate CallSession ID:" + message);
         }
@@ -242,7 +228,8 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
 
     public String getSessionId(final JingleIQ iq) {
         final String id = iq.getJingle().getSid();
-        return id+"x"+getHigher(JIDFactory.getInstance().getJID(iq.getJingle().getInitiator()).getNode(),JIDFactory.getInstance().getJID(iq.getJingle().getResponder()).getNode());
+        final String p = "null";
+        return id+"x"+p;
     }
 
     public Collection<CallSession> getSessions() {
@@ -275,7 +262,6 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
         }
 
         return timeout;
-
     }
 
     public void clearSessionFromUser(final JID user) {
@@ -294,10 +280,9 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
                     }
                 }
             }
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             log.error("Severe Error when cleaning up Sessions.", e);
         }
-
     }
 
     public int getPendingSessionCount() {
