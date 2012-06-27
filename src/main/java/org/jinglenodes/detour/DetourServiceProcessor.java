@@ -31,7 +31,7 @@ public class DetourServiceProcessor extends AbstractServiceProcessor {
     }
 
     @Override
-    public IQ createServiceRequest(Object object, String fromNode, String toNode) {
+    public IQ createServiceRequest(Object object,  String fromNode, String toNode) {
         final IQ request = new IQ(IQ.Type.get);
         if (toNode.indexOf("00") == 0) {
             toNode = "+" + toNode.substring(2);

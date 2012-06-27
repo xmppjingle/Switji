@@ -48,6 +48,7 @@ public class RelayServiceProcessor extends AbstractServiceProcessor {
     public IQ createServiceRequest(Object object, final String fromNode, final String toNode) {
         final RelayIQ relayIQ = new RelayIQ(true);
         relayIQ.setTo(toNode != null ? toNode + "@" + relayService : relayService);
+        relayIQ.setFrom(fromNode != null ? fromNode + "@" + this.getComponentJID().getDomain() : null);
         return relayIQ;
     }
 

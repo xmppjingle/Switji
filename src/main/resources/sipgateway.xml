@@ -21,7 +21,7 @@
     <bean id="sipGatewayComponent" class="org.jinglenodes.component.SIPGatewayComponent" init-method="init">
         <constructor-arg index="0" value="sip"/>
         <constructor-arg index="1" value="SIP Gateway"/>
-        <constructor-arg index="2" value="${xmpp.server}"/>
+        <constructor-arg index="2" value="${xmpp.domain}"/>
         <property name="gatewaySipRouter" ref="gatewaySipRouter"/>
         <property name="jingleProcessor" ref="jingleProcessor"/>
         <property name="sipProcessor" ref="sipProcessor"/>
