@@ -80,7 +80,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
         JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
         if (session.getRelayIQ() == null) {
             try {
-                relayServiceProcessor.queryService(iq, null, initiator.getNode(), this);
+                relayServiceProcessor.queryService(iq, initiator.getNode(), initiator.getNode(), this);
             } catch (ServiceException e) {
                 log.error("Failed Querying Account Service.", e);
             }
@@ -122,7 +122,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
             initiator = msg.getParticipants().getInitiator();
             if (session.getRelayIQ() == null) {
                 try {
-                    relayServiceProcessor.queryService(msg, null, initiator.getNode(), this);
+                    relayServiceProcessor.queryService(msg, initiator.getNode(), initiator.getNode(), this);
                 } catch (ServiceException e) {
                     log.error("Failed Querying Account Service.", e);
                 }
