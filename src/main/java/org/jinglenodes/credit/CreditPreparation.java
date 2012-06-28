@@ -183,7 +183,7 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
         if (session != null) {
             final SessionCredit sessionCredit = session.getSessionCredit();
             if (sessionCredit == null || sessionCredit.getMaxDurationInSeconds() < 1 || SessionCredit.RouteType.ip.equals(sessionCredit.getRouteType())) {
-                callKiller.cancelKill(session);
+                callKiller.immediateKill(session, new Reason("No Credits", Reason.Type.payment));
                 return false;
             } else {
                 return true;
