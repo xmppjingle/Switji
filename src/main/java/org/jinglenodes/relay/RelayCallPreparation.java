@@ -69,10 +69,10 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     @Override
     public void receivedError(IqRequest iqRequest) {
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
-            callKiller.immediateKill(((JingleIQ) iqRequest.getOriginalPacket()).getJingle().getSid(), new Reason("No Relay", Reason.Type.connectivity_error));
+            callKiller.immediateKill((JingleIQ) iqRequest.getOriginalPacket(), new Reason("No Relay", Reason.Type.connectivity_error));
             prepareStatesManager.cancelCall((JingleIQ) iqRequest.getOriginalPacket(), null, new Reason("No Relay", Reason.Type.connectivity_error));
         } else if (iqRequest.getOriginalPacket() instanceof Message) {
-            callKiller.immediateKill(((JingleIQ) iqRequest.getOriginalPacket()).getJingle().getSid(), new Reason("No Relay", Reason.Type.connectivity_error));
+            callKiller.immediateKill((JingleIQ) iqRequest.getOriginalPacket(), new Reason("No Relay", Reason.Type.connectivity_error));
             prepareStatesManager.cancelCall((Message) iqRequest.getOriginalPacket(), null, null, new Reason("No Relay", Reason.Type.connectivity_error));
         }
     }
@@ -80,9 +80,9 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     @Override
     public void timeoutRequest(IqRequest iqRequest) {
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
-            callKiller.immediateKill(((JingleIQ) iqRequest.getOriginalPacket()).getJingle().getSid(), new Reason("No Relay", Reason.Type.connectivity_error));
+            callKiller.immediateKill((JingleIQ) iqRequest.getOriginalPacket(), new Reason("No Relay", Reason.Type.connectivity_error));
         } else if (iqRequest.getOriginalPacket() instanceof Message) {
-            callKiller.immediateKill(((JingleIQ) iqRequest.getOriginalPacket()).getJingle().getSid(), new Reason("No Relay", Reason.Type.connectivity_error));
+            callKiller.immediateKill((JingleIQ) iqRequest.getOriginalPacket(), new Reason("No Relay", Reason.Type.connectivity_error));
         }
     }
 
