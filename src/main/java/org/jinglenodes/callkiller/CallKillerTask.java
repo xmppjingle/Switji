@@ -65,6 +65,8 @@ public class CallKillerTask implements Runnable {
                 jingleProcessor.send(terminationIQ);
 
             }
+        }else{
+            log.warn("Unable to kill null Session");
         }
     }
 

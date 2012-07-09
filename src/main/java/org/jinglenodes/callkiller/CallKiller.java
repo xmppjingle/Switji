@@ -25,9 +25,11 @@ package org.jinglenodes.callkiller;
 
 import org.apache.log4j.Logger;
 import org.jinglenodes.jingle.Reason;
+import org.jinglenodes.jingle.processor.JingleException;
 import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.session.CallSession;
 import org.xmpp.tinder.JingleIQ;
+import org.zoolu.sip.message.Message;
 import org.zoolu.tools.ConcurrentTimelineHashMap;
 import org.zoolu.tools.NamingThreadFactory;
 
@@ -76,6 +78,14 @@ public class CallKiller {
 
     public boolean immediateKill(final JingleIQ jingle, final Reason reason){
         return immediateKill(jingleProcessor.getCallSessionMapper().getSessionId(jingle), reason);
+    }
+
+    public boolean immediateKill(final Message message, final Reason reason){
+        try {
+            return immediateKill(jingleProcessor.getCallSessionMapper().getSessionId(message), reason);
+        } catch (JingleException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
     }
 
     public boolean immediateKill(final String sid, final Reason reason) {

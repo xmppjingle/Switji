@@ -72,7 +72,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
             callKiller.immediateKill((JingleIQ) iqRequest.getOriginalPacket(), new Reason("No Relay", Reason.Type.connectivity_error));
             prepareStatesManager.cancelCall((JingleIQ) iqRequest.getOriginalPacket(), null, new Reason("No Relay", Reason.Type.connectivity_error));
         } else if (iqRequest.getOriginalPacket() instanceof Message) {
-            callKiller.immediateKill((JingleIQ) iqRequest.getOriginalPacket(), new Reason("No Relay", Reason.Type.connectivity_error));
+            callKiller.immediateKill((Message) iqRequest.getOriginalPacket(), new Reason("No Relay", Reason.Type.connectivity_error));
             prepareStatesManager.cancelCall((Message) iqRequest.getOriginalPacket(), null, null, new Reason("No Relay", Reason.Type.connectivity_error));
         }
     }
