@@ -84,7 +84,8 @@ public class CallKiller {
         try {
             return immediateKill(jingleProcessor.getCallSessionMapper().getSessionId(message), reason);
         } catch (JingleException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            log.warn("Could not Kill Call", e);
+            return false;
         }
     }
 
