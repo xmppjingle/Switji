@@ -114,6 +114,7 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public boolean proceedTerminate(JingleIQ iq, CallSession session) {
+        log.debug("Credit Proceed Terminate: " + iq.toXML() + " - " + session.getId());
         setSessionFinishTime(session, System.currentTimeMillis());
         chargeCall(iq, session);
         return true;

@@ -53,9 +53,9 @@ public class CallKillerTask implements Runnable {
     public void run() {
         if (session != null) {
             if (session.isActive()) {
-                log.warn("Killing Call: " + session.getId());
+                log.warn("Killing Call: " + session.getId() + " Proceeds: "+ session.getProceeds().size());
+                try{
                 //jingleProcessor.sendSipTermination(session.getInitiateIQ(), session);
-
                 final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(session.getInitiateIQ(), reason);
                 try {
                     jingleProcessor.processJingle(terminationIQ);
@@ -63,7 +63,9 @@ public class CallKillerTask implements Runnable {
                     log.error("Failed to Force Termination Process", e);
                 }
                 jingleProcessor.send(terminationIQ);
-
+                }catch (Exception e){
+                    log.error("Could not Kill Properly Call: " + session.getId(), e);
+                }
             }
         }else{
             log.warn("Unable to kill null Session");

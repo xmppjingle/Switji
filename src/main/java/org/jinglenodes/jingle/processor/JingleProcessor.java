@@ -108,6 +108,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         final String action = iq.getJingle().getAction();
 
         if (action.equals(Jingle.SESSION_INITIATE)) {
+            session.setInitiateIQ(iq);
             for (final CallPreparation p : preparations) {
                 session.addCallPreparation(p);
             }
@@ -196,7 +197,12 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
     private void executeTerminateProceeds(final JingleIQ iq, final CallSession session) {
         for (CallPreparation proceeds : session.getProceeds()) {
+            log.debug("Terminate Proceed: " + proceeds.getClass().getCanonicalName());
+            try{
             if (!proceeds.proceedTerminate(iq, session)) return;
+            }catch (final Exception e){
+                log.error("Exception on Terminate Proceed", e);
+            }
         }
     }
 
