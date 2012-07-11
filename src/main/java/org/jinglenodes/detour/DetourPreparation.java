@@ -120,10 +120,11 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
         log.debug("Getting Jingle Destination of: " + res.toString());
         for (Object o : res.getChildElement().elements()) {
             Element e = (Element) o;
+            destination = e.attributeValue("number");
             if (e.attributeValue("type").equals(jinglePhoneType)) {
                 isJingle = true;
+                break;
             }
-            destination = e.attributeValue("number");
         }
         return isJingle ? destination : null;
     }
