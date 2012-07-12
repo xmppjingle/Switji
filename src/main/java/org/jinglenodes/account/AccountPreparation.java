@@ -134,6 +134,11 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
     }
 
     @Override
+    public void proceedInfo(JingleIQ iq, CallSession session) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
     public boolean prepareInitiate(Message msg, CallSession session, final SipChannel sipChannel) {
         return true;
     }
@@ -141,6 +146,11 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
     @Override
     public boolean proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
         return true;
+    }
+
+    @Override
+    public void proceedSIPInfo(JingleIQ iq, CallSession session, SipChannel channel) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

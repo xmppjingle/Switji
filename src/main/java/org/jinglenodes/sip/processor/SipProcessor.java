@@ -383,6 +383,12 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
             final JingleIQ iq = JingleProcessor.createJingleSessionInfo(initiator, responder, to.toString(), msg.getCallIdHeader().getCallId(), Info.Type.ringing);
 
+            if (callSession != null) {
+                for (final CallPreparation preparation : callSession.getProceeds()) {
+                    preparation.proceedSIPInfo(iq, callSession, null);
+                }
+            }
+
             callSessions.addSentJingle(iq);
             gatewayRouter.send(iq);
         } catch (JingleException e) {

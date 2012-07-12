@@ -152,6 +152,11 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
         return true;
     }
 
+    @Override
+    public void proceedInfo(JingleIQ iq, CallSession session) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     private void setSessionStartTime(final CallSession session, final long time) {
         if (session != null) {
             final SessionCredit sessionCredit = session.getSessionCredit();
@@ -178,6 +183,11 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     @Override
     public boolean proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
         return verifyCredits(session);
+    }
+
+    @Override
+    public void proceedSIPInfo(JingleIQ iq, CallSession session, SipChannel channel) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     private boolean verifyCredits(CallSession session) {

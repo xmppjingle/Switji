@@ -127,6 +127,11 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     }
 
     @Override
+    public void proceedInfo(JingleIQ iq, CallSession session) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
     public boolean prepareInitiate(Message msg, CallSession session, final SipChannel sipChannel) {
         JID initiator = null;
         try {
@@ -159,6 +164,11 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
             log.debug("Trying to Update Transport SIP... Failed. No Session Found!");
         }
         return true;
+    }
+
+    @Override
+    public void proceedSIPInfo(JingleIQ iq, CallSession session, SipChannel channel) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

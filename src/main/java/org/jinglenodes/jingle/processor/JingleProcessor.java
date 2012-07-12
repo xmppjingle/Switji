@@ -146,6 +146,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             executeTerminateProceeds(iq, session);
             sendSipTermination(iq);
         } else if (action.equals(Jingle.SESSION_INFO)) {
+            executeInfoProceeds(iq, session);
             sendSipRinging(iq);
         } else if (action.equals(Jingle.SESSION_ACCEPT)) {
             if (executeAcceptProceeds(iq, session))
@@ -184,6 +185,13 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     private boolean executeAcceptProceeds(final JingleIQ iq, final CallSession session) {
         for (CallPreparation proceeds : session.getProceeds()) {
             if (!proceeds.proceedAccept(iq, session)) return false;
+        }
+        return true;
+    }
+
+    private boolean executeInfoProceeds(final JingleIQ iq, final CallSession session) {
+        for (CallPreparation proceeds : session.getProceeds()) {
+            proceeds.proceedInfo(iq, session);
         }
         return true;
     }

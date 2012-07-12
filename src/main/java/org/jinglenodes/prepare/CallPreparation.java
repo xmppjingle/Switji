@@ -45,9 +45,13 @@ public abstract class CallPreparation {
 
     public abstract boolean proceedAccept(final JingleIQ iq, final CallSession session);
 
+    public abstract void proceedInfo(final JingleIQ iq, final CallSession session);
+
     public abstract boolean prepareInitiate(final Message msg, final CallSession session, final SipChannel channel);
 
     public abstract boolean proceedSIPInitiate(final JingleIQ iq, final CallSession session, final SipChannel channel);
+
+    public abstract void proceedSIPInfo(final JingleIQ iq, final CallSession session, final SipChannel channel);
 
     public abstract JingleIQ proceedSIPEarlyMedia(final JingleIQ iq, final CallSession session, final SipChannel channel);
 

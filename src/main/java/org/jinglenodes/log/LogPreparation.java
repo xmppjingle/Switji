@@ -1,6 +1,7 @@
 package org.jinglenodes.log;
 
 import org.apache.log4j.Logger;
+import org.jinglenodes.jingle.Info;
 import org.jinglenodes.jingle.Jingle;
 import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.transport.Candidate;
@@ -39,6 +40,9 @@ public class LogPreparation extends CallPreparation {
         if (iq.getJingle() != null && iq.getJingle().getReason() != null) {
             final Reason.Type t = iq.getJingle().getReason().getType();
             return t == null ? DEFAULT_BLANK : t.toString();
+        }else if(iq.getJingle() != null && iq.getJingle().getInfo()!=null){
+            final String info = iq.getJingle().getInfo().getType().toString();
+            return info == null ? DEFAULT_BLANK: info;
         }
         return DEFAULT_BLANK;
     }
@@ -68,6 +72,11 @@ public class LogPreparation extends CallPreparation {
         return true;
     }
 
+    @Override
+    public void proceedInfo(JingleIQ iq, CallSession session) {
+        log.info(_createLine(iq));
+    }
+
     private String _createLine(final JingleIQ iq) {
         final Jingle j = iq.getJingle();
         return _createLine(j.getAction(), j.getSid(), getReason(iq), j.getInitiator(), j.getResponder(), getIp(iq));
@@ -92,6 +101,11 @@ public class LogPreparation extends CallPreparation {
     @Override
     public boolean proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
         return true;
+    }
+
+    @Override
+    public void proceedSIPInfo(JingleIQ iq, CallSession session, SipChannel channel) {
+        log.info(_createLine(iq));
     }
 
     @Override

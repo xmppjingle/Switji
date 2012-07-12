@@ -26,11 +26,14 @@ package org.jinglenodes.jingle;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 @XStreamAlias("info")
 public class Info {
 
     private String name;
+    @XStreamOmitField
+    private Type type = Type.ringing;
 
     @XStreamAsAttribute
     @XStreamAlias("xmlns")
@@ -40,5 +43,8 @@ public class Info {
         ringing, active, hold, mute
     }
 
+    public Type getType() {
+        return type;
+    }
 }
 
