@@ -41,8 +41,8 @@ public class LogPreparation extends CallPreparation {
             final Reason.Type t = iq.getJingle().getReason().getType();
             return t == null ? DEFAULT_BLANK : t.toString();
         }else if(iq.getJingle() != null && iq.getJingle().getInfo()!=null){
-            final String info = iq.getJingle().getInfo().getType().toString();
-            return info == null ? DEFAULT_BLANK: info;
+            final Info.Type info = iq.getJingle().getInfo().getType();
+            return info == null ? DEFAULT_BLANK: info.toString();
         }
         return DEFAULT_BLANK;
     }
@@ -120,6 +120,7 @@ public class LogPreparation extends CallPreparation {
 
     @Override
     public JingleIQ proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
+        log.info(_createLine(iq));
         return iq;
     }
 }
