@@ -39,6 +39,7 @@ import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.prepare.PrepareStatesManager;
+import org.jinglenodes.prepare.SipPrepareStatesManager;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.CallSessionMapper;
 import org.jinglenodes.sip.GatewayRouter;
@@ -62,7 +63,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
+public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager {
     private static final Logger log = Logger.getLogger(SipProcessor.class);
     public static final String emptyAddress = "0.0.0.0";
     private SipProviderInfoInterface sipProviderInfo;
@@ -182,21 +183,6 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
             log.warn("Processing SIP 2XX BYE Exception", e);
         }
 
-    }
-
-    @Override
-    public void prepareCall(JingleIQ iq, CallSession session) {
-
-    }
-
-    @Override
-    public void proceedCall(JingleIQ iq, CallSession session) {
-
-    }
-
-    @Override
-    public void cancelCall(JingleIQ iq, CallSession session, Reason reason) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public SipProviderInfoInterface getSipProviderInfo() {

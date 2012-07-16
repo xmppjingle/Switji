@@ -167,21 +167,6 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         }
     }
 
-    @Override
-    public void prepareCall(final Message msg, final CallSession session, final SipChannel channel) {
-        // Do Nothing
-    }
-
-    @Override
-    public void proceedCall(final Message msg, final CallSession session, final SipChannel channel) {
-        // Do Nothing
-    }
-
-    @Override
-    public void cancelCall(Message msg, CallSession session, SipChannel channel, Reason reason) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     private boolean executeAcceptProceeds(final JingleIQ iq, final CallSession session) {
         for (CallPreparation proceeds : session.getProceeds()) {
             if (!proceeds.proceedAccept(iq, session)) return false;

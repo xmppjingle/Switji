@@ -43,9 +43,4 @@ public interface PrepareStatesManager {
 
     public void cancelCall(final JingleIQ iq, final CallSession session, final Reason reason);
 
-    public void prepareCall(final Message msg, final CallSession session, final SipChannel channel);
-
-    public void proceedCall(final Message msg, final CallSession session, final SipChannel channel);
-
-    public void cancelCall(final Message msg, final CallSession session, final SipChannel channel, final Reason reason);
 }

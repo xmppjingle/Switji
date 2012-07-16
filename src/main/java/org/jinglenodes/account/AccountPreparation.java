@@ -37,6 +37,7 @@ import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.SipChannel;
+import org.zoolu.sip.message.SipParsingException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -140,7 +141,26 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
 
     @Override
     public boolean prepareInitiate(Message msg, CallSession session, final SipChannel sipChannel) {
-        return true;
+        JID responder = null;
+        try {
+            responder = msg.getParticipants().getResponder();
+
+            if (sipToJingleBind != null) {
+                final JID sipTo = sipToJingleBind.getXmppTo(responder, null);
+                if (sipTo != null) {
+                    return true;
+                } else {
+                    try {
+                        accountServiceProcessor.queryService(msg, null, responder.getNode(), this);
+                    } catch (ServiceException e) {
+                        log.error("Failed Querying Account Service.", e);
+                    }
+                }
+            }
+        } catch (SipParsingException e) {
+            log.error("Could Not Parse SIP to prepare Initiate", e);
+        }
+        return false;
     }
 
     @Override
