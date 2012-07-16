@@ -181,8 +181,9 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     }
 
     @Override
-    public boolean proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
-        return verifyCredits(session);
+    public JingleIQ proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
+        verifyCredits(session);
+        return iq;
     }
 
     @Override

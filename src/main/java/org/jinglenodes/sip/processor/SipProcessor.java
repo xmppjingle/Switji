@@ -662,7 +662,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
                 content.setName(display.trim());
             }
 
-            final JingleIQ initialization = JingleProcessor.createJingleInitialization(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
+            JingleIQ initialization = JingleProcessor.createJingleInitialization(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
 
             initialization.setTo(to);
             final CallSession callSession = callSessions.addSentJingle(initialization);
@@ -671,7 +671,7 @@ public class SipProcessor implements SipPacketProcessor, PrepareStatesManager {
 
             if (callSession.getProceeds() != null) {
                 for (final CallPreparation preparation : callSession.getProceeds()) {
-                    preparation.proceedSIPInitiate(initialization, callSession, null);
+                    initialization = preparation.proceedSIPInitiate(initialization, callSession, null);
                 }
             }
 

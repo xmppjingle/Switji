@@ -99,8 +99,8 @@ public class LogPreparation extends CallPreparation {
     }
 
     @Override
-    public boolean proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
-        return true;
+    public JingleIQ proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
+        return iq;
     }
 
     @Override
