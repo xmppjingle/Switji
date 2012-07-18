@@ -67,7 +67,6 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
             final JingleIQ iq = (JingleIQ) iqRequest.getOriginalPacket();
             prepareStatesManager.cancelCall(iq, null, new Reason(Reason.Type.forbidden));
-
         }
     }
 

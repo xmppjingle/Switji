@@ -160,7 +160,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     @Override
     public void cancelCall(JingleIQ iq, CallSession session, Reason reason) {
         if (iq != null) {
-            log.warn("Cancelling Call: " + iq.toXML());
+            log.warn("Cancelling Call: " + iq.toXML() + (reason != null ? " Reason: " + reason.getType() : ""));
             IQ reply = createJingleTermination(iq, reason);
             reply.setTo(iq.getFrom());
             gatewayRouter.send(reply);
@@ -191,9 +191,9 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     private void executeTerminateProceeds(final JingleIQ iq, final CallSession session) {
         for (CallPreparation proceeds : session.getProceeds()) {
             log.debug("Terminate Proceed: " + proceeds.getClass().getCanonicalName());
-            try{
-            if (!proceeds.proceedTerminate(iq, session)) return;
-            }catch (final Exception e){
+            try {
+                if (!proceeds.proceedTerminate(iq, session)) return;
+            } catch (final Exception e) {
                 log.error("Exception on Terminate Proceed", e);
             }
         }

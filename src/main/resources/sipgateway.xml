@@ -177,6 +177,7 @@
     </bean>
 
     <bean id="switjiStats" class="org.jinglenodes.stats.SwitjiStatsImpl">
+        <property name="sipApplication" ref="sip"/>
     </bean>
 
     <bean id="switjiAdmin" class="org.jinglenodes.stats.SwitjiAdminImpl">
