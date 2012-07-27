@@ -31,6 +31,7 @@ import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.prepare.PrepareStatesManager;
+import org.jinglenodes.prepare.SipPrepareStatesManager;
 import org.jinglenodes.session.CallSession;
 import org.xmpp.component.IqRequest;
 import org.xmpp.component.ResultReceiver;
@@ -54,6 +55,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     final Logger log = Logger.getLogger(RelayCallPreparation.class);
     private RelayServiceProcessor relayServiceProcessor;
     private PrepareStatesManager prepareStatesManager;
+    private SipPrepareStatesManager sipPrepareStatesManager;
     private ConcurrentTimelineHashMap<String, CallSession> sessions = new ConcurrentTimelineHashMap<String, CallSession>();
     private CallKiller callKiller;
 
@@ -62,7 +64,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
             prepareStatesManager.prepareCall((JingleIQ) iqRequest.getOriginalPacket(), null);
         } else if (iqRequest.getOriginalPacket() instanceof Message) {
-            //prepareStatesManager.prepareCall((Message) iqRequest.getOriginalPacket(), null, null);
+            sipPrepareStatesManager.prepareCall((Message) iqRequest.getOriginalPacket(), null, null);
         }
     }
 
@@ -73,7 +75,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
             prepareStatesManager.cancelCall((JingleIQ) iqRequest.getOriginalPacket(), null, new Reason("No Relay", Reason.Type.connectivity_error));
         } else if (iqRequest.getOriginalPacket() instanceof Message) {
             callKiller.immediateKill((Message) iqRequest.getOriginalPacket(), new Reason("No Relay", Reason.Type.connectivity_error));
-            //prepareStatesManager.cancelCall((Message) iqRequest.getOriginalPacket(), null, null, new Reason("No Relay", Reason.Type.connectivity_error));
+            sipPrepareStatesManager.cancelCall((Message) iqRequest.getOriginalPacket(), null, null, new Reason("No Relay", Reason.Type.connectivity_error));
         }
     }
 
@@ -145,6 +147,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
                 return false;
             }
         } catch (SipParsingException e) {
+            log.error("Parsing Exception on Prepare Initiate: " + msg.toString(), e);
             return false;
         }
         return true;
@@ -176,9 +179,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
         if (session != null) {
             log.debug("SIP Early Media Trying to Update Transport SIP...");
             if (session.getRelayIQ() != null) {
-
                 sendRelayRedirect(iq, session.getRelayIQ());
-
                 return JingleProcessor.updateJingleTransport(iq, session.getRelayIQ());
             } else {
                 log.debug("Trying to Update Transport SIP... Failed. No RelayIQ");
@@ -237,6 +238,14 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
 
     public void setPrepareStatesManager(PrepareStatesManager prepareStatesManager) {
         this.prepareStatesManager = prepareStatesManager;
+    }
+
+    public SipPrepareStatesManager getSipPrepareStatesManager() {
+        return sipPrepareStatesManager;
+    }
+
+    public void setSipPrepareStatesManager(SipPrepareStatesManager sipPrepareStatesManager) {
+        this.sipPrepareStatesManager = sipPrepareStatesManager;
     }
 
     @Override

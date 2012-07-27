@@ -5,6 +5,8 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
+import org.jinglenodes.sip.CachedSipToJingleBind;
+import org.jinglenodes.sip.SipToJingleBind;
 import org.jinglenodes.sip.account.CachedSipAccountProvider;
 import org.jinglenodes.sip.account.SipAccount;
 import org.xmpp.component.AbstractServiceProcessor;
@@ -13,6 +15,7 @@ import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
+import org.zoolu.sip.message.Message;
 import org.zoolu.sip.provider.SipProviderInformation;
 
 /**
@@ -25,12 +28,14 @@ import org.zoolu.sip.provider.SipProviderInformation;
 public class AccountServiceProcessor extends AbstractServiceProcessor {
     private final Logger log = Logger.getLogger(AccountServiceProcessor.class);
     private CachedSipAccountProvider accountProvider;
+    private CachedSipToJingleBind sipToJingleBind;
     private SipProviderInformation sipInfo;
     private String phoneDefaultType;
 
     private final Element requestElement;
     private final String xmlns;
     private String accountService;
+    private String domain;
 
     public AccountServiceProcessor(final String elementName, final String xmlns) {
         this.xmlns = xmlns;
@@ -40,6 +45,9 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
     @Override
     public IQ createServiceRequest(Object object, String fromNode, String toNode) {
         final IQ request = new IQ(IQ.Type.get);
+        if (toNode.indexOf("00") == 0) {
+            toNode = "+" + toNode.substring(2);
+        }
         final JID toService = JIDFactory.getInstance().getJID(toNode + "@" + accountService);
         request.setTo(toService);
         request.setChildElement(requestElement.createCopy());
@@ -54,7 +62,11 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
         if (obj instanceof JingleIQ) {
             final JingleIQ iq = (JingleIQ) obj;
             return iq.getJingle().getSid();
+        } else if (obj instanceof Message) {
+            final Message msg = (Message) obj;
+            return msg.getCallIdHeader().getCallId();
         }
+
         return null;
     }
 
@@ -69,6 +81,15 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
             } else {
                 log.error("SEVERE Empty SIP Account Retrieved.");
             }
+        } else if (iq.getOriginalPacket() instanceof Message) {
+            final JID sipTo = new JID(iq.getRequest().getTo().getNode() + "@" + domain);
+            final String xmppToNode = getPhone(iq.getResult());
+            if (xmppToNode != null) {
+                final JID xmppTo = new JID(xmppToNode + "@" + domain);
+                sipToJingleBind.addXmppToBind(sipTo, xmppTo);
+            } else {
+                log.error("SEVERE Empty Destination Account Retrieved.");
+            }
         }
     }
 
@@ -77,6 +98,15 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
       * the information retrieved from the iq
       */
     protected SipAccount getSipAccount(IQ iq) {
+        String phone = getPhone(iq);
+        return phone != null ? new SipAccount(phone, phone, phone, "", sipInfo.getIP(), sipInfo.getViaAddress()) : null;
+    }
+
+    /*
+    * Create the sip account based on
+    * the information retrieved from the iq
+    */
+    protected String getPhone(IQ iq) {
         String phone = null;
         for (Object o : iq.getChildElement().elements()) {
             Element e = (Element) o;
@@ -88,7 +118,7 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
             }
         }
 
-        return phone != null ? new SipAccount(phone, phone, phone, "", sipInfo.getIP(), sipInfo.getViaAddress()) : null;
+        return phone;
     }
 
     @Override
@@ -136,6 +166,14 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
         this.sipInfo = sipInfo;
     }
 
+    public CachedSipToJingleBind getSipToJingleBind() {
+        return sipToJingleBind;
+    }
+
+    public void setSipToJingleBind(CachedSipToJingleBind sipToJingleBind) {
+        this.sipToJingleBind = sipToJingleBind;
+    }
+
     /**
      * @return the phoneDefaultType
      */
@@ -148,5 +186,13 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
      */
     public void setPhoneDefaultType(String phoneDefaultType) {
         this.phoneDefaultType = phoneDefaultType;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
     }
 }

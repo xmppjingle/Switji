@@ -19,7 +19,7 @@
     </bean>
 
     <bean id="sipGatewayComponent" class="org.jinglenodes.component.SIPGatewayComponent" init-method="init">
-        <constructor-arg index="0" value="sip"/>
+        <constructor-arg index="0" value="${xmpp.subdomain}"/>
         <constructor-arg index="1" value="SIP Gateway"/>
         <constructor-arg index="2" value="${xmpp.domain}"/>
         <property name="gatewaySipRouter" ref="gatewaySipRouter"/>
@@ -28,7 +28,7 @@
         <property name="manager" ref="sipGatewayManager"/>
     </bean>
 
-    <bean id="gatewaySipRouter" class="org.jinglenodes.sip.router.GatewaySipRouter">
+    <bean id="gatewaySipRouter" class="org.jinglenodes.sip.router.GatewaySipRouter" init-method="init">
         <constructor-arg index="0" value="${sip.localip}"/>
         <constructor-arg index="1" value="${sip.localport}"/>
         <constructor-arg index="2" ref="accountProvider"/>
@@ -58,6 +58,13 @@
         <property name="sipToJingleBind" ref="sipToJingleMapper"/>
         <property name="jingleProcessor" ref="jingleProcessor"/>
         <property name="callKiller" ref="callKiller"/>
+        <property name="preparations">
+            <list>
+                <ref bean="callLogger"/>
+                <ref bean="accountPreparation"/>
+                <!--<ref bean="relayPreparation"/>-->
+            </list>
+        </property>
     </bean>
 
     <bean id="callLogger" class="org.jinglenodes.log.LogPreparation"></bean>
@@ -114,6 +121,7 @@
         <property name="accountServiceProcessor" ref="accountServiceProcessor"/>
         <property name="sipToJingleBind" ref="sipToJingleMapper"/>
         <property name="prepareStatesManager" ref="jingleProcessor"/>
+        <property name="sipPrepareStatesManager" ref="sipProcessor"/>
     </bean>
 
     <bean id="accountServiceProcessor" class="org.jinglenodes.account.AccountServiceProcessor" init-method="init">
@@ -124,6 +132,8 @@
         <property name="sipInfo" ref="sipProviderInfo"/>
         <property name="accountService" value="${account.service}"/>
         <property name="phoneDefaultType" value="${account.phonetype}"/>
+        <property name="domain" value="{xmpp.domain}"/>
+        <property name="sipToJingleBind" ref="sipToJingleMapper"/>
     </bean>
 
     <bean id="detourPreparation" class="org.jinglenodes.detour.DetourPreparation">
@@ -144,6 +154,7 @@
     <bean id="relayPreparation" class="org.jinglenodes.relay.RelayCallPreparation">
         <property name="relayServiceProcessor" ref="relayServiceProcessor"/>
         <property name="prepareStatesManager" ref="jingleProcessor"/>
+        <property name="sipPrepareStatesManager" ref="sipProcessor"/>
         <property name="callKiller" ref="callKiller"/>
     </bean>
 

@@ -32,8 +32,10 @@ import org.jinglenodes.sip.account.SipAccountProvider;
 import org.xmpp.jnodes.nio.DatagramListener;
 import org.xmpp.jnodes.nio.ListenerDatagramChannel;
 import org.xmpp.packet.JID;
+import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.address.SipURL;
 import org.zoolu.sip.message.Message;
+import org.zoolu.sip.message.MessageFactory;
 import org.zoolu.sip.message.SipChannel;
 import org.zoolu.sip.provider.SipProviderInfoInterface;
 import org.zoolu.sip.provider.SipProviderInformation;
@@ -78,9 +80,16 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
     }
 
     private void createSipRouter() {
+        log.debug("Creating SIP Router...");
         DynamicKeepAliveTask keepAliveTask = new DynamicKeepAliveTask(this);
         scheduledThreadPoolExecutor.scheduleWithFixedDelay(keepAliveTask, keepAliveDelay, keepAliveDelay, TimeUnit.SECONDS);
+    }
 
+    public void init(){
+        final Message start = MessageFactory.createMessageRequest(sipProvider, new NameAddress("null@null.com"),new NameAddress("null@null.com"),"-", "-", "-");
+        start.setSendTo(InetSocketAddress.createUnresolved(sipProvider.getIP(), sipProvider.getPort()));
+        routeSIP(start, new JID("gateway"));
+        log.debug("Kick Start Packet sent: " + start);
     }
 
     public Collection<SipChannel> getSipChannels() {

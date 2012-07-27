@@ -27,6 +27,7 @@ package org.jinglenodes.account;
 import org.apache.log4j.Logger;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.prepare.PrepareStatesManager;
+import org.jinglenodes.prepare.SipPrepareStatesManager;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.sip.SipToJingleBind;
 import org.xmpp.component.IqRequest;
@@ -50,6 +51,7 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
 
     private SipToJingleBind sipToJingleBind;
     private PrepareStatesManager prepareStatesManager;
+    private SipPrepareStatesManager sipPrepareStatesManager;
     private AccountServiceProcessor accountServiceProcessor;
 
     @Override
@@ -86,7 +88,10 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
     public void receivedResult(IqRequest iqRequest) {
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
             prepareStatesManager.prepareCall((JingleIQ) iqRequest.getOriginalPacket(), null);
+        } else if (iqRequest.getOriginalPacket() instanceof Message) {
+            sipPrepareStatesManager.prepareCall((Message) iqRequest.getOriginalPacket(), null, null);
         }
+
     }
 
     @Override
@@ -146,8 +151,8 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
             responder = msg.getParticipants().getResponder();
 
             if (sipToJingleBind != null) {
-                final JID sipTo = sipToJingleBind.getXmppTo(responder, null);
-                if (sipTo != null) {
+                final JID xmppTo = sipToJingleBind.getXmppTo(responder, null);
+                if (xmppTo != null) {
                     return true;
                 } else {
                     try {
@@ -165,6 +170,15 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
 
     @Override
     public JingleIQ proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
+        JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
+        if (sipToJingleBind != null) {
+            final JID xmppTo = sipToJingleBind.getXmppTo(responder, null);
+            if (xmppTo != null) {
+                iq.setTo(xmppTo);
+            } else {
+                log.warn("Failed Fetching XmppTo from Account Service.");
+            }
+        }
         return iq;
     }
 
@@ -186,5 +200,13 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
     @Override
     public JingleIQ proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
         return iq;
+    }
+
+    public SipPrepareStatesManager getSipPrepareStatesManager() {
+        return sipPrepareStatesManager;
+    }
+
+    public void setSipPrepareStatesManager(SipPrepareStatesManager sipPrepareStatesManager) {
+        this.sipPrepareStatesManager = sipPrepareStatesManager;
     }
 }

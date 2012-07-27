@@ -49,11 +49,12 @@ public class CachedSipToJingleBind implements SipToJingleBind {
     private String defaultResource;
     private SipAccountProvider accountProvider;
 
+    public void addXmppToBind(final JID sipTo, final JID xmppTo){
+        sipToXmpp.put(sipTo.toBareJID(), xmppTo);
+    }
+
     public JID getXmppTo(JID sipTo, final JingleIQ lastReceivedJingle) {
-
-
         if (lastReceivedJingle != null) {
-
             return lastReceivedJingle.getFrom();
         }
 
@@ -63,12 +64,10 @@ public class CachedSipToJingleBind implements SipToJingleBind {
             return jid;
         }
 
-        return defaultJID;
+        return null;
     }
 
     public JID getSipFrom(JID xmppInitiator) {
-
-
         final JID jid = xmppToSip.get(xmppInitiator.toBareJID());
         if (jid != null) return jid;
 

@@ -38,7 +38,6 @@ import org.jinglenodes.jingle.processor.JingleSipException;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.jinglenodes.prepare.CallPreparation;
-import org.jinglenodes.prepare.PrepareStatesManager;
 import org.jinglenodes.prepare.SipPrepareStatesManager;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.CallSessionMapper;
@@ -810,14 +809,16 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         final List<String> values = new ArrayList<String>();
 
         for (final Payload payload : rtpDescription.getPayloads()) {
+            if (i == 0 || !payload.getId().equals(Payload.G729.getId())) {
             ids[i++] = Integer.parseInt(payload.getId());
             names.add("rtpmap");
             values.add(payload.getId() + " " + payload.getName() + (payload.getClockrate() > -1 ? "/" + payload.getClockrate() : "") + (payload.getChannels() > -1 ? "/" + payload.getChannels() : ""));
             // Fix for G729 prevent VAD support
 
-            if (payload.equals(Payload.G729)) {
+            if (payload.getId().equals(Payload.G729.getId())) {
                 names.add("fmtp");
                 values.add(String.valueOf(payload.getId()) + " annexb=no");
+            }
             }
         }
 
