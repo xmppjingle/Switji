@@ -1,5 +1,6 @@
 package org.xmpp.component;
 
+import org.jinglenodes.session.CallSession;
 import org.xmpp.packet.IQ;
 
 /**
@@ -12,6 +13,7 @@ public class IqRequest {
     private int tries;
     private final Object originalPacket;
     private final IQ request;
+    private CallSession session;
     private IQ result;
     private final ResultReceiver resultReceiver;
 
@@ -47,5 +49,13 @@ public class IqRequest {
 
     public void incTries() {
         this.tries++;
+    }
+
+    public CallSession getSession() {
+        return session;
+    }
+
+    public void setSession(CallSession session) {
+        this.session = session;
     }
 }

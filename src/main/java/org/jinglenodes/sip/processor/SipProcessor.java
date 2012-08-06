@@ -100,9 +100,24 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
     @Override
     public void prepareCall(final Message msg, CallSession session, final SipChannel sipChannel) {
 
+        log.debug("Prepare SIP Call: " + msg.toString() + " - Session " + session);
+
+        if (session == null) {
+            try {
+                session = callSessions.getSession(msg);
+            } catch (JingleException e) {
+                log.error("SEVERE - Preparing Null Session: " + msg, e);
+                return;
+            }
+        }
+
         for (CallPreparation preparation = session.popCallPreparation(); preparation != null; preparation = session.popCallPreparation()) {
+            log.debug("Adding on: " + preparation.getClass().getCanonicalName());
             session.addCallProceed(preparation);
-            if (!preparation.prepareInitiate(msg, session, sipChannel)) return;
+            if (!preparation.prepareInitiate(msg, session, sipChannel)) {
+                log.debug("Waiting on: " + preparation.getClass().getCanonicalName());
+                return;
+            }
         }
 
         proceedCall(msg, session, sipChannel);
@@ -625,7 +640,6 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
                 return;
             }
 
-
             JID initiator = participants.getInitiator();
             final JID responder = participants.getResponder();
             JID to = responder;
@@ -634,9 +648,14 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
                 to = JIDFactory.getInstance().getJID(sipChannel.getId());
             } else {
                 if (sipToJingleBind != null) {
-                    to = sipToJingleBind.getXmppTo(responder, null);
+                    final JID tempTo = sipToJingleBind.getXmppTo(responder, null);
+                    if (tempTo != null) {
+                        to = tempTo;
+                    }
                 }
             }
+
+            log.debug("To Destination: " + to);
 
             final Content content = getContent(msg.getBody());
 
@@ -648,8 +667,8 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             }
 
             JingleIQ initialization = JingleProcessor.createJingleInitialization(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
-
             initialization.setTo(to);
+
             final CallSession callSession = callSessions.addSentJingle(initialization);
             callSession.setInitiateIQ(initialization);
             callSession.addContact(initiator.toBareJID(), msg.getContactHeader());
@@ -659,6 +678,8 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
                     initialization = preparation.proceedSIPInitiate(initialization, callSession, null);
                 }
             }
+
+            log.debug("Sending Jingle: " + initialization.toXML());
 
             gatewayRouter.send(initialization);
 
@@ -810,15 +831,15 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
 
         for (final Payload payload : rtpDescription.getPayloads()) {
             if (i == 0 || !payload.getId().equals(Payload.G729.getId())) {
-            ids[i++] = Integer.parseInt(payload.getId());
-            names.add("rtpmap");
-            values.add(payload.getId() + " " + payload.getName() + (payload.getClockrate() > -1 ? "/" + payload.getClockrate() : "") + (payload.getChannels() > -1 ? "/" + payload.getChannels() : ""));
-            // Fix for G729 prevent VAD support
+                ids[i++] = Integer.parseInt(payload.getId());
+                names.add("rtpmap");
+                values.add(payload.getId() + " " + payload.getName() + (payload.getClockrate() > -1 ? "/" + payload.getClockrate() : "") + (payload.getChannels() > -1 ? "/" + payload.getChannels() : ""));
+                // Fix for G729 prevent VAD support
 
-            if (payload.getId().equals(Payload.G729.getId())) {
-                names.add("fmtp");
-                values.add(String.valueOf(payload.getId()) + " annexb=no");
-            }
+                if (payload.getId().equals(Payload.G729.getId())) {
+                    names.add("fmtp");
+                    values.add(String.valueOf(payload.getId()) + " annexb=no");
+                }
             }
         }
 

@@ -82,10 +82,14 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
                 log.error("SEVERE Empty SIP Account Retrieved.");
             }
         } else if (iq.getOriginalPacket() instanceof Message) {
+            log.debug("Handling Result for SIP 1: " + iq.getRequest().toXML() + " - " + domain);
             final JID sipTo = new JID(iq.getRequest().getTo().getNode() + "@" + domain);
+            log.debug("Handling Result for SIP 2");
             final String xmppToNode = getPhone(iq.getResult());
+            log.debug("XMPP to Node: "+ xmppToNode);
             if (xmppToNode != null) {
                 final JID xmppTo = new JID(xmppToNode + "@" + domain);
+                log.debug("Add Bind:" + xmppTo);
                 sipToJingleBind.addXmppToBind(sipTo, xmppTo);
             } else {
                 log.error("SEVERE Empty Destination Account Retrieved.");

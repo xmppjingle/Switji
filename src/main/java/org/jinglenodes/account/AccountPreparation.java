@@ -89,6 +89,7 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
             prepareStatesManager.prepareCall((JingleIQ) iqRequest.getOriginalPacket(), null);
         } else if (iqRequest.getOriginalPacket() instanceof Message) {
+            log.debug("Account Preparation SIP: " + iqRequest.getRequest().toXML() + " - " + sipPrepareStatesManager);
             sipPrepareStatesManager.prepareCall((Message) iqRequest.getOriginalPacket(), null, null);
         }
 

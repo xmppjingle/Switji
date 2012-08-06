@@ -132,7 +132,7 @@
         <property name="sipInfo" ref="sipProviderInfo"/>
         <property name="accountService" value="${account.service}"/>
         <property name="phoneDefaultType" value="${account.phonetype}"/>
-        <property name="domain" value="{xmpp.domain}"/>
+        <property name="domain" value="${xmpp.domain}"/>
         <property name="sipToJingleBind" ref="sipToJingleMapper"/>
     </bean>
 
