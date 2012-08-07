@@ -60,6 +60,13 @@ public class RingHangupPreparation extends CallPreparation {
 
     @Override
     public void proceedSIPInfo(JingleIQ iq, CallSession session, SipChannel channel) {
+        if (session != null) {
+            //callKiller.immediateKill(session, new Reason(Reason.Type.cancel));
+            callKiller.scheduleKill(session, 2);
+        } else {
+            //callKiller.immediateKill(iq, new Reason(Reason.Type.cancel));
+            callKiller.scheduleKill(iq, 2);
+        }
     }
 
     @Override

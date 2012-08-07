@@ -144,11 +144,21 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
+        startCharging(session);
+        return true;
+    }
+
+    private void startCharging(CallSession session) {
         setSessionStartTime(session, System.currentTimeMillis());
         if (callKiller != null) {
-            callKiller.scheduleKill(session);
+            if (session.getSessionCredit() != null) {
+                final int seconds = session.getSessionCredit().getMaxDurationInSeconds();
+                callKiller.scheduleKill(session, seconds);
+            } else {
+                log.warn("SEVERE - Call Processed without Credits(sid): " + session.getId());
+                callKiller.immediateKill(session, new Reason("No Credits", Reason.Type.payment));
+            }
         }
-        return true;
     }
 
     @Override
@@ -217,10 +227,7 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public JingleIQ proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
-        setSessionStartTime(session, System.currentTimeMillis());
-        if (callKiller != null) {
-            callKiller.scheduleKill(session);
-        }
+        startCharging(session);
         return iq;
     }
 

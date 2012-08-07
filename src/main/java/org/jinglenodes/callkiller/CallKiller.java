@@ -61,11 +61,15 @@ public class CallKiller {
         this.jingleProcessor = jingleProcessor;
     }
 
-    public void scheduleKill(final CallSession session) {
-        log.warn("Scheduling for Killing Call: " + session.getId() + " in " + session.getSessionCredit().getMaxDurationInSeconds() + " seconds");
+    public void scheduleKill(final JingleIQ jingle, final int seconds) {
+        scheduleKill(jingleProcessor.getCallSessionMapper().getSession(jingle), seconds);
+    }
+
+    public void scheduleKill(final CallSession session, final int seconds) {
+        log.warn("Scheduling for Killing Call: " + session.getId() + " in " + seconds + " seconds");
         final CallKillerTask task = new CallKillerTask(session, jingleProcessor, new Reason(Reason.Type.payment));
         tasks.put(session.getId(), task);
-        timerExecutor.schedule(task, session.getSessionCredit().getMaxDurationInSeconds(), TimeUnit.SECONDS);
+        timerExecutor.schedule(task, seconds, TimeUnit.SECONDS);
     }
 
     public void cancelKill(final CallSession session) {
@@ -76,11 +80,11 @@ public class CallKiller {
         }
     }
 
-    public boolean immediateKill(final JingleIQ jingle, final Reason reason){
+    public boolean immediateKill(final JingleIQ jingle, final Reason reason) {
         return immediateKill(jingleProcessor.getCallSessionMapper().getSessionId(jingle), reason);
     }
 
-    public boolean immediateKill(final Message message, final Reason reason){
+    public boolean immediateKill(final Message message, final Reason reason) {
         try {
             return immediateKill(jingleProcessor.getCallSessionMapper().getSessionId(message), reason);
         } catch (JingleException e) {
