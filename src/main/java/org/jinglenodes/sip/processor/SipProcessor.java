@@ -546,12 +546,12 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             }
 
             for (final JID usr : callSession.getUsers()) {
-                if (to.toBareJID().equals(usr.toBareJID())) {
+                if (to == null || to.toBareJID().equals(usr.toBareJID())) {
                     to = usr;
                 }
             }
 
-            if (to.getResource() == null) {
+            if (to != null && to.getResource() == null) {
                 if (to.toBareJID().equals(mainParticipants.getInitiator().toBareJID())) {
                     to = mainParticipants.getInitiator();
                 } else if (to.toBareJID().equals(mainParticipants.getResponder().toBareJID())) {

@@ -152,10 +152,13 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
             responder = msg.getParticipants().getResponder();
 
             if (sipToJingleBind != null) {
+                log.debug("Checking Prepare Initiate: " + responder);
                 final JID xmppTo = sipToJingleBind.getXmppTo(responder, null);
                 if (xmppTo != null) {
+                    log.debug("Found xmppTo for: " + responder + " is: " + xmppTo);
                     return true;
                 } else {
+                    log.debug("Querying xmppTo for: " + responder);
                     try {
                         accountServiceProcessor.queryService(msg, null, responder.getNode(), this);
                     } catch (ServiceException e) {
@@ -173,9 +176,11 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
     public JingleIQ proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
         JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
         if (sipToJingleBind != null) {
+            log.debug("Account Responder: " + responder);
             final JID xmppTo = sipToJingleBind.getXmppTo(responder, null);
             if (xmppTo != null) {
                 iq.setTo(xmppTo);
+                iq.setFrom((JID)null);
             } else {
                 log.warn("Failed Fetching XmppTo from Account Service.");
             }

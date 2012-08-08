@@ -49,18 +49,28 @@ public class CachedSipToJingleBind implements SipToJingleBind {
     private String defaultResource;
     private SipAccountProvider accountProvider;
 
-    public void addXmppToBind(final JID sipTo, final JID xmppTo){
+    public void addXmppToBind(final JID sipTo, final JID xmppTo) {
         log.debug("add XMPP Bind: " + sipTo.toString() + ":" + xmppTo.toString());
-        sipToXmpp.put(sipTo.getNode(), xmppTo);
+        String toNode = sipTo.getNode();
+        if (toNode.indexOf("00") == 0) {
+            toNode = "+" + toNode.substring(2);
+        }
+        sipToXmpp.put(toNode, xmppTo);
     }
 
     public JID getXmppTo(JID sipTo, final JingleIQ lastReceivedJingle) {
         log.debug("Get XMPP Bind: " + sipTo.toString());
         if (lastReceivedJingle != null) {
-            log.debug("Get XMPP Bind(1): " + sipTo.toString() + " returned: " + lastReceivedJingle);
+            log.debug("Get XMPP Bind 1: " + sipTo.toString() + " returned: " + lastReceivedJingle);
             return lastReceivedJingle.getFrom();
         }
-        final JID jid = sipToXmpp.get(sipTo.getNode());
+
+        String toNode = sipTo.getNode();
+        if (toNode.indexOf("00") == 0) {
+            toNode = "+" + toNode.substring(2);
+        }
+
+        final JID jid = sipToXmpp.get(toNode);
         if (jid != null) {
             log.debug("Get XMPP Bind(2): " + sipTo.toString() + " returned: " + lastReceivedJingle);
             return jid;
