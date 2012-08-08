@@ -69,11 +69,19 @@
 
     <bean id="callLogger" class="org.jinglenodes.log.LogPreparation"></bean>
 
+    <bean id="throttleManager" class="org.jinglenodes.sip.router.ThrottleManager">
+        <constructor-arg index="0" value="120"/>
+        <constructor-arg index="1" value="60000"/>
+        <constructor-arg index="2" value="10000"/>
+        <constructor-arg index="3" value="3600000"/>
+    </bean>
+
     <bean id="jingleProcessor" class="org.jinglenodes.jingle.processor.JingleProcessor" init-method="init">
         <property name="gatewayRouter" ref="sipGatewayComponent"/>
         <property name="callSessionMapper" ref="callSessionMapper"/>
         <property name="sipProviderInfo" ref="sipProviderInfo"/>
         <property name="sipToJingleBind" ref="sipToJingleMapper"/>
+        <property name="throttleManager" ref="throttleManager"/>
         <property name="preparations">
             <list>
                 <ref bean="callLogger"/>

@@ -1,6 +1,7 @@
 package org.xmpp.component;
 
 import org.apache.log4j.Logger;
+import org.jinglenodes.sip.router.ThrottleManager;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.PacketError;

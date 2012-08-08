@@ -40,6 +40,7 @@ import org.jinglenodes.session.CallSessionMapper;
 import org.jinglenodes.sip.GatewayRouter;
 import org.jinglenodes.sip.SipToJingleBind;
 import org.jinglenodes.sip.processor.SipProcessor;
+import org.jinglenodes.sip.router.ThrottleManager;
 import org.xmpp.component.NamespaceProcessor;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
@@ -63,6 +64,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     private SipToJingleBind sipToJingleBind;
     private GatewayRouter gatewayRouter;
     private SipProviderInfoInterface sipProviderInfo;
+    private ThrottleManager throttleManager;
 
     private List<CallPreparation> preparations = new ArrayList<CallPreparation>();
 
@@ -83,6 +85,13 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         JingleIQ iq = null;
 
         try {
+
+            if(throttleManager!=null){
+                if(!throttleManager.accept(xmppIQ.getFrom().toBareJID())){
+                    log.warn("Rejecting Packet: " + xmppIQ.toString());
+                    return null;
+                }
+            }
 
             iq = JingleIQ.fromXml(xmppIQ);
             processJingle(iq);
@@ -582,4 +591,11 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         gatewayRouter.send(packet);
     }
 
+    public ThrottleManager getThrottleManager() {
+        return throttleManager;
+    }
+
+    public void setThrottleManager(ThrottleManager throttleManager) {
+        this.throttleManager = throttleManager;
+    }
 }
