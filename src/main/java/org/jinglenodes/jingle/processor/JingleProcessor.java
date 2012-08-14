@@ -86,8 +86,8 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
         try {
 
-            if(throttleManager!=null){
-                if(!throttleManager.accept(xmppIQ.getFrom().toBareJID())){
+            if (throttleManager != null) {
+                if (!throttleManager.accept(xmppIQ.getFrom().toBareJID())) {
                     log.warn("Rejecting Packet: " + xmppIQ.toString());
                     return null;
                 }
@@ -336,6 +336,9 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
                     Message message = callSession.getLastSentRequest();
 
+                    if (message == null) {
+                        message = callSession.getLastReceivedRequest();
+                    }
                     if (message == null) {
                         message = callSession.getLastMessage();
                     }

@@ -24,12 +24,15 @@
 
 package org.jinglenodes.relay;
 
+import org.apache.log4j.Logger;
+import org.jinglenodes.jingle.processor.JingleException;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.CallSessionMapper;
 import org.xmpp.component.AbstractServiceProcessor;
 import org.xmpp.component.IqRequest;
 import org.xmpp.packet.IQ;
 import org.xmpp.tinder.JingleIQ;
+import org.zoolu.sip.message.Message;
 
 /**
  * Created by IntelliJ IDEA.
@@ -40,6 +43,7 @@ import org.xmpp.tinder.JingleIQ;
  */
 public class RelayServiceProcessor extends AbstractServiceProcessor {
 
+    final Logger log = Logger.getLogger(RelayServiceProcessor.class);
     private String relayService;
     private final String namespace = RelayIQ.NAMESPACE;
     private CallSessionMapper callSessionMapper;
@@ -57,6 +61,11 @@ public class RelayServiceProcessor extends AbstractServiceProcessor {
         if (obj instanceof JingleIQ) {
             final JingleIQ iq = (JingleIQ) obj;
             return iq.getJingle().getSid();
+        } else if (obj instanceof Message) {
+            final Message m = (Message) obj;
+            if (m.getCallIdHeader() != null) {
+                return m.getCallIdHeader().getCallId();
+            }
         }
         return null;
     }
@@ -70,7 +79,21 @@ public class RelayServiceProcessor extends AbstractServiceProcessor {
                 final RelayIQ relayIQ = RelayIQ.parseRelayIq(iq.getResult());
                 callSession.setRelayIQ(relayIQ);
             }
+        } else if (iq.getOriginalPacket() instanceof Message) {
+
+            final Message m = (Message) iq.getOriginalPacket();
+            final CallSession callSession;
+            try {
+                callSession = callSessionMapper.getSession(m);
+                if (callSession != null) {
+                    final RelayIQ relayIQ = RelayIQ.parseRelayIq(iq.getResult());
+                    callSession.setRelayIQ(relayIQ);
+                }
+            } catch (JingleException e) {
+                log.error("Could NOT retrieve Call Session to set RelayIQ", e);
+            }
         }
+
     }
 
     @Override

@@ -204,8 +204,8 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     }
 
     @Override
-    public boolean proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
-        return true;
+    public JingleIQ proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
+        return iq;
     }
 
     @Override

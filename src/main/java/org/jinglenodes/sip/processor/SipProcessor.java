@@ -563,11 +563,11 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
 
             final Reason reason = getReason(msg, code);
 
-            final JingleIQ terminate = JingleProcessor.createJingleTermination(initiator, responder, to.toString(), reason, msg.getCallIdHeader().getCallId());
+            JingleIQ terminate = JingleProcessor.createJingleTermination(initiator, responder, to.toString(), reason, msg.getCallIdHeader().getCallId());
 
             if (callSession.getProceeds() != null) {
                 for (final CallPreparation preparation : callSession.getProceeds()) {
-                    preparation.proceedSIPTerminate(terminate, callSession, null);
+                    terminate = preparation.proceedSIPTerminate(terminate, callSession, null);
                 }
             }
 

@@ -199,8 +199,19 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
     }
 
     @Override
-    public boolean proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
-        return true;
+    public JingleIQ proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
+        JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
+        if (sipToJingleBind != null) {
+            log.debug("Account Responder: " + responder);
+            final JID xmppTo = sipToJingleBind.getXmppTo(responder, null);
+            if (xmppTo != null) {
+                iq.setTo(xmppTo);
+                iq.setFrom((JID)null);
+            } else {
+                log.warn("Failed Fetching XmppTo from Account Service.");
+            }
+        }
+        return iq;
     }
 
     @Override

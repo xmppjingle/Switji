@@ -219,10 +219,10 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     }
 
     @Override
-    public boolean proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
+    public JingleIQ proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
         setSessionFinishTime(session, System.currentTimeMillis());
         chargeCall(iq, session);
-        return true;
+        return iq;
     }
 
     @Override
