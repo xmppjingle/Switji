@@ -310,7 +310,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
                     lastResponse = null;
                 }
 
-                if (sipToJingleBind != null) {
+                if (sipToJingleBind != null && sipToJingleBind.getSipFrom(iq.getFrom())!=null) {
                     iq.setFrom(sipToJingleBind.getSipFrom(iq.getFrom()));
                 }
 
@@ -329,6 +329,9 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             } else {
 
                 lastResponse = callSession.getLastReceivedResponse();
+                if (lastResponse == null) {
+                    lastResponse = callSession.getLastSentResponse();
+                }
 
                 final Message lastSentRequest = callSession.getLastSentRequest();
 
@@ -344,8 +347,8 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
                     }
 
                     final Message cancel = SipProcessor.createSipCancel(message);
-                    cancel.setSendTo(lastSentRequest.getSendTo());
-                    cancel.setArrivedAt(lastSentRequest.getArrivedAt());
+                    cancel.setSendTo(message.getSendTo());
+                    cancel.setArrivedAt(message.getArrivedAt());
                     callSession.addSentRequest(cancel);
                     callSession.setRetries(2);
                     gatewayRouter.routeSIP(cancel, callSession.getUser());

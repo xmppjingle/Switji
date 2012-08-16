@@ -830,7 +830,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         final List<String> values = new ArrayList<String>();
 
         for (final Payload payload : rtpDescription.getPayloads()) {
-            if (i == 0 || !payload.getId().equals(Payload.G729.getId())) {
+//            if (i == 0 || !payload.getId().equals(Payload.G729.getId())) {
                 ids[i++] = Integer.parseInt(payload.getId());
                 names.add("rtpmap");
                 values.add(payload.getId() + " " + payload.getName() + (payload.getClockrate() > -1 ? "/" + payload.getClockrate() : "") + (payload.getChannels() > -1 ? "/" + payload.getChannels() : ""));
@@ -840,7 +840,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
                     names.add("fmtp");
                     values.add(String.valueOf(payload.getId()) + " annexb=no");
                 }
-            }
+//            }
         }
 
         if (transport.getCandidates().size() < 1) {
@@ -970,7 +970,9 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         final JID from;
         final JID to;
 
-        if (iq.getFrom().toBareJID().equals(p.getResponder().toBareJID())) {
+        log.debug("Creating SIP BYE: " + iq.toXML() + " - " + p);
+
+        if (iq.getFrom().toBareJID().equals(p.getResponder().toBareJID()) || !iq.getFrom().toBareJID().equals(p.getInitiator().toBareJID())) {
             from = p.getResponder();
             to = p.getInitiator();
         } else {

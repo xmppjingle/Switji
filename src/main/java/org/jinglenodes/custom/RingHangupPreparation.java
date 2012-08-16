@@ -18,6 +18,7 @@ import org.zoolu.sip.message.SipChannel;
 public class RingHangupPreparation extends CallPreparation {
 
     private CallKiller callKiller;
+    private int sleepTime;
 
     @Override
     public boolean prepareInitiate(JingleIQ iq, CallSession session) {
@@ -62,10 +63,10 @@ public class RingHangupPreparation extends CallPreparation {
     public void proceedSIPInfo(JingleIQ iq, CallSession session, SipChannel channel) {
         if (session != null) {
             //callKiller.immediateKill(session, new Reason(Reason.Type.cancel));
-            callKiller.scheduleKill(session, 2);
+            callKiller.scheduleKill(session, sleepTime);
         } else {
             //callKiller.immediateKill(iq, new Reason(Reason.Type.cancel));
-            callKiller.scheduleKill(iq, 2);
+            callKiller.scheduleKill(iq, sleepTime);
         }
     }
 
@@ -90,5 +91,13 @@ public class RingHangupPreparation extends CallPreparation {
 
     public void setCallKiller(CallKiller callKiller) {
         this.callKiller = callKiller;
+    }
+
+    public int getSleepTime() {
+        return sleepTime;
+    }
+
+    public void setSleepTime(int sleepTime) {
+        this.sleepTime = sleepTime;
     }
 }
