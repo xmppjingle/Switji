@@ -33,8 +33,6 @@ package org.jinglenodes.credit;
 public class SessionCredit {
     private int maxDurationInSeconds = 30;
     private RouteType routeType = RouteType.ip;
-    private long startTime = 0;
-    private long finishTime;
     private boolean charged = false;
 
     public SessionCredit(RouteType routeType) {
@@ -47,22 +45,6 @@ public class SessionCredit {
 
     public void setRouteType(RouteType routeType) {
         this.routeType = routeType;
-    }
-
-    public long getFinishTime() {
-        return finishTime;
-    }
-
-    public void setFinishTime(long finishTime) {
-        this.finishTime = finishTime;
-    }
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
     }
 
     public int getMaxDurationInSeconds() {

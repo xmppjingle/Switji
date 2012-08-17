@@ -73,7 +73,7 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
                     final IQ request = new IQ(IQ.Type.set);
                     request.setTo(to);
                     request.setFrom(from);
-                    final int callTime = credit.getStartTime() == 0 ? 0 : (int) Math.ceil((credit.getFinishTime() - credit.getStartTime()) / 1000);
+                    final int callTime = session.getStartTime() == 0 ? 0 : (int) Math.ceil((session.getFinishTime() - session.getStartTime()) / 1000);
                     final String toBareJid = JIDFactory.getInstance().getJID(toNode, chargeService, null).toBareJID();
 
                     final Element e = requestElement.createCopy();

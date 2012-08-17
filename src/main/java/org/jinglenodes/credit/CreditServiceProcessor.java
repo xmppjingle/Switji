@@ -94,11 +94,11 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
 
     @Override
     protected void handleResult(IqRequest iq) {
-        final SessionCredit sessionCredit = getSessionCredit(iq.getResult());
         if (iq.getOriginalPacket() instanceof JingleIQ) {
             log.debug("Credit Value Received: " + iq.getResult().toXML());
             final CallSession session = sessionMapper.getSession((JingleIQ) iq.getOriginalPacket());
             if (session != null) {
+                final SessionCredit sessionCredit = getSessionCredit(iq.getResult());
                 session.setSessionCredit(sessionCredit);
             }
         }

@@ -63,6 +63,7 @@
                 <ref bean="callLogger"/>
                 <ref bean="accountPreparation"/>
                 <!--<ref bean="relayPreparation"/>-->
+                <ref bean="chargePreparation"/>
             </list>
         </property>
     </bean>
@@ -87,6 +88,7 @@
                 <ref bean="callLogger"/>
                 <ref bean="detourPreparation"/>
                 <ref bean="creditPreparation"/>
+                <ref bean="chargePreparation"/>
                 <ref bean="accountPreparation"/>
                 <ref bean="relayPreparation"/>
                 <!--<ref bean="ringHangupPreparation"/>-->
@@ -99,7 +101,7 @@
     </bean>
 
     <!--<bean id="ringHangupPreparation" class="org.jinglenodes.custom.RingHangupPreparation">-->
-        <!--<property name="callKiller" ref="callKiller"/>-->
+    <!--<property name="callKiller" ref="callKiller"/>-->
     <!--</bean>-->
 
     <bean id="relayEventProcessor" class="org.jinglenodes.relay.RelayEventProcessor" init-method="init">
@@ -126,8 +128,11 @@
     <bean id="creditPreparation" class="org.jinglenodes.credit.CreditPreparation">
         <property name="creditServiceProcessor" ref="creditServiceProcessor"/>
         <property name="prepareStatesManager" ref="jingleProcessor"/>
-        <property name="chargeServiceProcessor" ref="chargeServiceProcessor"/>
         <property name="callKiller" ref="callKiller"/>
+    </bean>
+
+    <bean id="chargePreparation" class="org.jinglenodes.credit.ChargePreparation">
+        <property name="chargeServiceProcessor" ref="chargeServiceProcessor"/>
     </bean>
 
     <bean id="accountPreparation" class="org.jinglenodes.account.AccountPreparation">

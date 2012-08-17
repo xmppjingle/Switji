@@ -207,9 +207,6 @@ public class ExternalComponent extends AbstractComponent {
         final Namespace namespace = e.getNamespace();
         if (null == namespace) return;
 
-        // Parse URI from namespace.
-        final String ns = namespace.getURI();
-
         for (final List<NamespaceProcessor> npl : processors.values()) {
             for (final NamespaceProcessor np : npl)
                 np.processIQResult(iq);

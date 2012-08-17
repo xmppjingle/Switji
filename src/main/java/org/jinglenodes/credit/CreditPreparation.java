@@ -51,7 +51,6 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     final Logger log = Logger.getLogger(CreditPreparation.class);
     private CreditServiceProcessor creditServiceProcessor;
-    private ChargeServiceProcessor chargeServiceProcessor;
     private PrepareStatesManager prepareStatesManager;
     private CallKiller callKiller;
 
@@ -115,31 +114,10 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     public boolean proceedTerminate(JingleIQ iq, CallSession session) {
         log.debug("Credit Proceed Terminate: " + iq.toXML() + " - " + session.getId());
         setSessionFinishTime(session, System.currentTimeMillis());
-        chargeCall(iq, session);
-        return true;
-    }
-
-    private void chargeCall(JingleIQ iq, CallSession session) {
-        if (session.getSessionCredit() != null && !session.getSessionCredit().isCharged()) {
-            JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
-            JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
-            if (initiator != null && responder != null) {
-                if (chargeServiceProcessor != null) {
-                    try {
-                        chargeServiceProcessor.queryService(iq, initiator.getNode(), responder.getNode(), this);
-                    } catch (ServiceException e) {
-                        log.error("Could NOT Query Charge Service.", e);
-                    }
-                } else {
-                    log.error("Charge Error: Charge Service Processor is null");
-                }
-            } else {
-                log.error("Charge Error: Could NOT Retrieve Call Info");
-            }
-        }
         if (callKiller != null) {
             callKiller.cancelKill(session);
         }
+        return true;
     }
 
     @Override
@@ -168,19 +146,13 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
 
     private void setSessionStartTime(final CallSession session, final long time) {
         if (session != null) {
-            final SessionCredit sessionCredit = session.getSessionCredit();
-            if (sessionCredit != null) {
-                sessionCredit.setStartTime(time);
-            }
+            session.setStartTime(time);
         }
     }
 
     private void setSessionFinishTime(final CallSession session, final long time) {
         if (session != null) {
-            final SessionCredit sessionCredit = session.getSessionCredit();
-            if (sessionCredit != null) {
-                sessionCredit.setFinishTime(time);
-            }
+            session.setFinishTime(time);
         }
     }
 
@@ -221,7 +193,9 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     @Override
     public JingleIQ proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
         setSessionFinishTime(session, System.currentTimeMillis());
-        chargeCall(iq, session);
+        if (callKiller != null) {
+            callKiller.cancelKill(session);
+        }
         return iq;
     }
 
@@ -229,15 +203,6 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
     public JingleIQ proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
         startCharging(session);
         return iq;
-    }
-
-    public ChargeServiceProcessor getChargeServiceProcessor() {
-        return chargeServiceProcessor;
-    }
-
-    public void setChargeServiceProcessor(ChargeServiceProcessor chargeServiceProcessor) {
-        log.debug("Added Charge Service Processor");
-        this.chargeServiceProcessor = chargeServiceProcessor;
     }
 
     public CallKiller getCallKiller() {

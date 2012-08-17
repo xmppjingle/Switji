@@ -67,6 +67,8 @@ public class CallSession {
     private final Map<String, ContactHeader> userContactBind = (new ConcurrentHashMap<String, ContactHeader>());
     private int retries = 0;
     private long timestamp;
+    private long startTime = 0;
+    private long finishTime;
     private boolean active = true;
     private AtomicInteger sentRequestsCounter = new AtomicInteger();
     private RelayIQ relayIQ;
@@ -297,4 +299,21 @@ public class CallSession {
     public ConcurrentLinkedQueue<CallPreparation> getPreparations() {
         return preparations;
     }
+
+    public long getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(long finishTime) {
+        this.finishTime = finishTime;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
 }
