@@ -418,13 +418,17 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
                 return;
             }
 
-            final Message ringing = SipProcessor.createSipRinging(request, JIDFactory.getInstance().getJID(iq.getJingle().getResponder()), JIDFactory.getInstance().getJID(iq.getJingle().getResponder()).getResource(), sipProviderInfo);
+            final JID responder = request.getParticipants().getResponder();
+
+            final Message ringing = SipProcessor.createSipRinging(request, responder ,responder.getResource(), sipProviderInfo);
             ringing.setSendTo(callSession.getLastReceivedRequest().getSendTo());
             ringing.setArrivedAt(callSession.getLastReceivedRequest().getArrivedAt());
             callSessionMapper.getSession(iq).addSentResponse(ringing);
             gatewayRouter.routeSIP(ringing, callSession.getUser());
         } catch (JingleSipException e) {
             log.error("Error sending SIP Ringing.", e);
+        } catch (SipParsingException e) {
+            log.error("Error sending SIP Ringing. Due SIP Parsing Error.", e);
         }
     }
 

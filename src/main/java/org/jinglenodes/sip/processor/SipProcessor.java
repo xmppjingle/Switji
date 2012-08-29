@@ -831,15 +831,15 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
 
         for (final Payload payload : rtpDescription.getPayloads()) {
 //            if (i == 0 || !payload.getId().equals(Payload.G729.getId())) {
-                ids[i++] = Integer.parseInt(payload.getId());
-                names.add("rtpmap");
-                values.add(payload.getId() + " " + payload.getName() + (payload.getClockrate() > -1 ? "/" + payload.getClockrate() : "") + (payload.getChannels() > -1 ? "/" + payload.getChannels() : ""));
-                // Fix for G729 prevent VAD support
+            ids[i++] = Integer.parseInt(payload.getId());
+            names.add("rtpmap");
+            values.add(payload.getId() + " " + payload.getName() + (payload.getClockrate() > -1 ? "/" + payload.getClockrate() : "") + (payload.getChannels() > -1 ? "/" + payload.getChannels() : ""));
+            // Fix for G729 prevent VAD support
 
-                if (payload.getId().equals(Payload.G729.getId())) {
-                    names.add("fmtp");
-                    values.add(String.valueOf(payload.getId()) + " annexb=no");
-                }
+            if (payload.getId().equals(Payload.G729.getId())) {
+                names.add("fmtp");
+                values.add(String.valueOf(payload.getId()) + " annexb=no");
+            }
 //            }
         }
 

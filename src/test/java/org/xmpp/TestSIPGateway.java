@@ -14,6 +14,7 @@ import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.persistence.PersistentCallSessionMapper;
 import org.jinglenodes.sip.account.CachedSipAccountProvider;
+import org.jinglenodes.sip.processor.SipProcessor;
 import org.jinglenodes.sip.router.SipRoutingError;
 import org.jinglenodes.sip.router.SipRoutingListener;
 import org.xmpp.packet.JID;
@@ -143,6 +144,11 @@ public class TestSIPGateway extends TestCase {
 
     public void testInvalidSipSDP() {
 
+    }
+
+    public void testContact() {
+        final String contact = SipProcessor.getContact("test", Main.getSipGatewayApplication().getSipGatewayComponent().getGatewaySipRouter().getSipProvider());
+        System.out.println("C: " + contact);
     }
 
     public void resetCounters() {
