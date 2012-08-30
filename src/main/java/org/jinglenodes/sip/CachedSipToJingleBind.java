@@ -54,6 +54,8 @@ public class CachedSipToJingleBind implements SipToJingleBind {
         String toNode = sipTo.getNode();
         if (toNode.indexOf("00") == 0) {
             toNode = "+" + toNode.substring(2);
+        } else if (toNode.charAt(0) != '+') {
+            toNode = "+" + toNode;
         }
         sipToXmpp.put(toNode, xmppTo);
     }
@@ -68,6 +70,8 @@ public class CachedSipToJingleBind implements SipToJingleBind {
         String toNode = sipTo.getNode();
         if (toNode.indexOf("00") == 0) {
             toNode = "+" + toNode.substring(2);
+        } else if (toNode.charAt(0) != '+') {
+            toNode = "+" + toNode;
         }
 
         final JID jid = sipToXmpp.get(toNode);

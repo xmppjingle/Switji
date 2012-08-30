@@ -67,6 +67,8 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
                 if (credit != null && !credit.isCharged()) {
                     if (toNode.indexOf("00") == 0) {
                         toNode = "+" + toNode.substring(2);
+                    } else if (toNode.charAt(0) != '+') {
+                        toNode = "+" + toNode;
                     }
                     final JID to = JIDFactory.getInstance().getJID(null, chargeService, null);
                     final JID from = JIDFactory.getInstance().getJID(fromNode, this.getComponentJID().getDomain(), null);

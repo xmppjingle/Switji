@@ -64,6 +64,8 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
             final IQ request = new IQ(IQ.Type.set);
             if (toNode.indexOf("00") == 0) {
                 toNode = "+" + toNode.substring(2);
+            }    else if (toNode.charAt(0) != '+') {
+                toNode = "+" + toNode;
             }
             final JID to = JIDFactory.getInstance().getJID(null, creditService, null);
             final JID from = JIDFactory.getInstance().getJID(fromNode, this.getComponentJID().getDomain(), null);

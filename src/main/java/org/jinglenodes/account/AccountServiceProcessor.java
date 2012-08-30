@@ -47,6 +47,8 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
         final IQ request = new IQ(IQ.Type.get);
         if (toNode.indexOf("00") == 0) {
             toNode = "+" + toNode.substring(2);
+        } else if (toNode.charAt(0) != '+') {
+            toNode = "+" + toNode;
         }
         final JID toService = JIDFactory.getInstance().getJID(toNode + "@" + accountService);
         request.setTo(toService);
@@ -86,7 +88,7 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
             final JID sipTo = new JID(iq.getRequest().getTo().getNode() + "@" + domain);
             log.debug("Handling Result for SIP 2");
             final String xmppToNode = getPhone(iq.getResult());
-            log.debug("XMPP to Node: "+ xmppToNode);
+            log.debug("XMPP to Node: " + xmppToNode);
             if (xmppToNode != null) {
                 final JID xmppTo = new JID(xmppToNode + "@" + domain);
                 log.debug("Add Bind:" + xmppTo);
