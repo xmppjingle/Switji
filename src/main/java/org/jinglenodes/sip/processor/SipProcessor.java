@@ -799,7 +799,9 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         final SessionDescription description = createSipSDP(rtpDescription, transport, sipProvider);
         final String to = responder.toBareJID();
         final String from = initiator.toBareJID();
-        return MessageFactory.createInviteRequest(sipProvider, new SipURL(to), new NameAddress(to.split("@")[0], new SipURL(to)), new NameAddress(from, new SipURL(from)), new NameAddress(new SipURL(contact)), description.toString(), sid, initiator.getResource());
+        final Message m = MessageFactory.createInviteRequest(sipProvider, new SipURL(to), new NameAddress(to.split("@")[0], new SipURL(to)), new NameAddress(from, new SipURL(from)), new NameAddress(new SipURL(contact)), description.toString(), sid, initiator.getResource());
+        m.getToHeader().setParameter("tag", responder.getResource());
+        return m;
     }
 
     public static Message createSipOnHold(final JID initiator, final JID responder, final String sid, final SipProviderInfoInterface sipProvider, final Description rtpDescription, final RawUdpTransport transport) throws SdpException {

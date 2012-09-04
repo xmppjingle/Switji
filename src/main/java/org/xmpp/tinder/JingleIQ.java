@@ -8,7 +8,9 @@ import org.dom4j.io.SAXReader;
 import org.jinglenodes.jingle.Jingle;
 import org.jinglenodes.jingle.Reason;
 import org.xmpp.packet.IQ;
+import org.xmpp.packet.JID;
 import org.xmpp.tinder.parser.XStreamIQ;
+import org.zoolu.sip.message.JIDFactory;
 
 import java.io.StringReader;
 import java.util.List;
@@ -55,6 +57,15 @@ public class JingleIQ extends XStreamIQ<Jingle> {
             }
             if (j.getResponder() == null || j.getResponder().length() < 3) {
                 j.setResponder(iq.getTo().toString());
+            }
+            if (j.getResponder() != null) {
+                final String fr = iq.getFrom().getResource();
+                if (fr != null && fr.length() > 0) {
+                    final JID rjid = JIDFactory.getInstance().getJID(j.getResponder());
+                    if (rjid.getResource() == null || rjid.getResource().length() == 0) {
+                        j.setResponder(j.getResponder() + "/" + fr);
+                    }
+                }
             }
 
             // Fix Terminate Reason

@@ -64,9 +64,12 @@
                 <ref bean="accountPreparation"/>
                 <!--<ref bean="relayPreparation"/>-->
                 <ref bean="chargePreparation"/>
+                <!--<ref bean="numberFormatPreparation"/>-->
             </list>
         </property>
     </bean>
+
+    <bean id="numberFormatPreparation" class="org.jinglenodes.format.NumberFormatPreparation"/>
 
     <bean id="callLogger" class="org.jinglenodes.log.LogPreparation"></bean>
 

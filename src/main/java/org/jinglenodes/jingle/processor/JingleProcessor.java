@@ -192,6 +192,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
     private boolean executeInitiateProceeds(final JingleIQ iq, final CallSession session) {
         for (CallPreparation proceeds : session.getProceeds()) {
+            log.debug("To Proceed: "+ proceeds.getClass().getCanonicalName() + " on: " + iq.toXML());
             if (!proceeds.proceedInitiate(iq, session)) return false;
         }
         return true;
@@ -310,7 +311,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
                     lastResponse = null;
                 }
 
-                if (sipToJingleBind != null && sipToJingleBind.getSipFrom(iq.getFrom())!=null) {
+                if (sipToJingleBind != null && sipToJingleBind.getSipFrom(iq.getFrom()) != null) {
                     iq.setFrom(sipToJingleBind.getSipFrom(iq.getFrom()));
                 }
 
@@ -420,7 +421,9 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
             final JID responder = request.getParticipants().getResponder();
 
-            final Message ringing = SipProcessor.createSipRinging(request, responder ,responder.getResource(), sipProviderInfo);
+            log.debug("Generating Ringing for: " + request.toString());
+
+            final Message ringing = SipProcessor.createSipRinging(request, responder, iq.getFrom().getResource(), sipProviderInfo);
             ringing.setSendTo(callSession.getLastReceivedRequest().getSendTo());
             ringing.setArrivedAt(callSession.getLastReceivedRequest().getArrivedAt());
             callSessionMapper.getSession(iq).addSentResponse(ringing);
