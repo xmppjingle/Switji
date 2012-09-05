@@ -29,6 +29,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
+import org.jinglenodes.prepare.NodeFormat;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.CallSessionMapper;
 import org.xmpp.component.AbstractServiceProcessor;
@@ -52,6 +53,7 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
     private final String xmlns;
     private CallSessionMapper sessionMapper;
     private String creditService;
+    private NodeFormat nodeFormat;
 
     public CreditServiceProcessor(final String elementName, final String xmlns) {
         this.xmlns = xmlns;
@@ -62,11 +64,7 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
     public IQ createServiceRequest(Object object, String fromNode, String toNode) {
         if (object instanceof JingleIQ) {
             final IQ request = new IQ(IQ.Type.set);
-            if (toNode.indexOf("00") == 0) {
-                toNode = "+" + toNode.substring(2);
-            }    else if (toNode.charAt(0) != '+') {
-                toNode = "+" + toNode;
-            }
+            toNode = nodeFormat.formatNode(toNode);
             final JID to = JIDFactory.getInstance().getJID(null, creditService, null);
             final JID from = JIDFactory.getInstance().getJID(fromNode, this.getComponentJID().getDomain(), null);
             final JingleIQ jingleIQ = (JingleIQ) object;
@@ -179,6 +177,14 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
 
     public void setSessionMapper(CallSessionMapper sessionMapper) {
         this.sessionMapper = sessionMapper;
+    }
+
+    public NodeFormat getNodeFormat() {
+        return nodeFormat;
+    }
+
+    public void setNodeFormat(NodeFormat nodeFormat) {
+        this.nodeFormat = nodeFormat;
     }
 
 }

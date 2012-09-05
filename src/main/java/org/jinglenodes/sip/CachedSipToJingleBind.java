@@ -84,11 +84,19 @@ public class CachedSipToJingleBind implements SipToJingleBind {
     }
 
     public JID getSipFrom(JID xmppInitiator) {
-        final JID jid = xmppToSip.get(xmppInitiator.toBareJID());
+
+        String fromBare = xmppInitiator.toBareJID();
+        if (fromBare.indexOf("00") == 0) {
+            fromBare = "+" + fromBare.substring(2);
+        } else if (fromBare.charAt(0) != '+') {
+            fromBare = "+" + fromBare;
+        }
+
+        final JID jid = xmppToSip.get(fromBare);
         if (jid != null) return jid;
 
         if (accountProvider != null) {
-            final SipAccount account = accountProvider.getSipAccount(xmppInitiator);
+            final SipAccount account = accountProvider.getSipAccount(JIDFactory.getInstance().getJID(fromBare));
             if (account != null) {
                 final JID accountJid = JIDFactory.getInstance().getJID(account.getSipUsername() + "@" + account.getServer() + "/" + defaultResource);
                 xmppToSip.put(xmppInitiator.toBareJID(), accountJid);

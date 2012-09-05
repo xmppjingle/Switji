@@ -815,7 +815,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
     }
 
     public static String getContact(final String node, final SipProviderInfoInterface sipProvider) {
-        return node + "@" + sipProvider.getIP() + ":" + sipProvider.getPort() + ";transport=udp";
+        return node + "@" + sipProvider.getViaAddress() + ":" + sipProvider.getPort() + ";transport=udp";
     }
 
     public static SessionDescription createSipSDP(final Description rtpDescription, final RawUdpTransport transport, final SipProviderInfoInterface sipProvider) throws SdpException {
@@ -866,7 +866,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         description.setMediaDescriptions(mv);
 
         String ip = transport.getCandidates().get(0).getIp();
-        ip = ip == null || ip.trim().length() < 7 ? sipProvider.getIP() : ip;
+        ip = ip == null || ip.trim().length() < 7 ? sipProvider.getViaAddress() : ip;
 
         final Origin origin = SdpFactory.getInstance().createOrigin("J2S", ip);
         origin.setSessionId(3);

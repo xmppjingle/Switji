@@ -30,6 +30,7 @@ import org.jinglenodes.prepare.PrepareStatesManager;
 import org.jinglenodes.prepare.SipPrepareStatesManager;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.sip.SipToJingleBind;
+import org.jinglenodes.sip.account.SipAccount;
 import org.xmpp.component.IqRequest;
 import org.xmpp.component.ResultReceiver;
 import org.xmpp.component.ServiceException;
@@ -75,10 +76,15 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
     @Override
     public boolean proceedInitiate(JingleIQ iq, final CallSession session) {
         JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
+        JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
         if (sipToJingleBind != null) {
             final JID sipFrom = sipToJingleBind.getSipFrom(initiator);
             if (sipFrom != null) {
                 iq.getJingle().setInitiator(sipFrom.toString());
+            }
+            final SipAccount account = accountServiceProcessor.getAccountProvider().getSipAccount(initiator);
+            if(account!=null){
+                iq.getJingle().setResponder(responder.getNode()+ "@" + account.getOutboundproxy());
             }
         }
         return true;

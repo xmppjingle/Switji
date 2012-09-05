@@ -87,7 +87,7 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
 
     public void init(){
         final Message start = MessageFactory.createMessageRequest(sipProvider, new NameAddress("null@null.com"),new NameAddress("null@null.com"),"-", "-", "-");
-        start.setSendTo(InetSocketAddress.createUnresolved(sipProvider.getIP(), sipProvider.getPort()));
+        start.setSendTo(InetSocketAddress.createUnresolved(sipProvider.getViaAddress(), sipProvider.getPort()));
         routeSIP(start, new JID("gateway"));
         log.debug("Kick Start Packet sent: " + start);
     }

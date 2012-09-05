@@ -5,6 +5,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
+import org.jinglenodes.prepare.NodeFormat;
 import org.jinglenodes.sip.CachedSipToJingleBind;
 import org.jinglenodes.sip.SipToJingleBind;
 import org.jinglenodes.sip.account.CachedSipAccountProvider;
@@ -30,6 +31,7 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
     private CachedSipAccountProvider accountProvider;
     private CachedSipToJingleBind sipToJingleBind;
     private SipProviderInformation sipInfo;
+    private NodeFormat nodeFormat;
     private String phoneDefaultType;
 
     private final Element requestElement;
@@ -45,11 +47,7 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
     @Override
     public IQ createServiceRequest(Object object, String fromNode, String toNode) {
         final IQ request = new IQ(IQ.Type.get);
-        if (toNode.indexOf("00") == 0) {
-            toNode = "+" + toNode.substring(2);
-        } else if (toNode.charAt(0) != '+') {
-            toNode = "+" + toNode;
-        }
+        toNode = nodeFormat.formatNode(toNode);
         final JID toService = JIDFactory.getInstance().getJID(toNode + "@" + accountService);
         request.setTo(toService);
         request.setChildElement(requestElement.createCopy());
@@ -105,7 +103,7 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
       */
     protected SipAccount getSipAccount(IQ iq) {
         String phone = getPhone(iq);
-        return phone != null ? new SipAccount(phone, phone, phone, "", sipInfo.getIP(), sipInfo.getViaAddress()) : null;
+        return phone != null ? new SipAccount(phone, phone, phone, "", sipInfo.getViaAddress(), sipInfo.getIP()) : null;
     }
 
     /*
@@ -200,5 +198,13 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
 
     public void setDomain(String domain) {
         this.domain = domain;
+    }
+
+    public NodeFormat getNodeFormat() {
+        return nodeFormat;
+    }
+
+    public void setNodeFormat(NodeFormat nodeFormat) {
+        this.nodeFormat = nodeFormat;
     }
 }

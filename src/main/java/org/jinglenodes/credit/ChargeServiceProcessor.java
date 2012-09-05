@@ -29,6 +29,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
+import org.jinglenodes.prepare.NodeFormat;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.CallSessionMapper;
 import org.xmpp.component.AbstractServiceProcessor;
@@ -51,6 +52,7 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
     private final String xmlns;
     private CallSessionMapper sessionMapper;
     private String chargeService;
+    private NodeFormat nodeFormat;
 
     public ChargeServiceProcessor(final String elementName, final String xmlns) {
         this.xmlns = xmlns;
@@ -65,11 +67,8 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
             if (session != null) {
                 final SessionCredit credit = session.getSessionCredit();
                 if (credit != null && !credit.isCharged()) {
-                    if (toNode.indexOf("00") == 0) {
-                        toNode = "+" + toNode.substring(2);
-                    } else if (toNode.charAt(0) != '+') {
-                        toNode = "+" + toNode;
-                    }
+                    toNode = nodeFormat.formatNode(toNode);
+                    fromNode = nodeFormat.formatNode(fromNode);
                     final JID to = JIDFactory.getInstance().getJID(null, chargeService, null);
                     final JID from = JIDFactory.getInstance().getJID(fromNode, this.getComponentJID().getDomain(), null);
                     final IQ request = new IQ(IQ.Type.set);
@@ -153,4 +152,13 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
     public void setSessionMapper(CallSessionMapper sessionMapper) {
         this.sessionMapper = sessionMapper;
     }
+
+    public NodeFormat getNodeFormat() {
+        return nodeFormat;
+    }
+
+    public void setNodeFormat(NodeFormat nodeFormat) {
+        this.nodeFormat = nodeFormat;
+    }
+
 }

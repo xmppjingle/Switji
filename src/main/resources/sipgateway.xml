@@ -69,6 +69,8 @@
         </property>
     </bean>
 
+    <bean id="nodeFormat" class="org.jinglenodes.prepare.E164NodeFormat"/>
+
     <bean id="numberFormatPreparation" class="org.jinglenodes.format.NumberFormatPreparation"/>
 
     <bean id="callLogger" class="org.jinglenodes.log.LogPreparation"></bean>
@@ -118,6 +120,7 @@
         <property name="component" ref="sipGatewayComponent"/>
         <property name="chargeService" value="${charge.service}"/>
         <property name="sessionMapper" ref="callSessionMapper"/>
+        <property name="nodeFormat" ref="nodeFormat"/>
     </bean>
 
     <bean id="creditServiceProcessor" class="org.jinglenodes.credit.CreditServiceProcessor" init-method="init">
@@ -126,6 +129,7 @@
         <property name="component" ref="sipGatewayComponent"/>
         <property name="creditService" value="${credit.service}"/>
         <property name="sessionMapper" ref="callSessionMapper"/>
+        <property name="nodeFormat" ref="nodeFormat"/>
     </bean>
 
     <bean id="creditPreparation" class="org.jinglenodes.credit.CreditPreparation">
@@ -155,6 +159,7 @@
         <property name="phoneDefaultType" value="${account.phonetype}"/>
         <property name="domain" value="${xmpp.domain}"/>
         <property name="sipToJingleBind" ref="sipToJingleMapper"/>
+        <property name="nodeFormat" ref="nodeFormat"/>
     </bean>
 
     <bean id="detourPreparation" class="org.jinglenodes.detour.DetourPreparation">
@@ -170,6 +175,7 @@
         <constructor-arg index="1" value="${account.namespace}"/>
         <property name="component" ref="sipGatewayComponent"/>
         <property name="accountService" value="${account.service}"/>
+        <property name="nodeFormat" ref="nodeFormat"/>
     </bean>
 
     <bean id="relayPreparation" class="org.jinglenodes.relay.RelayCallPreparation">
@@ -197,6 +203,7 @@
     <bean id="sipProviderInfo" class="org.zoolu.sip.provider.SipProviderInformation">
         <constructor-arg index="0" value="${sip.server}"/>
         <constructor-arg index="1" value="${sip.port}"/>
+        <property name="viaAddress" value="${sip.server}"/>
     </bean>
 
     <bean id="sip" init-method="init" class="org.jinglenodes.component.SIPGatewayApplication" destroy-method="destroy">
