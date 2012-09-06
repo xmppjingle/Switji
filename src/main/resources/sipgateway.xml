@@ -34,6 +34,7 @@
         <constructor-arg index="2" ref="accountProvider"/>
         <constructor-arg index="3" value="${sip.localip}"/>
         <constructor-arg index="4" value="${sip.localport}"/>
+        <property name="sipProvider" ref="sipProviderInfo"/>
     </bean>
 
     <bean id="callSessionMapper" class="org.jinglenodes.session.persistence.PersistentCallSessionMapper"

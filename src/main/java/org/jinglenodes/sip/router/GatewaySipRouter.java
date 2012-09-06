@@ -69,13 +69,12 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
     // SIP Routing
     private final SipAccountProvider sipAccountProvider;
     private final int keepAliveDelay = 15; // 10 seconds delay in the keep alive packets
-    private final SipProviderInfoInterface sipProvider;
+    private SipProviderInfoInterface sipProvider;
 
     public GatewaySipRouter(final String localSipIp, final int localSipPort, final SipAccountProvider sipAccountProvider, final String fakeLocalIp, final int fakeLocalPort) {
         this.localSipIp = localSipIp;
         this.localSipPort = localSipPort;
         this.sipAccountProvider = sipAccountProvider;
-        this.sipProvider = new SipProviderInformation(fakeLocalIp, fakeLocalPort);
         createSipRouter();
     }
 
@@ -85,11 +84,11 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
         scheduledThreadPoolExecutor.scheduleWithFixedDelay(keepAliveTask, keepAliveDelay, keepAliveDelay, TimeUnit.SECONDS);
     }
 
-    public void init(){
-        final Message start = MessageFactory.createMessageRequest(sipProvider, new NameAddress("null@null.com"),new NameAddress("null@null.com"),"-", "-", "-");
-        start.setSendTo(InetSocketAddress.createUnresolved(sipProvider.getViaAddress(), sipProvider.getPort()));
+    public void init() {
+        final Message start = MessageFactory.createMessageRequest(sipProvider, new NameAddress("null@null.com"), new NameAddress("null@null.com"), "-", "-", "-");
+        start.setSendTo(new InetSocketAddress(sipProvider.getIP(), sipProvider.getPort()));
         routeSIP(start, new JID("gateway"));
-        log.debug("Kick Start Packet sent: " + start);
+        log.debug("Kick Start Packet sent: " + start + " to:" + sipProvider.getIP() + ":" + sipProvider.getPort());
     }
 
     public Collection<SipChannel> getSipChannels() {
@@ -305,4 +304,8 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
         packetReceived(byteBuffer, address, iChannels.get(listenerDatagramChannel.hashCode()));
     }
 
+
+    public void setSipProvider(SipProviderInfoInterface sipProvider) {
+        this.sipProvider = sipProvider;
+    }
 }

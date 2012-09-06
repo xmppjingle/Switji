@@ -30,17 +30,13 @@
         <property name="manager" ref="sipGatewayManager"/>
     </bean>
 
-    <bean id="gatewaySipRouter" class="org.jinglenodes.sip.router.GatewaySipRouter">
+    <bean id="gatewaySipRouter" class="org.jinglenodes.sip.router.GatewaySipRouter" init-method="init">
         <constructor-arg index="0" value="${sip.localip}"/>
         <constructor-arg index="1" value="${sip.localport}"/>
         <constructor-arg index="2" ref="accountProvider"/>
         <constructor-arg index="3" value="${sip.localip}"/>
         <constructor-arg index="4" value="${sip.localport}"/>
-    </bean>
-
-    <bean id="redisWriter" class="org.jinglenodes.session.persistence.redis.RedisWriter">
-        <property name="redisHost" value="${redis.host}"/>
-        <property name="redisPort" value="${redis.port}"/>
+        <property name="sipProvider" ref="sipProviderInfo"/>
     </bean>
 
     <bean id="callSessionMapper" class="org.jinglenodes.session.persistence.PersistentCallSessionMapper"
@@ -49,41 +45,61 @@
         <property name="preparations">
             <list>
                 <ref bean="creditPreparation"/>
-                <ref bean="accountPreparation"/>
-                <ref bean="relayPreparation"/>
             </list>
         </property>
+    </bean>
+
+    <bean id="redisWriter" class="org.jinglenodes.session.persistence.redis.RedisWriter">
+        <property name="redisHost" value="${redis.host}"/>
+        <property name="redisPort" value="${redis.port}"/>
     </bean>
 
     <bean id="sipProcessor" class="org.jinglenodes.sip.processor.SipProcessor">
         <property name="gatewayRouter" ref="sipGatewayComponent"/>
         <property name="callSessions" ref="callSessionMapper"/>
         <property name="sipProviderInfo" ref="sipProviderInfo"/>
-        <property name="sipToJingleBind" ref="sipToJingleBind"/>
+        <property name="sipToJingleBind" ref="sipToJingleMapper"/>
         <property name="jingleProcessor" ref="jingleProcessor"/>
         <property name="callKiller" ref="callKiller"/>
         <property name="preparations">
             <list>
-                <ref bean="creditPreparation"/>
+                <ref bean="callLogger"/>
                 <ref bean="accountPreparation"/>
-                <ref bean="relayPreparation"/>
+                <!--<ref bean="relayPreparation"/>-->
+                <ref bean="chargePreparation"/>
+                <!--<ref bean="numberFormatPreparation"/>-->
             </list>
         </property>
     </bean>
 
+    <bean id="nodeFormat" class="org.jinglenodes.prepare.E164NodeFormat"/>
+
+    <bean id="numberFormatPreparation" class="org.jinglenodes.format.NumberFormatPreparation"/>
+
     <bean id="callLogger" class="org.jinglenodes.log.LogPreparation"></bean>
+
+    <bean id="throttleManager" class="org.jinglenodes.sip.router.ThrottleManager">
+        <constructor-arg index="0" value="120"/>
+        <constructor-arg index="1" value="60000"/>
+        <constructor-arg index="2" value="10000"/>
+        <constructor-arg index="3" value="3600000"/>
+    </bean>
 
     <bean id="jingleProcessor" class="org.jinglenodes.jingle.processor.JingleProcessor" init-method="init">
         <property name="gatewayRouter" ref="sipGatewayComponent"/>
         <property name="callSessionMapper" ref="callSessionMapper"/>
         <property name="sipProviderInfo" ref="sipProviderInfo"/>
-        <property name="sipToJingleBind" ref="sipToJingleBind"/>
+        <property name="sipToJingleBind" ref="sipToJingleMapper"/>
+        <property name="throttleManager" ref="throttleManager"/>
         <property name="preparations">
             <list>
                 <ref bean="callLogger"/>
+                <ref bean="detourPreparation"/>
                 <ref bean="creditPreparation"/>
+                <ref bean="chargePreparation"/>
                 <ref bean="accountPreparation"/>
                 <ref bean="relayPreparation"/>
+                <!--<ref bean="ringHangupPreparation"/>-->
             </list>
         </property>
     </bean>
@@ -92,19 +108,13 @@
         <property name="jingleProcessor" ref="jingleProcessor"/>
     </bean>
 
-    <bean id="creditPreparation" class="org.jinglenodes.credit.CreditPreparation">
-        <property name="creditServiceProcessor" ref="creditServiceProcessor"/>
-        <property name="chargeServiceProcessor" ref="chargeServiceProcessor"/>
-        <property name="prepareStatesManager" ref="jingleProcessor"/>
-        <property name="callKiller" ref="callKiller"/>
-    </bean>
+    <!--<bean id="ringHangupPreparation" class="org.jinglenodes.custom.RingHangupPreparation">-->
+    <!--<property name="callKiller" ref="callKiller"/>-->
+    <!--</bean>-->
 
-    <bean id="creditServiceProcessor" class="org.jinglenodes.credit.CreditServiceProcessor" init-method="init">
-        <constructor-arg index="0" value="${credit.name}"/>
-        <constructor-arg index="1" value="${credit.namespace}"/>
+    <bean id="relayEventProcessor" class="org.jinglenodes.relay.RelayEventProcessor" init-method="init">
         <property name="component" ref="sipGatewayComponent"/>
-        <property name="creditService" value="${credit.service}"/>
-        <property name="sessionMapper" ref="callSessionMapper"/>
+        <property name="listener" ref="relayPreparation"/>
     </bean>
 
     <bean id="chargeServiceProcessor" class="org.jinglenodes.credit.ChargeServiceProcessor" init-method="init">
@@ -113,12 +123,33 @@
         <property name="component" ref="sipGatewayComponent"/>
         <property name="chargeService" value="${charge.service}"/>
         <property name="sessionMapper" ref="callSessionMapper"/>
+        <property name="nodeFormat" ref="nodeFormat"/>
+    </bean>
+
+    <bean id="creditServiceProcessor" class="org.jinglenodes.credit.CreditServiceProcessor" init-method="init">
+        <constructor-arg index="0" value="${credit.name}"/>
+        <constructor-arg index="1" value="${credit.namespace}"/>
+        <property name="component" ref="sipGatewayComponent"/>
+        <property name="creditService" value="${credit.service}"/>
+        <property name="sessionMapper" ref="callSessionMapper"/>
+        <property name="nodeFormat" ref="nodeFormat"/>
+    </bean>
+
+    <bean id="creditPreparation" class="org.jinglenodes.credit.CreditPreparation">
+        <property name="creditServiceProcessor" ref="creditServiceProcessor"/>
+        <property name="prepareStatesManager" ref="jingleProcessor"/>
+        <property name="callKiller" ref="callKiller"/>
+    </bean>
+
+    <bean id="chargePreparation" class="org.jinglenodes.credit.ChargePreparation">
+        <property name="chargeServiceProcessor" ref="chargeServiceProcessor"/>
     </bean>
 
     <bean id="accountPreparation" class="org.jinglenodes.account.AccountPreparation">
         <property name="accountServiceProcessor" ref="accountServiceProcessor"/>
-        <property name="sipToJingleBind" ref="sipToJingleBind"/>
+        <property name="sipToJingleBind" ref="sipToJingleMapper"/>
         <property name="prepareStatesManager" ref="jingleProcessor"/>
+        <property name="sipPrepareStatesManager" ref="sipProcessor"/>
     </bean>
 
     <bean id="accountServiceProcessor" class="org.jinglenodes.account.AccountServiceProcessor" init-method="init">
@@ -129,6 +160,9 @@
         <property name="sipInfo" ref="sipProviderInfo"/>
         <property name="accountService" value="${account.service}"/>
         <property name="phoneDefaultType" value="${account.phonetype}"/>
+        <property name="domain" value="${xmpp.domain}"/>
+        <property name="sipToJingleBind" ref="sipToJingleMapper"/>
+        <property name="nodeFormat" ref="nodeFormat"/>
     </bean>
 
     <bean id="detourPreparation" class="org.jinglenodes.detour.DetourPreparation">
@@ -144,11 +178,14 @@
         <constructor-arg index="1" value="${account.namespace}"/>
         <property name="component" ref="sipGatewayComponent"/>
         <property name="accountService" value="${account.service}"/>
+        <property name="nodeFormat" ref="nodeFormat"/>
     </bean>
 
     <bean id="relayPreparation" class="org.jinglenodes.relay.RelayCallPreparation">
         <property name="relayServiceProcessor" ref="relayServiceProcessor"/>
         <property name="prepareStatesManager" ref="jingleProcessor"/>
+        <property name="sipPrepareStatesManager" ref="sipProcessor"/>
+        <property name="callKiller" ref="callKiller"/>
     </bean>
 
     <bean id="relayServiceProcessor" class="org.jinglenodes.relay.RelayServiceProcessor" init-method="init">
@@ -157,7 +194,7 @@
         <property name="callSessionMapper" ref="callSessionMapper"/>
     </bean>
 
-    <bean id="sipToJingleBind" class="org.jinglenodes.sip.CachedSipToJingleBind">
+    <bean id="sipToJingleMapper" class="org.jinglenodes.sip.CachedSipToJingleBind">
         <property name="accountProvider" ref="accountProvider"/>
         <property name="defaultJID" value="${sip.defaultjid}"/>
         <property name="defaultResource" value="${sip.defaultresource}"/>
@@ -169,6 +206,7 @@
     <bean id="sipProviderInfo" class="org.zoolu.sip.provider.SipProviderInformation">
         <constructor-arg index="0" value="${sip.server}"/>
         <constructor-arg index="1" value="${sip.port}"/>
+        <property name="viaAddress" value="${sip.server}"/>
     </bean>
 
     <bean id="sip" init-method="init" class="org.jinglenodes.component.SIPGatewayApplication" destroy-method="destroy">
@@ -178,6 +216,39 @@
         <property name="sipProcessor" ref="sipProcessor"/>
         <property name="subdomain" value="${xmpp.subdomain}"/>
         <property name="password" value="${xmpp.password}"/>
+    </bean>
+
+    <bean id="switjiStats" class="org.jinglenodes.stats.SwitjiStatsImpl">
+        <property name="sipApplication" ref="sip"/>
+    </bean>
+
+    <bean id="switjiAdmin" class="org.jinglenodes.stats.SwitjiAdminImpl">
+        <property name="callKiller" ref="callKiller"/>
+        <property name="sipApplication" ref="sip"/>
+    </bean>
+
+    <bean id="jmxExporter" class="org.springframework.jmx.export.MBeanExporter">
+        <property name="beans">
+            <map>
+                <entry key="Sipgateway:name=management">
+                    <ref local="switjiAdmin"/>
+                </entry>
+                <entry key="Sipgateway:name=statistics">
+                    <ref local="switjiStats"/>
+                </entry>
+            </map>
+        </property>
+        <property name="assembler">
+            <bean
+                    class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
+                <property name="managedInterfaces">
+                    <list>
+                        <value>org.jinglenodes.stats.SwitjiAdmin</value>
+                        <value>org.jinglenodes.stats.SwitjiStats</value>
+                    </list>
+                </property>
+            </bean>
+        </property>
     </bean>
 
 </beans>
