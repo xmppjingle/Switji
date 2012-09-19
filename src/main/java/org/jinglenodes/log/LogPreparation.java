@@ -32,7 +32,7 @@ public class LogPreparation extends CallPreparation {
 
     @Override
     public boolean proceedInitiate(JingleIQ iq, CallSession session) {
-        log.info(_createLine(iq));
+        log.info(_createLine(iq, session));
         return true;
     }
 
@@ -40,9 +40,9 @@ public class LogPreparation extends CallPreparation {
         if (iq.getJingle() != null && iq.getJingle().getReason() != null) {
             final Reason.Type t = iq.getJingle().getReason().getType();
             return t == null ? DEFAULT_BLANK : t.toString();
-        }else if(iq.getJingle() != null && iq.getJingle().getInfo()!=null){
+        } else if (iq.getJingle() != null && iq.getJingle().getInfo() != null) {
             final Info.Type info = iq.getJingle().getInfo().getType();
-            return info == null ? DEFAULT_BLANK: info.toString();
+            return info == null ? DEFAULT_BLANK : info.toString();
         }
         return DEFAULT_BLANK;
     }
@@ -62,27 +62,38 @@ public class LogPreparation extends CallPreparation {
 
     @Override
     public boolean proceedTerminate(JingleIQ iq, CallSession session) {
-        log.info(_createLine(iq));
+        log.info(_createLine(iq, session));
         return true;
     }
 
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
-        log.info(_createLine(iq));
+        log.info(_createLine(iq, session));
         return true;
     }
 
     @Override
     public void proceedInfo(JingleIQ iq, CallSession session) {
-        log.info(_createLine(iq));
+        log.info(_createLine(iq, session));
     }
 
-    private String _createLine(final JingleIQ iq) {
+    private String _createLine(final JingleIQ iq, final CallSession session) {
         final Jingle j = iq.getJingle();
-        return _createLine(j.getAction(), j.getSid(), getReason(iq), j.getInitiator(), j.getResponder(), getIp(iq));
+        return _createLine(j.getAction(), j.getSid(), getReason(iq), j.getInitiator(), j.getResponder(), getIp(iq), _getElapsed(session));
     }
 
-    private String _createLine(final String action, final String sid, final String reasonType, final String initiator, final String responder, final String ip) {
+    private String _getElapsed(CallSession session) {
+        if (session != null) {
+            try {
+                return String.valueOf(System.currentTimeMillis() - session.getCreationTime());
+            } catch (Throwable t) {
+                // Do Nothing
+            }
+        }
+        return "-";
+    }
+
+    private String _createLine(final String action, final String sid, final String reasonType, final String initiator, final String responder, final String ip, final String elapsed) {
         final StringBuilder str = new StringBuilder();
         str.append(action).append("\t");
         str.append(sid).append("\t");
@@ -90,6 +101,7 @@ public class LogPreparation extends CallPreparation {
         str.append(responder).append("\t");
         str.append(reasonType).append("\t");
         str.append(ip).append("\t");
+        str.append(elapsed).append("\t");
         return str.toString();
     }
 
@@ -105,7 +117,7 @@ public class LogPreparation extends CallPreparation {
 
     @Override
     public void proceedSIPInfo(JingleIQ iq, CallSession session, SipChannel channel) {
-        log.info(_createLine(iq));
+        log.info(_createLine(iq, session));
     }
 
     @Override
@@ -115,13 +127,13 @@ public class LogPreparation extends CallPreparation {
 
     @Override
     public JingleIQ proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
-        log.info(_createLine(iq));
+        log.info(_createLine(iq, session));
         return iq;
     }
 
     @Override
     public JingleIQ proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
-        log.info(_createLine(iq));
+        log.info(_createLine(iq, session));
         return iq;
     }
 }

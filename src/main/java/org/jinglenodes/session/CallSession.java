@@ -73,6 +73,7 @@ public class CallSession {
     private AtomicInteger sentRequestsCounter = new AtomicInteger();
     private RelayIQ relayIQ;
     private boolean connected = false;
+    private long creationTime;
     private SessionCredit sessionCredit;
     @XStreamOmitField
     private SessionUpdateListener sessionUpdateListener;
@@ -81,6 +82,7 @@ public class CallSession {
         this.id = id;
         this.user.add(user);
         this.timestamp = System.currentTimeMillis();
+        this.creationTime = System.currentTimeMillis();
         preparations = new ConcurrentLinkedQueue<CallPreparation>();
         proceeds = new ConcurrentLinkedQueue<CallPreparation>();
     }
@@ -316,4 +318,7 @@ public class CallSession {
         this.startTime = startTime;
     }
 
+    public long getCreationTime() {
+        return creationTime;
+    }
 }

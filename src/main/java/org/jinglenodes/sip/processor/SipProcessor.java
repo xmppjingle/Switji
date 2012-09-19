@@ -559,6 +559,10 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
                 }
             }
 
+            if(to==null){
+                to = mainParticipants.getResponder();
+            }
+
             final int code = getCode(msg);
 
             final Reason reason = getReason(msg, code);
