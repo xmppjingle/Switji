@@ -70,7 +70,13 @@ public class ChargePreparation extends CallPreparation implements ResultReceiver
     }
 
     private void chargeCall(JingleIQ iq, CallSession session) {
-        if (session.getSessionCredit() != null && !session.getSessionCredit().isCharged()) {
+
+        if(session.getSessionCredit() == null){
+            final SessionCredit sessionCredit = new SessionCredit(SessionCredit.RouteType.pstn);
+            session.setSessionCredit(sessionCredit);
+        }
+
+        if (!session.getSessionCredit().isCharged()) {
             JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
             JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
             if (initiator != null && responder != null) {
@@ -91,6 +97,7 @@ public class ChargePreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
+        setSessionStartTime(session, System.currentTimeMillis());
         return true;
     }
 
@@ -140,6 +147,7 @@ public class ChargePreparation extends CallPreparation implements ResultReceiver
 
     @Override
     public JingleIQ proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
+        setSessionStartTime(session, System.currentTimeMillis());
         return iq;
     }
 
