@@ -204,7 +204,12 @@
     <dependency>
         <groupId>org.jinglenodes</groupId>
         <artifactId>sjbundle</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
+    </dependency>
+    <dependency>
+        <groupId>com.newrelic</groupId>
+        <artifactId>newrelic</artifactId>
+        <version>2.9.0</version>
     </dependency>
 </dependencies>
 </project>
