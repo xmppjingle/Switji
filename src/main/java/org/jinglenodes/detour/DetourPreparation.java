@@ -64,7 +64,7 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
     public boolean prepareInitiate(final JingleIQ iq, final CallSession session) {
         JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
 
-        if(!iq.getFrom().toFullJID().equals(iq.getJingle().getInitiator())){
+        if(!iq.getFrom().toString().equals(iq.getJingle().getInitiator())){
             prepareStatesManager.cancelCall(iq,session,new Reason(Reason.Type.security_error));
             return false;
         }

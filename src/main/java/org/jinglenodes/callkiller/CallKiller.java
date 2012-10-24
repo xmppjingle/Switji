@@ -48,6 +48,9 @@ public class CallKiller {
     private final ConcurrentTimelineHashMap<String, CallKillerTask> tasks = new ConcurrentTimelineHashMap<String, CallKillerTask>();
     private JingleProcessor jingleProcessor;
     protected ScheduledThreadPoolExecutor timerExecutor;
+    private long cleanCounter = 0;
+    private static long HOUR = 1000 * 60 * 60;
+    private static long PERIOD = 10000;
 
     public CallKiller() {
         timerExecutor = new ScheduledThreadPoolExecutor(5, new NamingThreadFactory("Call Killer Thread"));
@@ -74,9 +77,14 @@ public class CallKiller {
 
     public void cancelKill(final CallSession session) {
         log.warn("Cancelling Schedule for Killing Call: " + session.getId());
-        final CallKillerTask task = tasks.get(session.getId());
+        final CallKillerTask task = tasks.remove(session.getId());
         if (task != null) {
             timerExecutor.remove(task);
+        }
+        if (cleanCounter++ > PERIOD) {
+            cleanCounter = 0;
+            tasks.cleanUpExpired(2 * HOUR);
+            timerExecutor.purge();
         }
     }
 
@@ -104,6 +112,7 @@ public class CallKiller {
 
     public void immediateKill(final CallSession session, final Reason reason) {
         log.warn("Immediate Killing Call: " + session.getId());
+        cancelKill(session);
         final CallKillerTask task = new CallKillerTask(session, jingleProcessor, reason);
         timerExecutor.submit(task);
     }
@@ -112,8 +121,7 @@ public class CallKiller {
         int i = 0;
         for (final CallSession session : jingleProcessor.getCallSessionMapper().getSessions()) {
             log.warn("Immediate Killing Call(killAll): " + session.getId());
-            final CallKillerTask task = new CallKillerTask(session, jingleProcessor, reason);
-            timerExecutor.submit(task);
+            immediateKill(session, reason);
             i++;
         }
         return i;

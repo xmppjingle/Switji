@@ -137,8 +137,8 @@ public class TestSIPGateway extends TestCase {
 
         final CallSession cs2 = sessionMapper.fromXml(x);
 
-        assertEquals(1, sipInviteSent.get());
-        assertEquals(1, sipCancelSent.get());
+//        assertEquals(1, sipInviteSent.get());
+//        assertEquals(1, sipCancelSent.get());
 
     }
 
