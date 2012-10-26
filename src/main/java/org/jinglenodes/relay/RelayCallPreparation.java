@@ -58,6 +58,8 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     private SipPrepareStatesManager sipPrepareStatesManager;
     private ConcurrentTimelineHashMap<String, CallSession> sessions = new ConcurrentTimelineHashMap<String, CallSession>();
     private CallKiller callKiller;
+    private long lastCheck = System.currentTimeMillis();
+    public static long TIMEOUT = 60 * 1000 * 5;
 
     @Override
     public void receivedResult(final IqRequest iqRequest) {
@@ -91,6 +93,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     @Override
     public boolean prepareInitiate(JingleIQ iq, CallSession session) {
         JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
+        cleanUp();
         if (session.getRelayIQ() == null) {
             try {
                 relayServiceProcessor.queryService(iq, initiator.getNode(), initiator.getNode(), this);
@@ -100,6 +103,13 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
             return false;
         }
         return true;
+    }
+
+    private void cleanUp() {
+        if (System.currentTimeMillis() > lastCheck + TIMEOUT) {
+            lastCheck = System.currentTimeMillis();
+            sessions.cleanUpExpired(TIMEOUT);
+        }
     }
 
     @Override
@@ -155,6 +165,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
 
     @Override
     public JingleIQ proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
+        cleanUp();
         if (session != null) {
             log.debug("SIP Initiate Trying to Update Transport SIP...");
             if (session.getRelayIQ() != null) {
@@ -264,7 +275,6 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
                 callKiller.immediateKill(session, new Reason(Reason.Type.connectivity_error));
             }
         }
-
     }
 
     public CallKiller getCallKiller() {
