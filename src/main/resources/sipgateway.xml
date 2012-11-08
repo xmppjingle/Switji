@@ -74,7 +74,16 @@
 
     <bean id="numberFormatPreparation" class="org.jinglenodes.format.NumberFormatPreparation"/>
 
-    <bean id="callLogger" class="org.jinglenodes.log.LogPreparation"></bean>
+    <bean id="nodeFormatPreparation" class="org.jinglenodes.format.NodeFormatPreparation">
+        <property name="initiatorNodeFormat" ref="prefixNodeFormat"/>
+        <property name="responderNodeFormat" ref="prefixNodeFormat"/>
+    </bean>
+
+    <bean id="prefixNodeFormat" class="org.jinglenodes.prepare.PrefixNodeFormat">
+        <property name="prefix" value="${node.prefix}"/>
+    </bean>
+
+    <bean id="callLogger" class="org.jinglenodes.log.LogPreparation"/>
 
     <bean id="throttleManager" class="org.jinglenodes.sip.router.ThrottleManager">
         <constructor-arg index="0" value="120"/>

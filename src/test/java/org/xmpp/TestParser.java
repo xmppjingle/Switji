@@ -139,4 +139,8 @@ public class TestParser extends TestCase {
         System.out.println(m.toString());
     }
 
+
+    public void testJID(){
+        final JID j = new JID("#13290@test.com");
+    }
 }
