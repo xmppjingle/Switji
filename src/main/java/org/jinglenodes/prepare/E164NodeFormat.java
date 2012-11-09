@@ -10,16 +10,27 @@ import org.xmpp.packet.IQ;
  * To change this template use File | Settings | File Templates.
  */
 public class E164NodeFormat implements NodeFormat {
+
+    private String prefix = "+";
+
     @Override
     public String formatNode(final String node) {
         String nnode;
         if (node.indexOf("00") == 0) {
-            nnode = "+" + node.substring(2);
+            nnode = prefix + node.substring(2);
         } else if (node.charAt(0) != '+') {
-            nnode = "+" + node;
+            nnode = prefix + node;
         } else {
             nnode = node;
         }
         return nnode;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
     }
 }
