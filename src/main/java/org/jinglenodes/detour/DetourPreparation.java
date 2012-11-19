@@ -57,6 +57,7 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
     private PrepareStatesManager prepareStatesManager;
     private DetourServiceProcessor detourServiceProcessor;
     private String jinglePhoneType;
+    private String[] jinglePhoneTypes;
     private ExternalComponent externalComponent;
     private CallSessionMapper callSessions;
 
@@ -64,8 +65,8 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
     public boolean prepareInitiate(final JingleIQ iq, final CallSession session) {
         JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
 
-        if(!iq.getFrom().toString().equals(iq.getJingle().getInitiator())){
-            prepareStatesManager.cancelCall(iq,session,new Reason(Reason.Type.security_error));
+        if (!iq.getFrom().toString().equals(iq.getJingle().getInitiator())) {
+            prepareStatesManager.cancelCall(iq, session, new Reason(Reason.Type.security_error));
             return false;
         }
 
@@ -101,6 +102,7 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
             IQ error = IQ.createResultIQ(jiq);
             error.setType(IQ.Type.error);
             error.setError(PacketError.Condition.redirect);
+            error.setID(jiq.getID());
             final JID destinationJID = new JID(destinationNode, externalComponent.getServerDomain(), null);
             final Element child = error.getError().getElement();
             if (child != null) {
@@ -118,12 +120,14 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
         boolean isJingle = false;
         String destination = null;
         log.debug("Getting Jingle Destination of: " + res.toString());
-        for (Object o : res.getChildElement().elements()) {
-            Element e = (Element) o;
-            destination = e.attributeValue("number");
-            if (e.attributeValue("type").equals(jinglePhoneType)) {
-                isJingle = true;
-                break;
+        for (final String jingleType : jinglePhoneTypes) {
+            for (Object o : res.getChildElement().elements()) {
+                Element e = (Element) o;
+                destination = e.attributeValue("number");
+                if (jingleType.contains(e.attributeValue("type"))) {
+                    isJingle = true;
+                    break;
+                }
             }
         }
         return isJingle ? destination : null;
@@ -215,6 +219,7 @@ public class DetourPreparation extends CallPreparation implements ResultReceiver
 
     public void setJinglePhoneType(String jinglePhoneType) {
         this.jinglePhoneType = jinglePhoneType;
+        this.jinglePhoneTypes = jinglePhoneType.split(",");
     }
 
     public ExternalComponent getExternalComponent() {

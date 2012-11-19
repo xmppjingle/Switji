@@ -83,8 +83,9 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
                 iq.getJingle().setInitiator(sipFrom.toString());
             }
             final SipAccount account = accountServiceProcessor.getAccountProvider().getSipAccount(initiator);
-            if(account!=null){
-                iq.getJingle().setResponder(responder.getNode()+ "@" + account.getOutboundproxy());
+            if (account != null) {
+                iq.getJingle().setResponder(responder.getNode() + "@" + account.getOutboundproxy());
+                iq.getJingle().setInitiator(account.getDisplayName() + "@" + initiator.getDomain() + (initiator.getResource() == null ? "" : "/" + initiator.getResource()));
             }
         }
         return true;
@@ -186,7 +187,7 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
             final JID xmppTo = sipToJingleBind.getXmppTo(responder, null);
             if (xmppTo != null) {
                 iq.setTo(xmppTo);
-                iq.setFrom((JID)null);
+                iq.setFrom((JID) null);
             } else {
                 log.warn("Failed Fetching XmppTo from Account Service.");
             }
@@ -212,7 +213,7 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
             final JID xmppTo = sipToJingleBind.getXmppTo(responder, null);
             if (xmppTo != null) {
                 iq.setTo(xmppTo);
-                iq.setFrom((JID)null);
+                iq.setFrom((JID) null);
             } else {
                 log.warn("Failed Fetching XmppTo from Account Service.");
             }
