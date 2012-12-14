@@ -11,7 +11,7 @@ public class PrefixNodeFormat implements NodeFormat {
     private String prefix = "+";
 
     @Override
-    public String formatNode(final String node) {
+    public String formatNode(final String node, final String reference) {
         if (node == null) return node;
 
         String nnode;

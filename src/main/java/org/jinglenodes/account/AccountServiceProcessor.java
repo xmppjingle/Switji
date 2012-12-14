@@ -47,7 +47,7 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
     @Override
     public IQ createServiceRequest(Object object, String fromNode, String toNode) {
         final IQ request = new IQ(IQ.Type.get);
-        toNode = nodeFormat.formatNode(toNode);
+        toNode = nodeFormat.formatNode(toNode, fromNode);
         final JID toService = JIDFactory.getInstance().getJID(toNode + "@" + accountService);
         request.setTo(toService);
         request.setChildElement(requestElement.createCopy());

@@ -83,15 +83,15 @@ public class NodeFormatPreparation extends CallPreparation {
 
     private JingleIQ formatNumbers(JingleIQ iq) {
         log.debug("Formating iq: " + iq.toXML());
+        final JID ij = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
         if (responderNodeFormat != null) {
             final JID rj = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
-            String toNode = responderNodeFormat.formatNode(rj.getNode());
+            String toNode = responderNodeFormat.formatNode(rj.getNode(), ij.getNode());
             iq.getJingle().setResponder(toNode + "@" + rj.getDomain() + "/" + rj.getResource());
         }
 
         if (initiatorNodeFormat != null) {
-            final JID ij = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
-            String fromNode = initiatorNodeFormat.formatNode(ij.getNode());
+            String fromNode = initiatorNodeFormat.formatNode(ij.getNode(), null);
             iq.getJingle().setInitiator(fromNode + "@" + ij.getDomain() + "/" + ij.getResource());
         }
 

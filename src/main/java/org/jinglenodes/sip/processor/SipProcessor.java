@@ -836,7 +836,6 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         final List<String> values = new ArrayList<String>();
 
         for (final Payload payload : rtpDescription.getPayloads()) {
-//            if (i == 0 || !payload.getId().equals(Payload.G729.getId())) {
             ids[i++] = Integer.parseInt(payload.getId());
             names.add("rtpmap");
             values.add(payload.getId() + " " + payload.getName() + (payload.getClockrate() > -1 ? "/" + payload.getClockrate() : "") + (payload.getChannels() > -1 ? "/" + payload.getChannels() : ""));
@@ -846,8 +845,12 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
                 names.add("fmtp");
                 values.add(String.valueOf(payload.getId()) + " annexb=no");
             }
-//            }
         }
+
+        //TODO Remove Test
+        //names.add("rtpmap");
+        //values.add("101" + " " + "telephone-event" + "/" + "8000");
+        //END TODO
 
         if (transport.getCandidates().size() < 1) {
             throw new SdpException("No Transports Found in Jingle Packet.");

@@ -64,7 +64,7 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
     public IQ createServiceRequest(Object object, String fromNode, String toNode) {
         if (object instanceof JingleIQ) {
             final IQ request = new IQ(IQ.Type.set);
-            toNode = nodeFormat.formatNode(toNode);
+            toNode = nodeFormat.formatNode(toNode, fromNode);
             final JID to = JIDFactory.getInstance().getJID(null, creditService, null);
             final JID from = JIDFactory.getInstance().getJID(fromNode, this.getComponentJID().getDomain(), null);
             final JingleIQ jingleIQ = (JingleIQ) object;

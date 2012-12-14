@@ -1,5 +1,8 @@
 package org.jinglenodes.prepare;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import org.xmpp.packet.IQ;
 
 /**
@@ -11,26 +14,23 @@ import org.xmpp.packet.IQ;
  */
 public class E164NodeFormat implements NodeFormat {
 
-    private String prefix = "+";
-
     @Override
-    public String formatNode(final String node) {
-        String nnode;
+    public String formatNode(final String node, final String reference) {
+        String nnode = node;
+        PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+        Phonenumber.PhoneNumber toNumberProto = null;
         if (node.indexOf("00") == 0) {
-            nnode = prefix + node.substring(2);
-        } else if (node.charAt(0) != '+') {
-            nnode = prefix + node;
-        } else {
-            nnode = node;
+            nnode = "+" + node.substring(2);
+        }
+        try {
+            toNumberProto = phoneUtil.parse(node, "EN");
+        } catch (NumberParseException e) {
+            System.err.println("NumberParseException was thrown: " + e.toString());
+        }
+        if (null != toNumberProto && phoneUtil.isValidNumber(toNumberProto)) {
+            nnode = phoneUtil.format(toNumberProto, PhoneNumberUtil.PhoneNumberFormat.E164);
         }
         return nnode;
     }
 
-    public String getPrefix() {
-        return prefix;
-    }
-
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
 }

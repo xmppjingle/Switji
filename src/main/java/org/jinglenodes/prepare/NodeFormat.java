@@ -9,6 +9,6 @@ package org.jinglenodes.prepare;
  */
 public interface NodeFormat {
 
-    public String formatNode(final String node);
+    public String formatNode(final String node, final String reference);
 
 }
