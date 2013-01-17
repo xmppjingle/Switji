@@ -34,6 +34,8 @@ public class SessionCredit {
     private int maxDurationInSeconds = 30;
     private RouteType routeType = RouteType.ip;
     private boolean charged = false;
+    private String initiator;
+    private String responder;
 
     public SessionCredit(RouteType routeType) {
         this.routeType = routeType;
@@ -61,6 +63,22 @@ public class SessionCredit {
 
     public void setCharged(boolean charged) {
         this.charged = charged;
+    }
+
+    public String getInitiator() {
+        return initiator;
+    }
+
+    public void setInitiator(String initiator) {
+        this.initiator = initiator;
+    }
+
+    public String getResponder() {
+        return responder;
+    }
+
+    public void setResponder(String responder) {
+        this.responder = responder;
     }
 
     public enum RouteType {

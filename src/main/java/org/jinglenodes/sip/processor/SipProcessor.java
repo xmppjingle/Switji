@@ -559,7 +559,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
                 }
             }
 
-            if(to==null){
+            if (to == null) {
                 to = mainParticipants.getResponder();
             }
 

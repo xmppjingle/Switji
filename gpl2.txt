@@ -84,7 +84,7 @@ concluded that weaker conditions might promote sharing better.
 users of those programs of all benefit from the free status of the
 libraries themselves.  This Library General Public License is intended to
 permit developers of non-free programs to use free libraries, while
-preserving your freedom as a user of such programs to change the free
+preserving your freedom as a initiator of such programs to change the free
 libraries that are incorporated in them.  (We have not seen how to achieve
 this as regards changes in header files, but we have achieved it as regards
 changes in the actual functions of the Library.)  The hope is that this
@@ -267,7 +267,7 @@ Library is used in it and that the Library and its use are covered by
 this License.  You must supply a copy of this License.  If the work
 during execution displays copyright notices, you must include the
 copyright notice for the Library among them, as well as a reference
-directing the user to the copy of this License.  Also, you must do one
+directing the initiator to the copy of this License.  Also, you must do one
 of these things:
 
     a) Accompany the work with the complete corresponding
@@ -276,14 +276,14 @@ of these things:
     Sections 1 and 2 above); and, if the work is an executable linked
     with the Library, with the complete machine-readable "work that
     uses the Library", as object code and/or source code, so that the
-    user can modify the Library and then relink to produce a modified
+    initiator can modify the Library and then relink to produce a modified
     executable containing the modified Library.  (It is understood
-    that the user who changes the contents of definitions files in the
+    that the initiator who changes the contents of definitions files in the
     Library will not necessarily be able to recompile the application
     to use the modified definitions.)
 
     b) Accompany the work with a written offer, valid for at
-    least three years, to give the same user the materials
+    least three years, to give the same initiator the materials
     specified in Subsection 6a, above, for a charge no more
     than the cost of performing this distribution.
 
@@ -291,8 +291,8 @@ of these things:
     from a designated place, offer equivalent access to copy the above
     specified materials from the same place.
 
-    d) Verify that the user has already received a copy of these
-    materials or that you have already sent this user a copy.
+    d) Verify that the initiator has already received a copy of these
+    materials or that you have already sent this initiator a copy.
 
   For an executable, the required form of the "work that uses the
 Library" must include any data and utility programs needed for

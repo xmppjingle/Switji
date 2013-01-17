@@ -25,10 +25,7 @@
 package org.jinglenodes.credit;
 
 import org.apache.log4j.Logger;
-import org.jinglenodes.callkiller.CallKiller;
-import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.prepare.CallPreparation;
-import org.jinglenodes.prepare.PrepareStatesManager;
 import org.jinglenodes.session.CallSession;
 import org.xmpp.component.IqRequest;
 import org.xmpp.component.ResultReceiver;
@@ -71,14 +68,14 @@ public class ChargePreparation extends CallPreparation implements ResultReceiver
 
     private void chargeCall(JingleIQ iq, CallSession session) {
 
-        if(session.getSessionCredit() == null){
+        if (session.getSessionCredit() == null) {
             final SessionCredit sessionCredit = new SessionCredit(SessionCredit.RouteType.pstn);
             session.setSessionCredit(sessionCredit);
         }
 
         if (!session.getSessionCredit().isCharged()) {
-            JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
-            JID responder = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
+            JID initiator = JIDFactory.getInstance().getJID(session.getSessionCredit().getInitiator() != null ? session.getSessionCredit().getInitiator() : iq.getJingle().getInitiator());
+            JID responder = JIDFactory.getInstance().getJID(session.getSessionCredit().getResponder() != null ? session.getSessionCredit().getResponder() : iq.getJingle().getResponder());
             if (initiator != null && responder != null) {
                 if (chargeServiceProcessor != null) {
                     try {

@@ -73,11 +73,22 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
             request.setChildElement(requestElement.createCopy());
             final String toBareJid = JIDFactory.getInstance().getJID(toNode, creditService, null).toBareJID();
 
+            SessionCredit sessionCredit = new SessionCredit(SessionCredit.RouteType.ip);
+            sessionCredit.setMaxDurationInSeconds(0);
+            sessionCredit.setInitiator(from.toBareJID());
+            sessionCredit.setResponder(toBareJid);
+
+            final CallSession session = sessionMapper.getSession(jingleIQ);
+            if (session != null) {
+                session.setSessionCredit(sessionCredit);
+            }
+
             final Element e = request.getChildElement();
-            e.addAttribute("initiator", from.toBareJID());
-            e.addAttribute("responder", toBareJid);
+            e.addAttribute("initiator", sessionCredit.getInitiator());
+            e.addAttribute("responder", sessionCredit.getResponder());
             e.addAttribute("sid", jingleIQ.getJingle().getSid());
             log.debug("createCreditRequest: " + request.toXML());
+
             return request;
         }
         return null;
@@ -98,8 +109,7 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
             log.debug("Credit Value Received: " + iq.getResult().toXML());
             final CallSession session = sessionMapper.getSession((JingleIQ) iq.getOriginalPacket());
             if (session != null) {
-                final SessionCredit sessionCredit = getSessionCredit(iq.getResult());
-                session.setSessionCredit(sessionCredit);
+                final SessionCredit sessionCredit = getSessionCredit(iq.getResult(), session.getSessionCredit());
             }
         }
     }
@@ -108,17 +118,18 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
       * Create the SessionCredit
       * the information retrieved from the iq
       */
-    protected SessionCredit getSessionCredit(final IQ iq) {
+    protected SessionCredit getSessionCredit(final IQ iq, final SessionCredit sessionCredit) {
         String maxseconds = null;
         String type = null;
-        SessionCredit sessionCredit = new SessionCredit(SessionCredit.RouteType.ip);
-        sessionCredit.setMaxDurationInSeconds(0);
+        String user = null;
 
         log.debug("Get Credit Value Received: " + iq.toXML());
 
         final Element e = iq.getChildElement();
         maxseconds = e.attributeValue("maxseconds");
         type = e.attributeValue("type");
+        user = e.attributeValue("initiator");
+
         if (maxseconds != null && type != null) {
             try {
                 final int seconds = Integer.parseInt(maxseconds);

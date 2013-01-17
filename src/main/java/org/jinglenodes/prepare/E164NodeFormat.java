@@ -3,6 +3,7 @@ package org.jinglenodes.prepare;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
+import org.apache.log4j.Logger;
 import org.xmpp.packet.IQ;
 
 /**
@@ -13,6 +14,7 @@ import org.xmpp.packet.IQ;
  * To change this template use File | Settings | File Templates.
  */
 public class E164NodeFormat implements NodeFormat {
+    private static final Logger log = Logger.getLogger(E164NodeFormat.class);
 
     @Override
     public String formatNode(final String node, final String reference) {
@@ -23,9 +25,9 @@ public class E164NodeFormat implements NodeFormat {
             nnode = "+" + node.substring(2);
         }
         try {
-            toNumberProto = phoneUtil.parse(node, "EN");
+            toNumberProto = phoneUtil.parse(nnode, "EN");
         } catch (NumberParseException e) {
-            System.err.println("NumberParseException was thrown: " + e.toString());
+            log.error("NumberParseException was thrown: " + node, e);
         }
         if (null != toNumberProto && phoneUtil.isValidNumber(toNumberProto)) {
             nnode = phoneUtil.format(toNumberProto, PhoneNumberUtil.PhoneNumberFormat.E164);
