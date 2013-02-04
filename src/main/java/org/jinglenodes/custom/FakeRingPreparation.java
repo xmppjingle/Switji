@@ -1,14 +1,22 @@
 package org.jinglenodes.custom;
 
+import org.apache.log4j.Logger;
+import org.jinglenodes.jingle.Info;
+import org.jinglenodes.jingle.Jingle;
+import org.jinglenodes.jingle.processor.JingleProcessor;
+import org.jinglenodes.jingle.processor.JingleSipException;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.session.CallSession;
+import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.SipChannel;
 
 public class FakeRingPreparation extends CallPreparation {
+    private static final Logger log = Logger.getLogger(FakeRingPreparation.class);
 
-    private int sleepTime=5;
+    private int sleepTime = 5;
+    private JingleProcessor jingleProcessor;
 
     @Override
     public boolean prepareInitiate(JingleIQ iq, CallSession session) {
@@ -41,6 +49,15 @@ public class FakeRingPreparation extends CallPreparation {
 
     @Override
     public JingleIQ proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
+
+        try {
+            final JingleIQ ring = JingleProcessor.createJingleSessionInfo(new JID(iq.getJingle().getSid()), new JID(iq.getJingle().getInitiator()), iq.getFrom().toString(), iq.getJingle().getSid(), Info.Type.ringing);
+            ring.setFrom(iq.getTo());
+            jingleProcessor.processIQ(ring);
+        } catch (JingleSipException e) {
+            log.warn("Failed to create Ringing", e);
+        }
+
         return iq;
     }
 
@@ -69,5 +86,13 @@ public class FakeRingPreparation extends CallPreparation {
 
     public void setSleepTime(int sleepTime) {
         this.sleepTime = sleepTime;
+    }
+
+    public JingleProcessor getJingleProcessor() {
+        return jingleProcessor;
+    }
+
+    public void setJingleProcessor(JingleProcessor jingleProcessor) {
+        this.jingleProcessor = jingleProcessor;
     }
 }
