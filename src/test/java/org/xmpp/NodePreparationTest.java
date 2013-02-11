@@ -65,9 +65,27 @@ public class NodePreparationTest extends TestCase {
         // Test No Overlaps
         noPreparation.proceedInitiate(noIq, null);
 
+        System.out.println(noIq.getJingle().getInitiator());
+    }
+
+    public void testCompareE164NoPrefix() {
+
+        final E164NodeFormat prefixFormat = new E164NodeFormat();
+
+        noPreparation.setInitiatorNodeFormat(prefixFormat);
+        noPreparation.setResponderNodeFormat(prefixFormat);
+
+        final JingleIQ noIq = TestSIPGateway.fakeJingleInitiate("34660555333@test.com", "0034660555444@test.com", "0034660555444@sip.test.com", "abc");
+
+        noPreparation.proceedInitiate(noIq, null);
+
+        assertEquals("+34660555333", new JID(noIq.getJingle().getInitiator()).getNode());
+        assertEquals("+34660555444", new JID(noIq.getJingle().getResponder()).getNode());
+
+        // Test No Overlaps
+        noPreparation.proceedInitiate(noIq, null);
 
         System.out.println(noIq.getJingle().getInitiator());
-
     }
 
 }

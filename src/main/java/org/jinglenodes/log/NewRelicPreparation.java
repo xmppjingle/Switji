@@ -1,6 +1,5 @@
 package org.jinglenodes.log;
 
-import com.newrelic.api.agent.NewRelic;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.session.CallSession;
 import org.xmpp.tinder.JingleIQ;

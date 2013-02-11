@@ -29,9 +29,6 @@ import org.jinglenodes.jingle.processor.JingleException;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.header.CallIdHeader;
-import org.zoolu.sip.header.FromHeader;
-import org.zoolu.sip.header.ToHeader;
-import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.Participants;
 import org.zoolu.sip.message.SipParsingException;
@@ -41,8 +38,6 @@ import org.zoolu.tools.NamingThreadFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 

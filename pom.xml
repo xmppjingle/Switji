@@ -216,10 +216,10 @@
         <artifactId>sjbundle</artifactId>
         <version>1.0.4</version>
     </dependency>
-    <dependency>
-        <groupId>com.newrelic</groupId>
-        <artifactId>newrelic</artifactId>
-        <version>2.9.0</version>
-    </dependency>
+    <!--<dependency>-->
+        <!--<groupId>com.newrelic</groupId>-->
+        <!--<artifactId>newrelic</artifactId>-->
+        <!--<version>2.9.0</version>-->
+    <!--</dependency>-->
 </dependencies>
 </project>

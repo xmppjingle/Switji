@@ -7,7 +7,6 @@ import org.dom4j.Namespace;
 import org.dom4j.QName;
 import org.jinglenodes.prepare.NodeFormat;
 import org.jinglenodes.sip.CachedSipToJingleBind;
-import org.jinglenodes.sip.SipToJingleBind;
 import org.jinglenodes.sip.account.CachedSipAccountProvider;
 import org.jinglenodes.sip.account.SipAccount;
 import org.xmpp.component.AbstractServiceProcessor;

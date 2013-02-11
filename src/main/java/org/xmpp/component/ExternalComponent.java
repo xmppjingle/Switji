@@ -3,7 +3,6 @@ package org.xmpp.component;
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
-import org.jinglenodes.sip.router.ThrottleManager;
 import org.jivesoftware.whack.ExternalComponentManager;
 import org.xmpp.packet.*;
 import org.xmpp.packet.PacketError.Condition;

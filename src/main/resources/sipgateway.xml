@@ -65,9 +65,14 @@
                 <ref bean="accountPreparation"/>
                 <!--<ref bean="relayPreparation"/>-->
                 <ref bean="chargePreparation"/>
+                <ref bean="fakeRing"/>
                 <!--<ref bean="numberFormatPreparation"/>-->
             </list>
         </property>
+    </bean>
+
+    <bean id="fakeRing" class="org.jinglenodes.custom.FakeRingPreparation">
+        <property name="jingleProcessor" ref="jingleProcessor"/>
     </bean>
 
     <bean id="nodeFormat" class="org.jinglenodes.prepare.E164NodeFormat"/>

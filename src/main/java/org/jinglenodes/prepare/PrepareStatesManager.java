@@ -27,8 +27,6 @@ package org.jinglenodes.prepare;
 import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.session.CallSession;
 import org.xmpp.tinder.JingleIQ;
-import org.zoolu.sip.message.Message;
-import org.zoolu.sip.message.SipChannel;
 
 /**
  * Created by IntelliJ IDEA.

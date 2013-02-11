@@ -2,7 +2,6 @@ package org.jinglenodes.custom;
 
 import org.apache.log4j.Logger;
 import org.jinglenodes.jingle.Info;
-import org.jinglenodes.jingle.Jingle;
 import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.jingle.processor.JingleSipException;
 import org.jinglenodes.prepare.CallPreparation;
@@ -51,7 +50,8 @@ public class FakeRingPreparation extends CallPreparation {
     public JingleIQ proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
 
         try {
-            final JingleIQ ring = JingleProcessor.createJingleSessionInfo(new JID(iq.getJingle().getSid()), new JID(iq.getJingle().getInitiator()), iq.getFrom().toString(), iq.getJingle().getSid(), Info.Type.ringing);
+            log.debug("Fake Ring on IQ:" + iq.toXML());
+            final JingleIQ ring = JingleProcessor.createJingleSessionInfo(new JID(iq.getJingle().getSid()), new JID(iq.getJingle().getInitiator()), iq.getFrom() != null ? iq.getFrom().toString() : null, iq.getJingle().getSid(), Info.Type.ringing);
             ring.setFrom(iq.getTo());
             jingleProcessor.processIQ(ring);
         } catch (JingleSipException e) {

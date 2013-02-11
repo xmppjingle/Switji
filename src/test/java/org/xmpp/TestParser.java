@@ -10,7 +10,6 @@ import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.content.Content;
 import org.jinglenodes.jingle.description.Description;
 import org.jinglenodes.jingle.description.Payload;
-import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.jingle.processor.JingleSipException;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;

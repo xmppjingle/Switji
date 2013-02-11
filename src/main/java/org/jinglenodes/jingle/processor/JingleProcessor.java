@@ -49,7 +49,10 @@ import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.address.SipURL;
 import org.zoolu.sip.header.ContactHeader;
 import org.zoolu.sip.header.StatusLine;
-import org.zoolu.sip.message.*;
+import org.zoolu.sip.message.JIDFactory;
+import org.zoolu.sip.message.Message;
+import org.zoolu.sip.message.Participants;
+import org.zoolu.sip.message.SipParsingException;
 import org.zoolu.sip.provider.SipProviderInfoInterface;
 
 import javax.sdp.SdpException;

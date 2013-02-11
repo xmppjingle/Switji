@@ -38,7 +38,6 @@ import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.MessageFactory;
 import org.zoolu.sip.message.SipChannel;
 import org.zoolu.sip.provider.SipProviderInfoInterface;
-import org.zoolu.sip.provider.SipProviderInformation;
 import org.zoolu.tools.NamingThreadFactory;
 
 import java.io.IOException;

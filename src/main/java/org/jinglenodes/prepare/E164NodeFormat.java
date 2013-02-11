@@ -4,7 +4,6 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import org.apache.log4j.Logger;
-import org.xmpp.packet.IQ;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,6 +23,11 @@ public class E164NodeFormat implements NodeFormat {
         if (node.indexOf("00") == 0) {
             nnode = "+" + node.substring(2);
         }
+
+        if(nnode.indexOf("+") != 0){
+            nnode = "+" + node;
+        }
+
         try {
             toNumberProto = phoneUtil.parse(nnode, "EN");
         } catch (NumberParseException e) {
