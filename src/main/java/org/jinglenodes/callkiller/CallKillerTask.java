@@ -28,6 +28,7 @@ import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.processor.JingleException;
 import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.session.CallSession;
+import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 
 /**
@@ -53,21 +54,27 @@ public class CallKillerTask implements Runnable {
     public void run() {
         if (session != null) {
             if (session.isActive()) {
-                log.warn("Killing Call: " + session.getId() + " Proceeds: "+ session.getProceeds().size());
-                try{
-                //jingleProcessor.sendSipTermination(session.getInitiateIQ(), session);
-                final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(session.getInitiateIQ(), reason);
+                log.warn("Killing Call: " + session.getId() + " Proceeds: " + session.getProceeds().size());
                 try {
-                    jingleProcessor.processJingle(terminationIQ);
-                } catch (JingleException e) {
-                    log.error("Failed to Force Termination Process", e);
-                }
-                jingleProcessor.send(terminationIQ);
-                }catch (Exception e){
+                    //jingleProcessor.sendSipTermination(session.getInitiateIQ(), session);
+                    final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(session.getInitiateIQ(), reason);
+                    try {
+                        jingleProcessor.processJingle(terminationIQ);
+                    } catch (JingleException e) {
+                        log.error("Failed to Force Termination Process", e);
+                    }
+                    final JingleIQ backTerminationIQ = JingleProcessor.createJingleTermination(session.getInitiateIQ(), reason);
+                    backTerminationIQ.setTo(session.getInitiateIQ().getFrom());
+                    backTerminationIQ.setFrom((JID) null);
+                    log.debug("Call Killer Back Terminate: " + backTerminationIQ.toString());
+                    log.debug("Call Killer Terminate: " + terminationIQ.toString());
+                    jingleProcessor.send(backTerminationIQ);
+                    jingleProcessor.send(terminationIQ);
+                } catch (Exception e) {
                     log.error("Could not Kill Properly Call: " + session.getId(), e);
                 }
             }
-        }else{
+        } else {
             log.warn("Unable to kill null Session");
         }
     }
