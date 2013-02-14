@@ -896,6 +896,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
 
     public static Message createSipOk(final Message request, final String fromTag, final SipProviderInfoInterface sipProvider) throws JingleSipException {
         final String contact = getContact(request.getToHeader().getNameAddress().getAddress().getUserName(), sipProvider);
+        log.debug("Contact Created: "+ contact);
         return MessageFactory.createResponse(request, 200, SipResponses.reasonOf(200), fromTag, new NameAddress(contact), "audio", "");
     }
 
