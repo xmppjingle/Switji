@@ -112,6 +112,7 @@ public class LogPreparation extends CallPreparation {
 
     @Override
     public JingleIQ proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
+        log.info(_createLine(iq, session));
         return iq;
     }
 
