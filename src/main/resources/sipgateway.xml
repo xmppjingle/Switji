@@ -103,6 +103,7 @@
         <property name="sipProviderInfo" ref="sipProviderInfo"/>
         <property name="sipToJingleBind" ref="sipToJingleMapper"/>
         <property name="throttleManager" ref="throttleManager"/>
+        <!--<property name="sipTagAdapter" ref="fixedTag"/>-->
         <property name="preparations">
             <list>
                 <ref bean="callLogger"/>
@@ -115,6 +116,8 @@
             </list>
         </property>
     </bean>
+
+    <!--<bean id="fixedTag" class="org.jinglenodes.jingle.processor.FixedSipTagAdapter"></bean>-->
 
     <bean id="callKiller" class="org.jinglenodes.callkiller.CallKiller">
         <property name="jingleProcessor" ref="jingleProcessor"/>

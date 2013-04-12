@@ -68,6 +68,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     private GatewayRouter gatewayRouter;
     private SipProviderInfoInterface sipProviderInfo;
     private ThrottleManager throttleManager;
+    private SipTagAdapter sipTagAdapter = new DefaultSipTagAdapter();
 
     private List<CallPreparation> preparations = new ArrayList<CallPreparation>();
 
@@ -267,7 +268,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
                 throw new JingleSipException("No Request Found.");
             }
 
-            final Message ok = SipProcessor.createSipOk(request, JIDFactory.getInstance().getJID(iq.getJingle().getResponder()).getResource(), sipProviderInfo);
+            final Message ok = SipProcessor.createSipOk(request, sipTagAdapter.getTagFromJID(JIDFactory.getInstance().getJID(iq.getJingle().getResponder())), sipProviderInfo);
 
             if (iq.getJingle().getContent() != null) {
                 try {
@@ -426,7 +427,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
             log.debug("Generating Ringing for: " + request.toString());
 
-            final Message ringing = SipProcessor.createSipRinging(request, responder, iq.getFrom().getResource(), sipProviderInfo);
+            final Message ringing = SipProcessor.createSipRinging(request, responder, sipTagAdapter.getTagFromJID(iq.getFrom()), sipProviderInfo);
             ringing.setSendTo(callSession.getLastReceivedRequest().getSendTo());
             ringing.setArrivedAt(callSession.getLastReceivedRequest().getArrivedAt());
             callSessionMapper.getSession(iq).addSentResponse(ringing);
@@ -613,5 +614,13 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
     public void setThrottleManager(ThrottleManager throttleManager) {
         this.throttleManager = throttleManager;
+    }
+
+    public SipTagAdapter getSipTagAdapter() {
+        return sipTagAdapter;
+    }
+
+    public void setSipTagAdapter(SipTagAdapter sipTagAdapter) {
+        this.sipTagAdapter = sipTagAdapter;
     }
 }
