@@ -24,6 +24,7 @@
 
 package org.jinglenodes.relay;
 
+import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import org.apache.log4j.Logger;
 import org.jinglenodes.callkiller.CallKiller;
 import org.jinglenodes.jingle.Reason;
@@ -42,7 +43,13 @@ import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.SipChannel;
 import org.zoolu.sip.message.SipParsingException;
-import org.zoolu.tools.ConcurrentTimelineHashMap;
+import org.zoolu.tools.NamingThreadFactory;
+
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by IntelliJ IDEA.
@@ -56,9 +63,17 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     private RelayServiceProcessor relayServiceProcessor;
     private PrepareStatesManager prepareStatesManager;
     private SipPrepareStatesManager sipPrepareStatesManager;
-    private ConcurrentTimelineHashMap<String, CallSession> sessions = new ConcurrentTimelineHashMap<String, CallSession>();
+    private final ExecutorService service = Executors.newSingleThreadExecutor(
+            new NamingThreadFactory("cleanUpRelayCallPreparation"));
+
+
+    private final ConcurrentLinkedHashMap<String, CallSession> sessions =
+            new ConcurrentLinkedHashMap.Builder<String, CallSession>()
+            .maximumWeightedCapacity(10000)
+            .build();
+
     private CallKiller callKiller;
-    private long lastCheck = System.currentTimeMillis();
+    private AtomicLong lastCheck = new AtomicLong(System.currentTimeMillis());
     public static long TIMEOUT = 60 * 1000 * 5;
 
     @Override
@@ -106,9 +121,20 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     }
 
     private void cleanUp() {
-        if (System.currentTimeMillis() > lastCheck + TIMEOUT) {
-            lastCheck = System.currentTimeMillis();
-            sessions.cleanUpExpired(TIMEOUT);
+
+        final long now = System.currentTimeMillis();
+        if (now > lastCheck.get() + TIMEOUT &&
+                now > lastCheck.getAndSet(now) + TIMEOUT) {
+            service.execute(new Runnable() {
+                @Override
+                public void run() {
+                    for (Map.Entry<String, CallSession> s: sessions.entrySet()) {
+                        if (System.currentTimeMillis() - s.getValue().getCreationTime() > TIMEOUT) {
+                            sessions.remove(s.getKey());
+                        }
+                    }
+                }
+            });
         }
     }
 

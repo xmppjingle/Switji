@@ -24,6 +24,8 @@
 
 package org.jinglenodes.session;
 
+import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
+import com.googlecode.concurrentlinkedhashmap.EvictionListener;
 import org.apache.log4j.Logger;
 import org.jinglenodes.jingle.processor.JingleException;
 import org.xmpp.packet.JID;
@@ -32,7 +34,6 @@ import org.zoolu.sip.header.CallIdHeader;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.Participants;
 import org.zoolu.sip.message.SipParsingException;
-import org.zoolu.tools.ConcurrentTimelineHashMap;
 import org.zoolu.tools.NamingThreadFactory;
 
 import java.util.ArrayList;
@@ -50,7 +51,16 @@ import java.util.concurrent.TimeUnit;
  */
 public class DefaultCallSessionMapper implements CallSessionMapper {
     final private static Logger log = Logger.getLogger(DefaultCallSessionMapper.class);
-    final protected ConcurrentTimelineHashMap<String, CallSession> sessionMap = new ConcurrentTimelineHashMap<String, CallSession>();
+
+    final protected ConcurrentLinkedHashMap<String, CallSession> sessionMap = new ConcurrentLinkedHashMap.Builder<String, CallSession>()
+            .maximumWeightedCapacity(20000)
+            .listener(new EvictionListener<String, CallSession>() {
+                @Override
+                public void onEviction(String s, CallSession callSession) {
+                    log.warn("Call session ["+s+"] object EVICTION: "+callSession);
+                }
+            })
+            .build();
     final protected ScheduledThreadPoolExecutor purgeTimer;
     final private int maxSessionTtl; // in Seconds
     final private int unfinishedSessionTtl;

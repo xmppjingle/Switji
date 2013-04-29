@@ -321,4 +321,34 @@ public class CallSession {
     public long getCreationTime() {
         return creationTime;
     }
+
+    @Override
+    public String toString() {
+        return "CallSession{" +
+                "id='" + id + '\'' +
+                ", user=" + user +
+                ", lastSentRequest=" + lastSentRequest +
+                ", lastSentResponse=" + lastSentResponse +
+                ", lastReceivedRequest=" + lastReceivedRequest +
+                ", lastReceivedResponse=" + lastReceivedResponse +
+                ", lastMessage=" + lastMessage +
+                ", sentJingle=" + sentJingle +
+                ", receivedJingle=" + receivedJingle +
+                ", initiateIQ=" + initiateIQ +
+                ", preparations=" + preparations +
+                ", proceeds=" + proceeds +
+                ", userContactBind=" + userContactBind +
+                ", retries=" + retries +
+                ", timestamp=" + timestamp +
+                ", startTime=" + startTime +
+                ", finishTime=" + finishTime +
+                ", active=" + active +
+                ", sentRequestsCounter=" + sentRequestsCounter +
+                ", relayIQ=" + relayIQ +
+                ", connected=" + connected +
+                ", creationTime=" + creationTime +
+                ", sessionCredit=" + sessionCredit +
+                ", sessionUpdateListener=" + sessionUpdateListener +
+                '}';
+    }
 }

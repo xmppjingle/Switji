@@ -1,6 +1,7 @@
 package org.xmpp.component;
 
 import org.apache.log4j.Logger;
+import org.jinglenodes.util.ConcurrentExpirableHashMap;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.PacketError;
@@ -18,12 +19,17 @@ import java.util.List;
 public abstract class AbstractServiceProcessor implements NamespaceProcessor {
     static final Logger log = Logger.getLogger(AbstractServiceProcessor.class);
     protected ExternalComponent component;
-    private final ConcurrentTimelineHashMap<String, IqRequest> pendingService = new ConcurrentTimelineHashMap<String, IqRequest>();
-    private final ConcurrentTimelineHashMap<String, IqRequest> pendingServiceResult = new ConcurrentTimelineHashMap<String, IqRequest>();
+
     private int maxTries = 3;
     private long timeout = 15000;
     private int timeoutInterval = 100;
     private int requestCounter = 0;
+
+    private final ConcurrentExpirableHashMap<String, IqRequest> pendingService =
+            new ConcurrentExpirableHashMap<String, IqRequest>();
+
+    private final ConcurrentExpirableHashMap<String, IqRequest> pendingServiceResult =
+            new ConcurrentExpirableHashMap<String, IqRequest>();
 
     public void init() {
         if (component != null) {

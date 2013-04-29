@@ -24,6 +24,7 @@
 
 package org.jinglenodes.sip.router;
 
+import org.jinglenodes.util.ConcurrentExpirableHashMap;
 import org.zoolu.tools.ConcurrentTimelineHashMap;
 
 import java.net.InetSocketAddress;
@@ -32,17 +33,16 @@ import java.net.SocketAddress;
 public class CachedAddressResolver {
 
     private static final CachedAddressResolver ourInstance = new CachedAddressResolver();
-    private long timeout = 3600L;
-    private final ConcurrentTimelineHashMap<String, SocketAddress> cachedAddresses;
-    private final TimelineCleanUpTimer cleanUpTimer;
+    private long timeout = 3600 * 1000;
+
+    private final ConcurrentExpirableHashMap<String, SocketAddress> cachedAddresses;
 
     public static CachedAddressResolver getInstance() {
         return ourInstance;
     }
 
     private CachedAddressResolver() {
-        this.cachedAddresses = new ConcurrentTimelineHashMap<String, SocketAddress>();
-        this.cleanUpTimer = new TimelineCleanUpTimer(cachedAddresses, timeout);
+        this.cachedAddresses = new ConcurrentExpirableHashMap<String, SocketAddress>(2000,timeout);
     }
 
     public SocketAddress getSIPSocketAddress(final String address, int port) {
@@ -82,14 +82,6 @@ public class CachedAddressResolver {
 
         return getSIPSocketAddress(ipPort[0], port);
 
-    }
-
-    public TimelineCleanUpTimer getCleanUpTimer() {
-        return cleanUpTimer;
-    }
-
-    public void quit() {
-        cleanUpTimer.shutdown();
     }
 
     public void cleanUp() {

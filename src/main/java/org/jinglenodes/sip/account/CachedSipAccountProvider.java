@@ -25,6 +25,7 @@
 package org.jinglenodes.sip.account;
 
 
+import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import org.xmpp.packet.JID;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +35,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CachedSipAccountProvider implements SipAccountProvider {
 
-    private final ConcurrentHashMap<String, SipAccount> cachedAccounts = new ConcurrentHashMap<String, SipAccount>();
+    private final ConcurrentLinkedHashMap<String, SipAccount> cachedAccounts = new ConcurrentLinkedHashMap.Builder<String, SipAccount>()
+            .maximumWeightedCapacity(2000)
+            .build();
 
     /**
      * Get SipAccount. First Check in the cached Account. If present return it. if NOT request
