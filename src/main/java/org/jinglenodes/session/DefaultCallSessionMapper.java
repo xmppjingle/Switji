@@ -52,28 +52,35 @@ import java.util.concurrent.TimeUnit;
 public class DefaultCallSessionMapper implements CallSessionMapper {
     final private static Logger log = Logger.getLogger(DefaultCallSessionMapper.class);
 
-    final protected ConcurrentLinkedHashMap<String, CallSession> sessionMap = new ConcurrentLinkedHashMap.Builder<String, CallSession>()
-            .maximumWeightedCapacity(20000)
-            .listener(new EvictionListener<String, CallSession>() {
-                @Override
-                public void onEviction(String s, CallSession callSession) {
-                    log.warn("Call session ["+s+"] object EVICTION: "+callSession);
-                }
-            })
-            .build();
+    final protected ConcurrentLinkedHashMap<String, CallSession> sessionMap;
     final protected ScheduledThreadPoolExecutor purgeTimer;
     final private int maxSessionTtl; // in Seconds
     final private int unfinishedSessionTtl;
     final protected int purgeTime; // in Seconds
+
+    final static int DEFAULT_SESSION_MAPPER_MAX_ENTRIES = 20000;
 
     public DefaultCallSessionMapper() {
         this(1500, 120, 200);
     }
 
     public DefaultCallSessionMapper(final int maxSessionTtl, final int purgeTime, final int unfinishedSessionTtl) {
+        this(maxSessionTtl, purgeTime, unfinishedSessionTtl, DEFAULT_SESSION_MAPPER_MAX_ENTRIES);
+    }
+
+    public DefaultCallSessionMapper(final int maxSessionTtl, final int purgeTime, final int unfinishedSessionTtl, final int sessionMapperMaxEntries) {
         this.purgeTime = purgeTime;
         this.maxSessionTtl = maxSessionTtl;
         this.unfinishedSessionTtl = unfinishedSessionTtl;
+        sessionMap = new ConcurrentLinkedHashMap.Builder<String, CallSession>()
+                .maximumWeightedCapacity(sessionMapperMaxEntries)
+                .listener(new EvictionListener<String, CallSession>() {
+                    @Override
+                    public void onEviction(String s, CallSession callSession) {
+                        log.warn("Call session ["+s+"] object EVICTION: "+callSession);
+                    }
+                })
+                .build();
         this.purgeTimer = new ScheduledThreadPoolExecutor(5, new NamingThreadFactory("Session Cleaner Thread"));
         this.purgeTimer.scheduleWithFixedDelay(new SessionCleanerTask(sessionMap, purgeTimer, 1000, SessionCleanerTask.inactiveSessionFilter), purgeTime, purgeTime, TimeUnit.SECONDS);
         this.purgeTimer.scheduleWithFixedDelay(new SessionCleanerTask(sessionMap, purgeTimer, -1, SessionCleanerTask.inactiveSessionFilter), purgeTime * 15, purgeTime * 15, TimeUnit.SECONDS);
