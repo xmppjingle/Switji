@@ -6,7 +6,6 @@ import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.PacketError;
 import org.xmpp.packet.PacketError.Condition;
-import org.zoolu.tools.ConcurrentTimelineHashMap;
 
 import java.util.List;
 
@@ -35,6 +34,16 @@ public abstract class AbstractServiceProcessor implements NamespaceProcessor {
         if (component != null) {
             component.addProcessor(this);
         }
+
+        pendingService.setTtl(timeout);
+        pendingServiceResult.setTtl(timeout);
+
+        pendingService.disableScheduledPurge();
+        pendingServiceResult.disableScheduledPurge();
+
+        pendingService.setPurgeCounterLimit(0);
+        pendingServiceResult.setPurgeCounterLimit(0);
+
     }
 
     public abstract IQ createServiceRequest(final Object object, final String fromNode, final String toNode);

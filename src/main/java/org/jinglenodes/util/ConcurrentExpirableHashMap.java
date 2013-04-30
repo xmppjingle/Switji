@@ -26,6 +26,7 @@ public class ConcurrentExpirableHashMap  <K, V>  extends java.util.AbstractMap<K
     private final ExecutorService service;
     private long ttl = DEFAULT_TTL;
     private long purgeCounterLimit = DEFAULT_PURGE_LIMIT;
+    private long purgeDelay = DEFAULT_PURGE_DELAY;
 
     private static final int DEFAULT_MAX_ENTRIES = 5000;
     private static final long DEFAULT_TTL = 1000 * 60 * 60;
@@ -33,6 +34,8 @@ public class ConcurrentExpirableHashMap  <K, V>  extends java.util.AbstractMap<K
     private static final long DEFAULT_PURGE_LIMIT = 2000;
 
     private final AtomicInteger counter = new AtomicInteger(0);
+
+    private Future purgeTask = null;
 
     public ConcurrentExpirableHashMap() {
         this(DEFAULT_MAX_ENTRIES, DEFAULT_TTL, DEFAULT_PURGE_DELAY);
@@ -49,22 +52,40 @@ public class ConcurrentExpirableHashMap  <K, V>  extends java.util.AbstractMap<K
         expireMap = new ConcurrentLinkedHashMap.Builder<K, Long>()
                 .maximumWeightedCapacity(maxEntries)
                 .build();
-        ttl = timeToLive;
+        setTtl(timeToLive);
         service = Executors.newSingleThreadExecutor(new NamingThreadFactory("ConcurrenExpirableHashMap.Task"));
         scheduledService = Executors.newSingleThreadScheduledExecutor(
                 new NamingThreadFactory("ConcurrenExpirableHashMap.Scheduled.Task"));
+        setPurgeDelay(purgeDelay);
 
-        scheduledService.scheduleWithFixedDelay(new Runnable() {
+        enableScheduledPurge();
+
+    }
+
+    public void enableScheduledPurge() {
+        if (purgeTask != null) {
+            log.warn("There is already an active scheduled purge task");
+            return;
+        }
+        purgeTask = scheduledService.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 try {
                     cleanUpExpiredWithNoResult().get(); //delay scheduling of next execution if current
-                                                        // is taking too long
+                    // is taking too long
                 } catch (Exception e) {
                     log.error("Error cleaning up expired entries: ",e);
                 }
             }
-        }, purgeDelay, purgeDelay, TimeUnit.MILLISECONDS);
+        }, getPurgeDelay(), getPurgeDelay(), TimeUnit.MILLISECONDS);
+    }
+
+    public void disableScheduledPurge() {
+        if (purgeTask == null) {
+            log.warn("There is not active scheduled purge task running");
+            return;
+        }
+        purgeTask.cancel(true);
     }
 
     @Override
@@ -166,17 +187,19 @@ public class ConcurrentExpirableHashMap  <K, V>  extends java.util.AbstractMap<K
     }
 
     public V put(K key, V value) {
-        if (counter.incrementAndGet() > getPurgeCounterLimit() &&
-            counter.getAndAdd(0) > getPurgeCounterLimit()) {
+        if  (getPurgeCounterLimit() > 0 &&
+               counter.incrementAndGet() > getPurgeCounterLimit() &&
+               counter.getAndAdd(0) > getPurgeCounterLimit()) {
             cleanUpExpiredWithNoResult();
         }
-            expireMap.put(key, System.currentTimeMillis());
+        expireMap.put(key, System.currentTimeMillis());
         return map.put(key, value);
     }
 
     public V putIfAbsent(K key, V value) {
-        if (counter.incrementAndGet() > getPurgeCounterLimit() &&
-                counter.getAndAdd(0) > getPurgeCounterLimit()) {
+        if (getPurgeCounterLimit() > 0 &&
+               counter.incrementAndGet() > getPurgeCounterLimit() &&
+               counter.getAndAdd(0) > getPurgeCounterLimit()) {
             cleanUpExpiredWithNoResult();
         }
         expireMap.putIfAbsent(key, System.currentTimeMillis());
@@ -234,6 +257,10 @@ public class ConcurrentExpirableHashMap  <K, V>  extends java.util.AbstractMap<K
         return ttl;
     }
 
+    /**
+     * Time to live for expiring the entries
+     * @param ttl
+     */
     public void setTtl(long ttl) {
         this.ttl = ttl;
     }
@@ -242,7 +269,25 @@ public class ConcurrentExpirableHashMap  <K, V>  extends java.util.AbstractMap<K
         return purgeCounterLimit;
     }
 
+    /**
+     * Define a threshold limit (on put & putIfAbsent count) for checking for
+     * expired entries
+     * @param purgeCounterLimit
+     */
     public void setPurgeCounterLimit(long purgeCounterLimit) {
         this.purgeCounterLimit = purgeCounterLimit;
+    }
+
+    public long getPurgeDelay() {
+        return purgeDelay;
+    }
+
+    /**
+     * Delay for running the task for checking expired entries
+     * accordingly with the defined time to live
+     * @param purgeDelay
+     */
+    public void setPurgeDelay(long purgeDelay) {
+        this.purgeDelay = purgeDelay;
     }
 }

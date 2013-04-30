@@ -25,7 +25,6 @@
 package org.jinglenodes.sip.router;
 
 import org.jinglenodes.util.ConcurrentExpirableHashMap;
-import org.zoolu.tools.ConcurrentTimelineHashMap;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
