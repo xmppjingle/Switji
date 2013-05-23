@@ -112,6 +112,7 @@
                 <ref bean="chargePreparation"/>
                 <ref bean="accountPreparation"/>
                 <ref bean="relayPreparation"/>
+                <ref bean="voicemailPreparation"/>
                 <!--<ref bean="ringHangupPreparation"/>-->
             </list>
         </property>
@@ -207,6 +208,10 @@
         <property name="component" ref="sipGatewayComponent"/>
         <property name="relayService" value="${relay.service}"/>
         <property name="callSessionMapper" ref="callSessionMapper"/>
+    </bean>
+
+    <bean id="voicemailPreparation" class="org.jinglenodes.voicemail.VoicemailPreparation">
+        <property name="jingleProcessor" ref="jingleProcessor"/>
     </bean>
 
     <bean id="sipToJingleMapper" class="org.jinglenodes.sip.CachedSipToJingleBind">

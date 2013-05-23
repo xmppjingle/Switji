@@ -1,6 +1,7 @@
 package org.jinglenodes.voicemail;
 
 import org.apache.log4j.Logger;
+import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.session.CallSession;
 import org.xmpp.tinder.JingleIQ;
@@ -8,7 +9,6 @@ import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.SipChannel;
 import org.zoolu.tools.ConcurrentTimelineHashMap;
 import org.zoolu.tools.NamingThreadFactory;
-import sun.jdbc.odbc.JdbcOdbcCallableStatement;
 
 import java.util.concurrent.*;
 
@@ -24,18 +24,21 @@ public class VoicemailPreparation extends CallPreparation {
     private static final int DEFAULT_MAX_ENTRIES = 20000;
     private static final long DEFAULT_CALL_TIMEOUT = 45 * 1000;
 
-    private final ConcurrentTimelineHashMap<String, Future> pendingCall;
+    private final ConcurrentTimelineHashMap<String, Future> pendingCalls;
     private final long callTimeout;
-    private ScheduledExecutorService service = Executors.newScheduledThreadPool(
+    private final ScheduledExecutorService service = Executors.newScheduledThreadPool(
             5, new NamingThreadFactory("voicemail-preparation-thread"));
 
-    public VoicemailPreparation() {
-        this(DEFAULT_CALL_TIMEOUT);
+    private final JingleProcessor jingleProcessor;
+
+    public VoicemailPreparation(JingleProcessor jingleProcessor) {
+        this(DEFAULT_CALL_TIMEOUT, jingleProcessor);
     }
 
-    public VoicemailPreparation(long callTimeout) {
-        this.pendingCall =new ConcurrentTimelineHashMap<String, Future>(DEFAULT_MAX_ENTRIES, callTimeout * 2);
+    public VoicemailPreparation(long callTimeout, JingleProcessor jingleProcessor) {
+        this.pendingCalls = new ConcurrentTimelineHashMap<String, Future>(DEFAULT_MAX_ENTRIES, callTimeout * 2);
         this.callTimeout = callTimeout;
+        this.jingleProcessor = jingleProcessor;
     }
 
     @Override
@@ -46,28 +49,11 @@ public class VoicemailPreparation extends CallPreparation {
     @Override
     public boolean proceedInitiate(JingleIQ iq, final CallSession session) {
 
-
         try {
-            Future future = service.schedule(new Callable<CallSession>() {
-                private final long timestamp = System.currentTimeMillis();
-                @Override
-                public CallSession call() throws Exception {
+            final Future future = service.schedule(new VoicemailForwardTask(session,this),
+                    getCallTimeout(), TimeUnit.MILLISECONDS);
 
-                    if (pendingCall.containsKey(session.getId()) &&
-                            System.currentTimeMillis()-timestamp > getCallTimeout()) {
-                        handleForwardCall(session);
-                    }
-
-                    try {
-                        cancelTask(session.getId());
-                    } catch (Exception e) {
-                        log.error("Error canceling task",e);
-                    }
-                    return session;
-                }
-            }, getCallTimeout(), TimeUnit.MILLISECONDS);
-
-            pendingCall.put(iq.getJingle().getSid(), future);
+            pendingCalls.put(iq.getJingle().getSid(), future);
 
         } catch (Exception e) {
             log.error("Error initiate proceed",e);
@@ -83,7 +69,7 @@ public class VoicemailPreparation extends CallPreparation {
 
         final String sid = iq.getJingle().getSid();
         // if calee hangs up before accepting the call, caller will be forwarded to voicemail
-        if (pendingCall.containsKey(sid)) {
+        if (pendingCalls.containsKey(sid)) {
             handleForwardCall(session);
         }
 
@@ -148,11 +134,11 @@ public class VoicemailPreparation extends CallPreparation {
         return callTimeout;
     }
 
-    private boolean cancelTask(final String sid) {
+    public boolean cancelTask(final String sid) {
 
         boolean result = false;
 
-        Future f = pendingCall.remove(sid);
+        Future f = pendingCalls.remove(sid);
 
         if (f != null && !f.isDone() && !f.isCancelled()) {
             result = f.cancel(true);
@@ -164,10 +150,28 @@ public class VoicemailPreparation extends CallPreparation {
     /*
      * forward the call to the voicemail service
      */
-    private void handleForwardCall(CallSession callSession) {
+    public void handleForwardCall(CallSession callSession) {
 
         //TODO handle forward call
 
+        final JingleIQ initiateIQ = callSession.getInitiateIQ();
+        if (initiateIQ != null) {
+            jingleProcessor.sendJingleTermination(initiateIQ, callSession); //TEST
+            jingleProcessor.sendSipTermination(initiateIQ, callSession);    //TEST
+
+            log.debug("Terminating call: "+callSession.getId());
+
+        } else {
+            log.error("Initiate IQ not found in call session: "+callSession.getId());
+        }
+
     }
 
+    public ConcurrentTimelineHashMap<String, Future> getPendingCalls() {
+        return pendingCalls;
+    }
+
+    public JingleProcessor getJingleProcessor() {
+        return jingleProcessor;
+    }
 }
