@@ -211,7 +211,7 @@
     </bean>
 
     <bean id="voicemailPreparation" class="org.jinglenodes.voicemail.VoicemailPreparation">
-        <property name="jingleProcessor" ref="jingleProcessor"/>
+        <constructor-arg index="0" ref="jingleProcessor"/>
     </bean>
 
     <bean id="sipToJingleMapper" class="org.jinglenodes.sip.CachedSipToJingleBind">

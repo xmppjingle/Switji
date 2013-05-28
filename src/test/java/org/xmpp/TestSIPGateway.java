@@ -1,6 +1,7 @@
 package org.xmpp;
 
 import junit.framework.TestCase;
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.jinglenodes.Main;
 import org.jinglenodes.jingle.Jingle;
@@ -40,6 +41,7 @@ public class TestSIPGateway extends TestCase {
     static SipServerMock sipServerMock;
 
     static {
+        BasicConfigurator.configure();
         Main.setAppDir(System.getProperty("user.dir") + "/target/test-classes/");
         Main.start("sipgatewaytest.xml");
         try {
