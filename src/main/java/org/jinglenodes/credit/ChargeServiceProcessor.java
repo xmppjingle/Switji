@@ -82,7 +82,7 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
                     e.addAttribute("initiator", from.toBareJID());
                     e.addAttribute("responder", toBareJid);
                     e.addAttribute("seconds", String.valueOf(callTime));
-                    e.addAttribute("sid", session.getId());
+                    e.addAttribute("sid", jingleIQ.getJingle().getSid());
                     request.setChildElement(e);
                     log.debug("createdCreditRequest: " + request.toXML());
                     credit.setCharged(true);
