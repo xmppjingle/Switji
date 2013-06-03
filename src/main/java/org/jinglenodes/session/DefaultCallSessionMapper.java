@@ -24,8 +24,6 @@
 
 package org.jinglenodes.session;
 
-import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import com.googlecode.concurrentlinkedhashmap.EvictionListener;
 import org.apache.log4j.Logger;
 import org.jinglenodes.jingle.processor.JingleException;
 import org.xmpp.packet.JID;
@@ -34,6 +32,7 @@ import org.zoolu.sip.header.CallIdHeader;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.Participants;
 import org.zoolu.sip.message.SipParsingException;
+import org.zoolu.tools.ConcurrentTimelineHashMap;
 import org.zoolu.tools.NamingThreadFactory;
 
 import java.util.ArrayList;
@@ -51,36 +50,20 @@ import java.util.concurrent.TimeUnit;
  */
 public class DefaultCallSessionMapper implements CallSessionMapper {
     final private static Logger log = Logger.getLogger(DefaultCallSessionMapper.class);
-
-    final protected ConcurrentLinkedHashMap<String, CallSession> sessionMap;
+    final protected ConcurrentTimelineHashMap<String, CallSession> sessionMap = new ConcurrentTimelineHashMap<String, CallSession>();
     final protected ScheduledThreadPoolExecutor purgeTimer;
     final private int maxSessionTtl; // in Seconds
     final private int unfinishedSessionTtl;
     final protected int purgeTime; // in Seconds
-
-    final static int DEFAULT_SESSION_MAPPER_MAX_ENTRIES = 20000;
 
     public DefaultCallSessionMapper() {
         this(1500, 120, 200);
     }
 
     public DefaultCallSessionMapper(final int maxSessionTtl, final int purgeTime, final int unfinishedSessionTtl) {
-        this(maxSessionTtl, purgeTime, unfinishedSessionTtl, DEFAULT_SESSION_MAPPER_MAX_ENTRIES);
-    }
-
-    public DefaultCallSessionMapper(final int maxSessionTtl, final int purgeTime, final int unfinishedSessionTtl, final int sessionMapperMaxEntries) {
         this.purgeTime = purgeTime;
         this.maxSessionTtl = maxSessionTtl;
         this.unfinishedSessionTtl = unfinishedSessionTtl;
-        sessionMap = new ConcurrentLinkedHashMap.Builder<String, CallSession>()
-                .maximumWeightedCapacity(sessionMapperMaxEntries)
-                .listener(new EvictionListener<String, CallSession>() {
-                    @Override
-                    public void onEviction(String s, CallSession callSession) {
-                        log.warn("Call session ["+s+"] object EVICTION: "+callSession);
-                    }
-                })
-                .build();
         this.purgeTimer = new ScheduledThreadPoolExecutor(5, new NamingThreadFactory("Session Cleaner Thread"));
         this.purgeTimer.scheduleWithFixedDelay(new SessionCleanerTask(sessionMap, purgeTimer, 1000, SessionCleanerTask.inactiveSessionFilter), purgeTime, purgeTime, TimeUnit.SECONDS);
         this.purgeTimer.scheduleWithFixedDelay(new SessionCleanerTask(sessionMap, purgeTimer, -1, SessionCleanerTask.inactiveSessionFilter), purgeTime * 15, purgeTime * 15, TimeUnit.SECONDS);

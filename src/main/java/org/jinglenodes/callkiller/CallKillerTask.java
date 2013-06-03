@@ -31,10 +31,6 @@ import org.jinglenodes.session.CallSession;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ScheduledFuture;
-
 /**
  * Created by IntelliJ IDEA.
  * User: thiago
@@ -47,13 +43,11 @@ public class CallKillerTask implements Runnable {
     private final CallSession session;
     private final JingleProcessor jingleProcessor;
     private final Reason reason;
-    private final Map<String, ScheduledFuture> tasks;
 
-    public CallKillerTask(CallSession session, JingleProcessor jingleProcessor, final Reason reason, final Map<String, ScheduledFuture> tasks) {
+    public CallKillerTask(CallSession session, JingleProcessor jingleProcessor, final Reason reason) {
         this.session = session;
         this.jingleProcessor = jingleProcessor;
         this.reason = reason;
-        this.tasks = tasks;
     }
 
     @Override
@@ -78,10 +72,6 @@ public class CallKillerTask implements Runnable {
                     jingleProcessor.send(terminationIQ);
                 } catch (Exception e) {
                     log.error("Could not Kill Properly Call: " + session.getId(), e);
-                } finally {
-                    if (tasks != null && tasks.containsKey(session.getId())) {
-                        tasks.remove(session.getId());
-                    }
                 }
             }
         } else {

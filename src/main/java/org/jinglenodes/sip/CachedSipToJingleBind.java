@@ -24,13 +24,13 @@
 
 package org.jinglenodes.sip;
 
-import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import org.apache.log4j.Logger;
 import org.jinglenodes.sip.account.SipAccount;
 import org.jinglenodes.sip.account.SipAccountProvider;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
+import org.zoolu.tools.ConcurrentTimelineHashMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -42,14 +42,8 @@ import org.zoolu.sip.message.JIDFactory;
 public class CachedSipToJingleBind implements SipToJingleBind {
 
     private static final Logger log = Logger.getLogger(CachedSipToJingleBind.class);
-
-    private final ConcurrentLinkedHashMap<String, JID> sipToXmpp = new ConcurrentLinkedHashMap.Builder<String, JID>()
-            .maximumWeightedCapacity(2000)
-            .build();
-
-    private final ConcurrentLinkedHashMap<String, JID> xmppToSip = new ConcurrentLinkedHashMap.Builder<String, JID>()
-            .maximumWeightedCapacity(2000)
-            .build();
+    private final ConcurrentTimelineHashMap<String, JID> sipToXmpp = new ConcurrentTimelineHashMap<String, JID>();
+    private final ConcurrentTimelineHashMap<String, JID> xmppToSip = new ConcurrentTimelineHashMap<String, JID>();
 
     private JID defaultJID;
     private String defaultResource;

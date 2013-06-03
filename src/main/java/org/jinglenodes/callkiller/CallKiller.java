@@ -23,7 +23,6 @@
  */
 package org.jinglenodes.callkiller;
 
-import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import org.apache.log4j.Logger;
 import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.processor.JingleException;
@@ -31,12 +30,11 @@ import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.session.CallSession;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.Message;
+import org.zoolu.tools.ConcurrentTimelineHashMap;
 import org.zoolu.tools.NamingThreadFactory;
 
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by IntelliJ IDEA.
@@ -47,14 +45,10 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CallKiller {
 
     private final Logger log = Logger.getLogger(CallKiller.class);
-
-    private final ConcurrentLinkedHashMap<String, ScheduledFuture> tasks = new ConcurrentLinkedHashMap.Builder<String, ScheduledFuture>()
-            .maximumWeightedCapacity(10000)
-            .build();
-
+    private final ConcurrentTimelineHashMap<String, CallKillerTask> tasks = new ConcurrentTimelineHashMap<String, CallKillerTask>();
     private JingleProcessor jingleProcessor;
     protected ScheduledThreadPoolExecutor timerExecutor;
-    private final AtomicLong cleanCounter = new AtomicLong(0L);
+    private long cleanCounter = 0;
     private static long HOUR = 1000 * 60 * 60;
     private static long PERIOD = 10000;
 
@@ -76,21 +70,20 @@ public class CallKiller {
 
     public void scheduleKill(final CallSession session, final int seconds) {
         log.warn("Scheduling for Killing Call: " + session.getId() + " in " + seconds + " seconds");
-        final CallKillerTask task = new CallKillerTask(session, jingleProcessor, new Reason(Reason.Type.payment), tasks);
-        tasks.put(session.getId(), timerExecutor.schedule(task, seconds, TimeUnit.SECONDS));
+        final CallKillerTask task = new CallKillerTask(session, jingleProcessor, new Reason(Reason.Type.payment));
+        tasks.put(session.getId(), task);
+        timerExecutor.schedule(task, seconds, TimeUnit.SECONDS);
     }
 
     public void cancelKill(final CallSession session) {
         log.warn("Cancelling Schedule for Killing Call: " + session.getId());
-        final ScheduledFuture task = tasks.get(session.getId());
+        final CallKillerTask task = tasks.remove(session.getId());
         if (task != null) {
-            if (!task.isCancelled() && !task.isDone()) {
-                task.cancel(true);
+            timerExecutor.remove(task);
             }
-            tasks.remove(session.getId());
-        }
-        if (cleanCounter.incrementAndGet() > PERIOD &&
-                cleanCounter.getAndSet(0) > PERIOD) {
+        if (cleanCounter++ > PERIOD) {
+            cleanCounter = 0;
+            tasks.cleanUpExpired(2 * HOUR);
             timerExecutor.purge();
         }
     }
@@ -120,7 +113,7 @@ public class CallKiller {
     public void immediateKill(final CallSession session, final Reason reason) {
         log.warn("Immediate Killing Call: " + session.getId());
         cancelKill(session);
-        final CallKillerTask task = new CallKillerTask(session, jingleProcessor, reason, tasks);
+        final CallKillerTask task = new CallKillerTask(session, jingleProcessor, reason);
         timerExecutor.submit(task);
     }
 
