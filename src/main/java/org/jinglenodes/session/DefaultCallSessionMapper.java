@@ -50,20 +50,31 @@ import java.util.concurrent.TimeUnit;
  */
 public class DefaultCallSessionMapper implements CallSessionMapper {
     final private static Logger log = Logger.getLogger(DefaultCallSessionMapper.class);
-    final protected ConcurrentTimelineHashMap<String, CallSession> sessionMap = new ConcurrentTimelineHashMap<String, CallSession>();
+    final protected ConcurrentTimelineHashMap<String, CallSession> sessionMap;
     final protected ScheduledThreadPoolExecutor purgeTimer;
     final private int maxSessionTtl; // in Seconds
     final private int unfinishedSessionTtl;
     final protected int purgeTime; // in Seconds
+    final private int maxEntries;
+    final private long DEFAULT_TTL = 1000 * 60 * 60 * 24;
+
 
     public DefaultCallSessionMapper() {
         this(1500, 120, 200);
     }
 
-    public DefaultCallSessionMapper(final int maxSessionTtl, final int purgeTime, final int unfinishedSessionTtl) {
+    public DefaultCallSessionMapper(final int maxSessionTtl,
+                                    final int purgeTime, final int unfinishedSessionTtl) {
+        this(20000,maxSessionTtl, purgeTime, unfinishedSessionTtl);
+    }
+
+    public DefaultCallSessionMapper(final int maxEntries, final int maxSessionTtl,
+                                    final int purgeTime, final int unfinishedSessionTtl) {
         this.purgeTime = purgeTime;
         this.maxSessionTtl = maxSessionTtl;
         this.unfinishedSessionTtl = unfinishedSessionTtl;
+        this.maxEntries = maxEntries;
+        this.sessionMap = new ConcurrentTimelineHashMap<String, CallSession>(maxEntries,DEFAULT_TTL);
         this.purgeTimer = new ScheduledThreadPoolExecutor(5, new NamingThreadFactory("Session Cleaner Thread"));
         this.purgeTimer.scheduleWithFixedDelay(new SessionCleanerTask(sessionMap, purgeTimer, 1000, SessionCleanerTask.inactiveSessionFilter), purgeTime, purgeTime, TimeUnit.SECONDS);
         this.purgeTimer.scheduleWithFixedDelay(new SessionCleanerTask(sessionMap, purgeTimer, -1, SessionCleanerTask.inactiveSessionFilter), purgeTime * 15, purgeTime * 15, TimeUnit.SECONDS);
@@ -303,5 +314,9 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
 
     public int getMaxSessionTtl() {
         return maxSessionTtl;
+    }
+
+    public int getMaxEntries() {
+        return maxEntries;
     }
 }
