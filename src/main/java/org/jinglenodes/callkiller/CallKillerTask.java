@@ -58,6 +58,8 @@ public class CallKillerTask implements Runnable {
                 try {
                     //jingleProcessor.sendSipTermination(session.getInitiateIQ(), session);
                     final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(session.getInitiateIQ(), reason);
+                    terminationIQ.setFrom(session.getInitiateIQ().getFrom());
+                    terminationIQ.setTo(session.getInitiateIQ().getTo());
                     try {
                         jingleProcessor.processJingle(terminationIQ);
                     } catch (JingleException e) {
