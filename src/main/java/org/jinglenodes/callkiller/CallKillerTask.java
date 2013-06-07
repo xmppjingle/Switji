@@ -57,14 +57,16 @@ public class CallKillerTask implements Runnable {
                 log.warn("Killing Call: " + session.getId() + " Proceeds: " + session.getProceeds().size());
                 try {
                     //jingleProcessor.sendSipTermination(session.getInitiateIQ(), session);
-                    final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(session.getInitiateIQ(), reason);
+                    final JingleIQ jingleIq = session.getAcceptIQ() == null ?
+                            session.getInitiateIQ() : session.getAcceptIQ();
+                    final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(jingleIq, reason);
                     try {
                         jingleProcessor.processJingle(terminationIQ);
                     } catch (JingleException e) {
                         log.error("Failed to Force Termination Process", e);
                     }
-                    final JingleIQ backTerminationIQ = JingleProcessor.createJingleTermination(session.getInitiateIQ(), reason);
-                    backTerminationIQ.setTo(session.getInitiateIQ().getFrom());
+                    final JingleIQ backTerminationIQ = JingleProcessor.createJingleTermination(jingleIq, reason);
+                    backTerminationIQ.setTo(jingleIq.getFrom());
                     backTerminationIQ.setFrom((JID) null);
                     log.debug("Call Killer Back Terminate: " + backTerminationIQ.toString());
                     log.debug("Call Killer Terminate: " + terminationIQ.toString());

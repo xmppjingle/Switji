@@ -60,6 +60,7 @@ public class CallSession {
     private JingleIQ sentJingle;
     private JingleIQ receivedJingle;
     private JingleIQ initiateIQ;
+    private JingleIQ acceptIQ;
     @XStreamOmitField
     private ConcurrentLinkedQueue<CallPreparation> preparations;
     @XStreamOmitField
@@ -228,6 +229,14 @@ public class CallSession {
      */
     public JingleIQ getInitiateIQ() {
         return initiateIQ;
+    }
+
+    public JingleIQ getAcceptIQ() {
+        return acceptIQ;
+    }
+
+    public void setAcceptIQ(JingleIQ acceptIQ) {
+        this.acceptIQ = acceptIQ;
     }
 
     public void deactivate() {
