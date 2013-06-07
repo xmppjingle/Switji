@@ -982,8 +982,8 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
 
         log.debug("Creating SIP BYE: " + iq.toXML() + " - " + p.getInitiator()+" / "+p.getResponder());
 
-        if (iq.getFrom().toBareJID().equals(p.getResponder().toBareJID()) ||
-                !iq.getFrom().toBareJID().equals(p.getInitiator().toBareJID())) {
+        if (iq.getFrom().getNode().equals(p.getResponder().getNode()) ||
+                !iq.getFrom().getNode().equals(p.getInitiator().getNode())) {
             from = p.getResponder();
             to = p.getInitiator();
         } else {
