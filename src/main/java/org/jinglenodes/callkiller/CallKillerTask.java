@@ -64,6 +64,7 @@ public class CallKillerTask implements Runnable {
                             JIDFactory.getInstance().getJID(jingleIq.getJingle().getInitiator()),
                             JIDFactory.getInstance().getJID(jingleIq.getJingle().getResponder()),
                             jingleIq.getJingle().getResponder(), reason, jingleIq.getJingle().getSid());
+                    terminationIQ.setFrom(jingleIq.getJingle().getInitiator());
 
                     if (log.isDebugEnabled() ) {
                         if (session.getAcceptIQ() == null) {
