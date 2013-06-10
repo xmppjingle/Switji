@@ -129,6 +129,9 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             return;
         } else if (action.equals(Jingle.SESSION_ACCEPT)) {
             session.setAcceptIQ(iq);
+            if (log.isDebugEnabled()) {
+                log.debug("Updating accept IQ: "+iq.toString());
+            }
         }
 
         proceedCall(iq, session);

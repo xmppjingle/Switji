@@ -447,6 +447,10 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             }
 
             callSessions.addSentJingle(iq);
+            callSession.setAcceptIQ(iq);
+            if (log.isDebugEnabled()) {
+                log.debug("Updating accept IQ: "+iq.toString());
+            }
             gatewayRouter.send(iq);
         } catch (JingleSipException e) {
             log.error("Error creating Session-accept packet", e);

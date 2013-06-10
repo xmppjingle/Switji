@@ -59,14 +59,27 @@ public class CallKillerTask implements Runnable {
                 try {
                     final JingleIQ jingleIq = session.getAcceptIQ() == null ?
                             session.getInitiateIQ() : session.getAcceptIQ();
-                    final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(JIDFactory.getInstance().getJID(jingleIq.getJingle().getInitiator()), JIDFactory.getInstance().getJID(jingleIq.getJingle().getResponder()), jingleIq.getJingle().getResponder(), reason, jingleIq.getJingle().getSid());
+
+                    final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(
+                            JIDFactory.getInstance().getJID(jingleIq.getJingle().getInitiator()),
+                            JIDFactory.getInstance().getJID(jingleIq.getJingle().getResponder()),
+                            jingleIq.getJingle().getResponder(), reason, jingleIq.getJingle().getSid());
+
+                    if (log.isDebugEnabled() ) {
+                        if (session.getAcceptIQ() == null) {
+                            log.debug("Using initiateIQ to create Terminate: "+jingleIq.toString());
+                        } else {
+                            log.debug("Using acceptIQ to create Terminate: "+jingleIq.toString());
+                        }
+                    }
+
                     try {
                         jingleProcessor.processJingle(terminationIQ);
                     } catch (JingleException e) {
                         log.error("Failed to Force Termination Process", e);
                     }
                     final JingleIQ backTerminationIQ = JingleProcessor.createJingleTermination(jingleIq, reason);
-                    backTerminationIQ.setTo(jingleIq.getFrom());
+                    backTerminationIQ.setTo(session.getInitiateIQ().getFrom());
                     backTerminationIQ.setFrom((JID) null);
                     log.debug("Call Killer Back Terminate: " + backTerminationIQ.toString());
                     log.debug("Call Killer Terminate: " + terminationIQ.toString());
