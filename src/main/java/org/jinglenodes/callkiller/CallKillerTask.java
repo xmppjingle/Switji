@@ -30,6 +30,7 @@ import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.session.CallSession;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
+import org.zoolu.sip.message.JIDFactory;
 
 /**
  * Created by IntelliJ IDEA.
@@ -56,10 +57,9 @@ public class CallKillerTask implements Runnable {
             if (session.isActive()) {
                 log.warn("Killing Call: " + session.getId() + " Proceeds: " + session.getProceeds().size());
                 try {
-                    //jingleProcessor.sendSipTermination(session.getInitiateIQ(), session);
                     final JingleIQ jingleIq = session.getAcceptIQ() == null ?
                             session.getInitiateIQ() : session.getAcceptIQ();
-                    final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(jingleIq, reason);
+                    final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(JIDFactory.getInstance().getJID(jingleIq.getJingle().getInitiator()), JIDFactory.getInstance().getJID(jingleIq.getJingle().getResponder()), jingleIq.getJingle().getResponder(), reason, jingleIq.getJingle().getSid());
                     try {
                         jingleProcessor.processJingle(terminationIQ);
                     } catch (JingleException e) {
