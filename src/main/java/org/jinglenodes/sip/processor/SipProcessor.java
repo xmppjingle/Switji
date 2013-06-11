@@ -987,7 +987,9 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         log.debug("Creating SIP BYE: " + iq.toXML() + " - " + p.getInitiator()+" / "+p.getResponder());
 
         if (iq.getFrom().getNode().equals(p.getResponder().getNode()) ||
-                !iq.getFrom().getNode().equals(p.getInitiator().getNode())) {
+                (!iq.getFrom().getNode().equals(p.getInitiator().getNode()) &&
+                        !iq.getJingle().getResponder().
+                                contains(ignorePrefix(iq.getTo().getNode())))) {   //FIXME
             from = p.getResponder();
             to = p.getInitiator();
         } else {
@@ -1099,6 +1101,26 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         } catch (Throwable e) {
             throw new JingleSipException("Critical SDP Parsing Error:" + sdpDescription);
         }
+    }
+
+    final static String exclude[] = new String[] {"00","+"};
+
+    private static String ignorePrefix(String node) {
+        if (node == null) {
+            return null;
+        }
+
+        String result = node;
+
+        for (String prefix: exclude) {
+            if (node.length() > prefix.length() &&
+                    node.startsWith(prefix)) {
+                result = node.substring(prefix.length());
+                break;
+            }
+        }
+
+        return result;
     }
 
     public void setPreparations(List<CallPreparation> preparations) {
