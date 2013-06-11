@@ -988,7 +988,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
 
         if (iq.getFrom().getNode().equals(p.getResponder().getNode()) ||
                 (!iq.getFrom().getNode().equals(p.getInitiator().getNode()) &&
-                        !iq.getJingle().getResponder().
+                        !p.getResponder().getNode().
                                 contains(ignorePrefix(iq.getTo().getNode())))) {   //FIXME
             from = p.getResponder();
             to = p.getInitiator();
