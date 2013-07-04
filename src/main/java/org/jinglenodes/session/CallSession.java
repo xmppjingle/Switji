@@ -78,6 +78,7 @@ public class CallSession {
     private SessionCredit sessionCredit;
     @XStreamOmitField
     private SessionUpdateListener sessionUpdateListener;
+    private boolean jingleInitiator;
 
     public CallSession(final String id, final JID user) {
         this.id = id;
@@ -331,6 +332,14 @@ public class CallSession {
         return creationTime;
     }
 
+    public boolean isJingleInitiator() {
+        return jingleInitiator;
+    }
+
+    public void setJingleInitiator(boolean jingleInitiator) {
+        this.jingleInitiator = jingleInitiator;
+    }
+
     @Override
     public String toString() {
         return "CallSession{" +
@@ -344,6 +353,7 @@ public class CallSession {
                 ", sentJingle=" + sentJingle +
                 ", receivedJingle=" + receivedJingle +
                 ", initiateIQ=" + initiateIQ +
+                ", acceptIQ=" + acceptIQ +
                 ", preparations=" + preparations +
                 ", proceeds=" + proceeds +
                 ", userContactBind=" + userContactBind +
@@ -358,6 +368,7 @@ public class CallSession {
                 ", creationTime=" + creationTime +
                 ", sessionCredit=" + sessionCredit +
                 ", sessionUpdateListener=" + sessionUpdateListener +
+                ", jingleInitiator=" + jingleInitiator +
                 '}';
     }
 }

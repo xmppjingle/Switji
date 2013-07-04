@@ -153,6 +153,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             }
             // Invite Request
             else if (msg.isInvite() && msg.isRequest()) {
+                session.setJingleInitiator(false);
                 if (isReInvite(msg)) {
                     processReInviteSip(msg, sipChannel);
                 } else {
@@ -966,7 +967,9 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
 
     }
 
-    public static Message createSipBye(final JingleIQ iq, final SipProviderInfoInterface sipProvider, final Message lastResponse, final CallSession callSession) throws JingleSipException, SipParsingException {
+    public static Message createSipBye(final JingleIQ iq, final SipProviderInfoInterface sipProvider,
+                                       final Message lastResponse, final CallSession callSession)
+            throws JingleSipException, SipParsingException {
 
         // Checks to verify if the conversion is supported
 //        if (!iq.getJingle().getAction().equals(Jingle.SESSION_TERMINATE)) {
@@ -986,7 +989,15 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
 
         log.debug("Creating SIP BYE: " + iq.toXML() + " - " + p.getInitiator()+" / "+p.getResponder());
 
-        if (iq.getFrom().getNode().equals(p.getResponder().getNode()) ||
+        if (callSession.isJingleInitiator()) {
+            from = p.getInitiator();
+            to = p.getResponder();
+        } else {
+            from = p.getResponder();
+            to = p.getInitiator();
+        }
+
+/*        if (iq.getFrom().getNode().equals(p.getResponder().getNode()) ||
                 (!iq.getFrom().getNode().equals(p.getInitiator().getNode()) &&
                         iq.getTo().getNode() != null && p.getResponder().getNode() != null &&
                         !ignorePrefix(p.getResponder().getNode()).
@@ -996,7 +1007,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         } else {
             from = p.getInitiator();
             to = p.getResponder();
-        }
+        }*/
 
         final ContactHeader contactHeader = callSession.getContactHeader(to.toBareJID());
         NameAddress requestURI = null;

@@ -122,6 +122,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
         if (action.equals(Jingle.SESSION_INITIATE)) {
             session.setInitiateIQ(iq);
+            session.setJingleInitiator(true);
             for (final CallPreparation p : preparations) {
                 session.addCallPreparation(p);
             }
