@@ -66,6 +66,8 @@ public class CallKillerTask implements Runnable {
                             jingleIq.getJingle().getResponder(), reason, jingleIq.getJingle().getSid());
                     terminationIQ.setFrom(jingleIq.getJingle().getInitiator());
 
+                    session.setCallKilled(true);
+
                     if (log.isDebugEnabled() ) {
                         if (session.getAcceptIQ() == null) {
                             log.debug("Using initiateIQ to create Terminate: "+jingleIq.toString());

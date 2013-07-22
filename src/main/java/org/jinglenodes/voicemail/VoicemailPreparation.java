@@ -4,7 +4,9 @@ import org.apache.log4j.Logger;
 import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.session.CallSession;
+import org.xmpp.component.ExternalComponent;
 import org.xmpp.tinder.JingleIQ;
+import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.SipChannel;
 import org.zoolu.tools.ConcurrentTimelineHashMap;
@@ -30,6 +32,8 @@ public class VoicemailPreparation extends CallPreparation {
             5, new NamingThreadFactory("voicemail-preparation-thread"));
 
     private final JingleProcessor jingleProcessor;
+    private ExternalComponent component;
+    private String voicemailService;
 
     public VoicemailPreparation(JingleProcessor jingleProcessor) {
         this(DEFAULT_CALL_TIMEOUT, jingleProcessor);
@@ -49,16 +53,15 @@ public class VoicemailPreparation extends CallPreparation {
     @Override
     public boolean proceedInitiate(JingleIQ iq, final CallSession session) {
 
-        try {
-            final Future future = service.schedule(new VoicemailForwardTask(session,this),
-                    getCallTimeout(), TimeUnit.MILLISECONDS);
+        log.debug("Jingle initiate " + iq);
 
-            pendingCalls.put(iq.getJingle().getSid(), future);
+        try {
+
+            scheduleVoicemailTask(iq, session);
 
         } catch (Exception e) {
-            log.error("Error initiate proceed",e);
+            log.error("Error initiate jingle proceed",e);
         }
-
 
         return true;
 
@@ -67,16 +70,22 @@ public class VoicemailPreparation extends CallPreparation {
     @Override
     public boolean proceedTerminate(JingleIQ iq, CallSession session) {
 
-        final String sid = iq.getJingle().getSid();
-        // if calee hangs up before accepting the call, caller will be forwarded to voicemail
-        if (pendingCalls.containsKey(sid)) {
-            handleForwardCall(session);
-        }
+        log.debug("Jingle terminate " + iq);
 
-        try {
-            cancelTask(sid);
-        } catch (Exception e) {
-            log.error("Error canceling task",e);
+        final String sid = iq.getJingle().getSid();
+
+        if (session.getForwardInitIq() == null) {
+            // if calee hangs up before accepting the call, caller will be forwarded to voicemail
+            if (pendingCalls.containsKey(sid) && !session.isCallKilled()
+                    && !session.isJingleInitiator()) {
+                handleForwardCall(session);
+            }
+
+            try {
+                cancelTask(sid);
+            } catch (Exception e) {
+                log.error("Error canceling task",e);
+            }
         }
 
         return true;
@@ -84,10 +93,24 @@ public class VoicemailPreparation extends CallPreparation {
 
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
+
+        log.debug("Jingle accept " + iq);
+
         try {
-            cancelTask(iq.getJingle().getSid());
-            if (log.isDebugEnabled()) {
-                log.debug("Call accepted. Cancelling scheduled voicemail forward.. " + iq);
+
+            if (session.getForwardInitIq() == null) {
+                cancelTask(iq.getJingle().getSid());
+                if (log.isDebugEnabled()) {
+                    log.debug("Jingle Call accepted. Cancelling scheduled voicemail forward.. " + iq);
+                }
+            } else {
+                final JingleIQ initiateIQ = session.getInitiateIQ();
+
+                if (initiateIQ != null) {
+                    iq.setTo(initiateIQ.getFrom().toBareJID());
+                } else {
+                    log.error("Initiate IQ not found in call session: "+session.getId());
+                }
             }
         } catch (Exception e) {
             log.error("Error canceling task",e);
@@ -107,28 +130,107 @@ public class VoicemailPreparation extends CallPreparation {
 
     @Override
     public JingleIQ proceedSIPInitiate(JingleIQ iq, CallSession session, SipChannel channel) {
-        return null;
+
+        log.debug("SIP INITIATE " + iq);
+
+        try {
+
+            scheduleVoicemailTask(iq, session);
+
+        } catch (Exception e) {
+            log.error("Error initiate sip proceed",e);
+        }
+
+        return iq;
     }
 
     @Override
     public void proceedSIPInfo(JingleIQ iq, CallSession session, SipChannel channel) {
-
+        log.debug("SIP INFO " + iq);
     }
 
     @Override
     public JingleIQ proceedSIPEarlyMedia(JingleIQ iq, CallSession session, SipChannel channel) {
-        return null;
+        return iq;
     }
 
     @Override
     public JingleIQ proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
-        return null;
+
+        log.debug("SIP Terminate " + iq);
+
+        final String sid = iq.getJingle().getSid();
+
+        if (session.getForwardInitIq() == null) {
+            // if calee hangs up before accepting the call, caller will be forwarded to voicemail
+            if (pendingCalls.containsKey(sid) && !session.isCallKilled()
+                    && session.isJingleInitiator()) {
+                handleForwardCall(session);
+            }
+
+            try {
+                cancelTask(sid);
+            } catch (Exception e) {
+                log.error("Error canceling task",e);
+            }
+        } else {
+            final JingleIQ initiateIQ = session.getInitiateIQ();
+
+            if (initiateIQ != null) {
+
+                iq = JingleProcessor.createJingleTermination(
+                        JIDFactory.getInstance().getJID(initiateIQ.getJingle().getInitiator()),
+                        JIDFactory.getInstance().getJID(initiateIQ.getJingle().getResponder()),
+                        initiateIQ.getFrom().toBareJID(),
+                        iq.getJingle().getReason(), initiateIQ.getJingle().getSid());
+            } else {
+                log.error("Initiate IQ not found in call session: "+session.getId());
+            }
+        }
+
+        return iq;
     }
 
     @Override
     public JingleIQ proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
-        return null;
+        log.debug("SIP accept " + iq);
+        try {
+
+            if (session.getForwardInitIq() == null) {
+                cancelTask(iq.getJingle().getSid());
+                if (log.isDebugEnabled()) {
+                    log.debug("Jingle Call accepted. Cancelling scheduled voicemail forward.. " + iq);
+                }
+            } else {
+                final JingleIQ initiateIQ = session.getInitiateIQ();
+
+                if (initiateIQ != null) {
+
+                    iq = JingleProcessor.createJingleAccept(
+                            JIDFactory.getInstance().getJID(initiateIQ.getJingle().getInitiator()),
+                            JIDFactory.getInstance().getJID(initiateIQ.getJingle().getResponder()),
+                            initiateIQ.getFrom().toBareJID(),
+                            initiateIQ.getJingle().getContent(), initiateIQ.getJingle().getSid());
+                } else {
+                    log.error("Initiate IQ not found in call session: "+session.getId());
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error canceling task",e);
+        }
+        return iq;
     }
+
+
+    public void scheduleVoicemailTask(JingleIQ iq, CallSession session) {
+
+        final Future future = service.schedule(new VoicemailForwardTask(session,this),
+                getCallTimeout(), TimeUnit.MILLISECONDS);
+
+        pendingCalls.put(iq.getJingle().getSid(), future);
+
+    }
+
 
     public long getCallTimeout() {
         return callTimeout;
@@ -152,14 +254,34 @@ public class VoicemailPreparation extends CallPreparation {
      */
     public void handleForwardCall(CallSession callSession) {
 
-        //TODO handle forward call
+        log.debug("Handling forward call: "+callSession.getId());
 
         final JingleIQ initiateIQ = callSession.getInitiateIQ();
-        if (initiateIQ != null) {
-            jingleProcessor.sendJingleTermination(initiateIQ, callSession); //TEST
-            jingleProcessor.sendSipTermination(initiateIQ, callSession);    //TEST
 
-            log.debug("Terminating call: "+callSession.getId());
+        if (initiateIQ != null) {
+
+            final String to = getVoicemailService();
+            final String from = component.getJID().toBareJID();
+
+            if (callSession.isJingleInitiator()) {
+                jingleProcessor.sendSipTermination(initiateIQ, callSession);
+            } else {
+                jingleProcessor.sendJingleTermination(initiateIQ, callSession);
+            }
+
+            final JingleIQ iniIQ = JingleProcessor.createJingleInitialization(
+                    JIDFactory.getInstance().getJID(initiateIQ.getJingle().getInitiator()),
+                    JIDFactory.getInstance().getJID(initiateIQ.getJingle().getResponder()),
+                    to,initiateIQ.getJingle().getContent(), initiateIQ.getJingle().getSid());
+
+            iniIQ.setFrom(from);
+
+            jingleProcessor.send(iniIQ);
+
+            callSession.setForwardInitIq(iniIQ);
+
+            log.debug("Forward call to Voicemail component: "+iniIQ);
+
 
         } else {
             log.error("Initiate IQ not found in call session: "+callSession.getId());
@@ -173,5 +295,21 @@ public class VoicemailPreparation extends CallPreparation {
 
     public JingleProcessor getJingleProcessor() {
         return jingleProcessor;
+    }
+
+    public ExternalComponent getComponent() {
+        return component;
+    }
+
+    public void setComponent(ExternalComponent component) {
+        this.component = component;
+    }
+
+    public String getVoicemailService() {
+        return voicemailService;
+    }
+
+    public void setVoicemailService(String voicemailService) {
+        this.voicemailService = voicemailService;
     }
 }

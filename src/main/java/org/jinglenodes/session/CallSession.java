@@ -79,6 +79,8 @@ public class CallSession {
     @XStreamOmitField
     private SessionUpdateListener sessionUpdateListener;
     private boolean jingleInitiator;
+    private boolean callKilled;
+    private JingleIQ forwardInitIq;
 
     public CallSession(final String id, final JID user) {
         this.id = id;
@@ -340,6 +342,22 @@ public class CallSession {
         this.jingleInitiator = jingleInitiator;
     }
 
+    public boolean isCallKilled() {
+        return callKilled;
+    }
+
+    public void setCallKilled(boolean callKilled) {
+        this.callKilled = callKilled;
+    }
+
+    public JingleIQ getForwardInitIq() {
+        return forwardInitIq;
+    }
+
+    public void setForwardInitIq(JingleIQ forwardInitIq) {
+        this.forwardInitIq = forwardInitIq;
+    }
+
     @Override
     public String toString() {
         return "CallSession{" +
@@ -369,6 +387,8 @@ public class CallSession {
                 ", sessionCredit=" + sessionCredit +
                 ", sessionUpdateListener=" + sessionUpdateListener +
                 ", jingleInitiator=" + jingleInitiator +
+                ", callKilled=" + callKilled +
+                ", forwardInitIq=" + forwardInitIq +
                 '}';
     }
 }

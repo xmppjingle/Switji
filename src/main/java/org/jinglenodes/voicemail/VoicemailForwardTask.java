@@ -25,16 +25,19 @@ public class VoicemailForwardTask implements Callable<CallSession> {
     @Override
     public CallSession call() throws Exception {
 
-        if (preparation.getPendingCalls().containsKey(session.getId()) &&
-                System.currentTimeMillis()-timestamp > preparation.getCallTimeout()) {
+        log.debug("Executing Voicemail forward task: "+session.getId());
+
+        preparation.getPendingCalls().remove(session.getId());
+
+        if (!session.isCallKilled() &&
+                System.currentTimeMillis()-timestamp >= preparation.getCallTimeout()) {
             preparation.handleForwardCall(session);
         }
 
-        try {
-            preparation.cancelTask(session.getId());
-        } catch (Exception e) {
-            log.error("Error canceling task",e);
-        }
+
+
+
+
         return session;
     }
 }

@@ -66,6 +66,7 @@
                 <!--<ref bean="relayPreparation"/>-->
                 <ref bean="chargePreparation"/>
                 <ref bean="fakeRing"/>
+                <ref bean="voicemailPreparation"/>
                 <!--<ref bean="numberFormatPreparation"/>-->
             </list>
         </property>
@@ -212,6 +213,8 @@
 
     <bean id="voicemailPreparation" class="org.jinglenodes.voicemail.VoicemailPreparation">
         <constructor-arg index="0" ref="jingleProcessor"/>
+        <property name="voicemailService" value="${voicemail.service}"/>
+        <property name="component" ref="sipGatewayComponent"/>
     </bean>
 
     <bean id="sipToJingleMapper" class="org.jinglenodes.sip.CachedSipToJingleBind">
