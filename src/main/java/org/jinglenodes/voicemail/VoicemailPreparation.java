@@ -224,6 +224,8 @@ public class VoicemailPreparation extends CallPreparation {
 
     public void scheduleVoicemailTask(JingleIQ iq, CallSession session) {
 
+        log.debug("Scheduling voicemail task [ Delay: "+getCallTimeout()+"]: "+session.getInitiateIQ());
+
         final Future future = service.schedule(new VoicemailForwardTask(session,this),
                 getCallTimeout(), TimeUnit.MILLISECONDS);
 
@@ -237,6 +239,8 @@ public class VoicemailPreparation extends CallPreparation {
     }
 
     public boolean cancelTask(final String sid) {
+
+        log.debug("Cancelling task: "+sid);
 
         boolean result = false;
 

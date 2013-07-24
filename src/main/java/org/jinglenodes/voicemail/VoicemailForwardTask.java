@@ -34,10 +34,6 @@ public class VoicemailForwardTask implements Callable<CallSession> {
             preparation.handleForwardCall(session);
         }
 
-
-
-
-
         return session;
     }
 }
