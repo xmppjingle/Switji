@@ -1,10 +1,12 @@
 package org.jinglenodes.voicemail;
 
 import org.apache.log4j.Logger;
+import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.session.CallSession;
 import org.xmpp.component.ExternalComponent;
+
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
@@ -52,19 +54,27 @@ public class VoicemailPreparation extends CallPreparation {
 
     @Override
     public boolean proceedInitiate(JingleIQ iq, final CallSession session) {
-
-        log.debug("Jingle initiate " + iq);
-
         return true;
-
     }
 
     @Override
     public boolean proceedTerminate(JingleIQ iq, CallSession session) {
 
-        log.debug("Jingle terminate " + iq);
+        log.debug("Jingle terminate: " + iq);
 
+        try {
+
+            if (session.getForwardInitIq() == null) {
+                cancelTask(iq.getJingle().getSid());
+                if (log.isDebugEnabled()) {
+                    log.debug("Jingle Call terminated. Cancelling scheduled voicemail forward.. " + iq);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error canceling task",e);
+        }
         return true;
+
     }
 
     @Override
@@ -211,17 +221,23 @@ public class VoicemailPreparation extends CallPreparation {
 
         final JingleIQ initiateIQ = callSession.getInitiateIQ();
 
-        if (initiateIQ != null) {
+        if (initiateIQ != null && !callSession.isJingleInitiator()) {
 
             final String to = getVoicemailService();
             final String from = component.getJID().toBareJID();
 
-            if (callSession.isJingleInitiator()) {
-                jingleProcessor.sendSipTermination(initiateIQ, callSession);
-            } else {
-                jingleProcessor.sendJingleTermination(initiateIQ, callSession);
-            }
+            // hangup on jingle leg
+            final JingleIQ terminateIq = JingleProcessor.createJingleTermination(
+                    JIDFactory.getInstance().getJID(initiateIQ.getJingle().getInitiator()),
+                    JIDFactory.getInstance().getJID(initiateIQ.getJingle().getResponder()),
+                    initiateIQ.getTo().toBareJID(), new Reason(Reason.Type.timeout),
+                    initiateIQ.getJingle().getSid());
 
+            terminateIq.setFrom(from);
+
+            jingleProcessor.send(terminateIq);
+
+            //forward to voicemail
             final JingleIQ iniIQ = JingleProcessor.createJingleInitialization(
                     JIDFactory.getInstance().getJID(initiateIQ.getJingle().getInitiator()),
                     JIDFactory.getInstance().getJID(initiateIQ.getJingle().getResponder()),
