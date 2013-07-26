@@ -119,9 +119,9 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
             } else if (phone == null) {
                 phone = e.attributeValue("number");
             }
-        }
+        }       
 
-        return phone;
+        return phone==null ? iq.getFrom().getNode() : phone;
     }
 
     @Override
