@@ -155,8 +155,14 @@ public class VoicemailPreparation extends CallPreparation {
                         JIDFactory.getInstance().getJID(initiateIQ.getJingle().getResponder()),
                         initiateIQ.getTo().toBareJID(),
                         iq.getJingle().getReason(), initiateIQ.getJingle().getSid());
+                if (log.isDebugEnabled()) {
+                    log.debug("Forwarding terminate " + iq);
+                }
             } else {
-                log.error("Initiate forward IQ not found in call session: "+session.getId());
+                cancelTask(iq.getJingle().getSid());
+                if (log.isDebugEnabled()) {
+                    log.debug("SIP Call terminated. Cancelling scheduled voicemail forward.. " + iq);
+                }
             }
         }
 
