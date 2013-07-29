@@ -90,7 +90,7 @@ public class VoicemailPreparation extends CallPreparation {
                     log.debug("Jingle Call accepted. Cancelling scheduled voicemail forward.. " + iq);
                 }
             } else {
-                final JingleIQ initiateIQ = session.getInitiateIQ();
+                final JingleIQ initiateIQ = session.getForwardInitIq();
 
                 if (initiateIQ != null) {
                     iq.setTo(initiateIQ.getFrom().toBareJID());
@@ -145,24 +145,22 @@ public class VoicemailPreparation extends CallPreparation {
 
         log.debug("SIP Terminate " + iq);
 
-        if (session.getForwardInitIq() != null) {
-            final JingleIQ initiateIQ = session.getForwardInitIq();
+        final JingleIQ initiateIQ = session.getForwardInitIq();
 
-            if (initiateIQ != null) {
+        if (initiateIQ != null) {
 
-                iq = JingleProcessor.createJingleTermination(
-                        JIDFactory.getInstance().getJID(initiateIQ.getJingle().getInitiator()),
-                        JIDFactory.getInstance().getJID(initiateIQ.getJingle().getResponder()),
-                        initiateIQ.getTo().toBareJID(),
-                        iq.getJingle().getReason(), initiateIQ.getJingle().getSid());
-                if (log.isDebugEnabled()) {
-                    log.debug("Forwarding terminate " + iq);
-                }
-            } else {
-                cancelTask(iq.getJingle().getSid());
-                if (log.isDebugEnabled()) {
-                    log.debug("SIP Call terminated. Cancelling scheduled voicemail forward.. " + iq);
-                }
+            iq = JingleProcessor.createJingleTermination(
+                    JIDFactory.getInstance().getJID(initiateIQ.getJingle().getInitiator()),
+                    JIDFactory.getInstance().getJID(initiateIQ.getJingle().getResponder()),
+                    initiateIQ.getTo().toBareJID(),
+                    iq.getJingle().getReason(), initiateIQ.getJingle().getSid());
+            if (log.isDebugEnabled()) {
+                log.debug("Forwarding terminate " + iq);
+            }
+        } else {
+            cancelTask(iq.getJingle().getSid());
+            if (log.isDebugEnabled()) {
+                log.debug("SIP Call terminated. Cancelling scheduled voicemail forward.. " + iq);
             }
         }
 
