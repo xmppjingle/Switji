@@ -46,7 +46,6 @@ import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.Packet;
 import org.xmpp.tinder.JingleIQ;
-import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.address.SipURL;
 import org.zoolu.sip.header.ContactHeader;
 import org.zoolu.sip.header.StatusLine;
@@ -434,32 +433,11 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
             log.debug("Generating Ringing for: " + request.toString());
 
-
-            Participants p = Participants.getParticipants(request);
-
-            final JID from;
-            final JID to;
-
-            if (callSession.isJingleInitiator()) {
-                from = p.getInitiator();
-                to = p.getResponder();
-            } else {
-                from = p.getResponder();
-                to = p.getInitiator();
-            }
-
-            final Message ringing = SipProcessor.createSipRinging(request, responder, sipTagAdapter.getTagFromJID(from), sipProviderInfo);
-            ringing.getToHeader().setNameAddress(new NameAddress(new SipURL(to.toBareJID())));
-            ringing.getFromHeader().setNameAddress(new NameAddress(new SipURL(from.toBareJID())));
+            final Message ringing = SipProcessor.createSipRinging(request, responder, sipTagAdapter.getTagFromJID(iq.getFrom()), sipProviderInfo);
             ringing.setSendTo(callSession.getLastReceivedRequest().getSendTo());
             ringing.setArrivedAt(callSession.getLastReceivedRequest().getArrivedAt());
             callSessionMapper.getSession(iq).addSentResponse(ringing);
             gatewayRouter.routeSIP(ringing, callSession.getUser());
-
-            if (log.isDebugEnabled()) {
-                log.debug("Sending ringing: "+ringing.toString());
-            }
-
         } catch (JingleSipException e) {
             log.error("Error sending SIP Ringing.", e);
         } catch (SipParsingException e) {
