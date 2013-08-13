@@ -94,6 +94,7 @@ public class VoicemailPreparation extends CallPreparation {
 
                 if (initiateIQ != null) {
                     iq.setTo(initiateIQ.getFrom().toBareJID());
+                    iq.getJingle().setResponder(initiateIQ.getJingle().getResponder());
                 } else {
                     log.error("Initiate IQ not found in call session: "+session.getId());
                 }
@@ -244,7 +245,7 @@ public class VoicemailPreparation extends CallPreparation {
             //forward to voicemail
             final JingleIQ iniIQ = JingleProcessor.createJingleInitialization(
                     JIDFactory.getInstance().getJID(initiateIQ.getJingle().getInitiator()),
-                    JIDFactory.getInstance().getJID(initiateIQ.getJingle().getResponder()),
+                    JIDFactory.getInstance().getJID(initiateIQ.getTo().toBareJID()),
                     to,initiateIQ.getJingle().getContent(), initiateIQ.getJingle().getSid());
 
             iniIQ.setFrom(from);
