@@ -51,7 +51,9 @@ public class FakeRingPreparation extends CallPreparation {
 
         try {
             log.debug("Fake Ring on IQ:" + iq.toXML());
-            final JingleIQ ring = JingleProcessor.createJingleSessionInfo(new JID(iq.getJingle().getSid()), new JID(iq.getJingle().getInitiator()), iq.getFrom() != null ? iq.getFrom().toString() : null, iq.getJingle().getSid(), Info.Type.ringing);
+            final JingleIQ ring = JingleProcessor.createJingleSessionInfo(new JID(iq.getJingle().getResponder()),
+                    new JID(iq.getJingle().getInitiator()), iq.getFrom() != null ? iq.getFrom().toString() : null,
+                    iq.getJingle().getSid(), Info.Type.ringing);
             ring.setFrom(iq.getTo());
             jingleProcessor.processIQ(ring);
         } catch (JingleSipException e) {
