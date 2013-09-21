@@ -25,6 +25,7 @@
 package org.jinglenodes.credit;
 
 import org.apache.log4j.Logger;
+import org.jinglenodes.callkiller.CallKiller;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.session.CallSession;
 import org.xmpp.component.IqRequest;
@@ -47,6 +48,8 @@ public class ChargePreparation extends CallPreparation implements ResultReceiver
 
     final Logger log = Logger.getLogger(ChargePreparation.class);
     private ChargeServiceProcessor chargeServiceProcessor;
+    private CallKiller callKiller;
+    private int maxInboundCallDuration = 5400;  // 90 min
 
     @Override
     public boolean prepareInitiate(JingleIQ iq, CallSession session) {
@@ -95,6 +98,11 @@ public class ChargePreparation extends CallPreparation implements ResultReceiver
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
         setSessionStartTime(session, System.currentTimeMillis());
+
+        if (getCallKiller() != null && !session.isJingleInitiator()) {
+            callKiller.scheduleKill(session, getMaxInboundCallDuration());
+        }
+
         return true;
     }
 
@@ -170,5 +178,21 @@ public class ChargePreparation extends CallPreparation implements ResultReceiver
     @Override
     public void timeoutRequest(IqRequest iqRequest) {
         log.error("Timeout to Charge: " + iqRequest.getRequest());
+    }
+
+    public CallKiller getCallKiller() {
+        return callKiller;
+    }
+
+    public void setCallKiller(CallKiller callKiller) {
+        this.callKiller = callKiller;
+    }
+
+    public int getMaxInboundCallDuration() {
+        return maxInboundCallDuration;
+    }
+
+    public void setMaxInboundCallDuration(int maxInboundCallDuration) {
+        this.maxInboundCallDuration = maxInboundCallDuration;
     }
 }
