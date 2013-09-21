@@ -160,6 +160,7 @@
 
     <bean id="chargePreparation" class="org.jinglenodes.credit.ChargePreparation">
         <property name="chargeServiceProcessor" ref="chargeServiceProcessor"/>
+        <property name="callKiller" ref="callKiller"/>
     </bean>
 
     <bean id="accountPreparation" class="org.jinglenodes.account.AccountPreparation">
