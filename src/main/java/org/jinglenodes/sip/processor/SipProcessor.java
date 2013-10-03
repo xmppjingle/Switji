@@ -997,18 +997,6 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             to = p.getInitiator();
         }
 
-/*        if (iq.getFrom().getNode().equals(p.getResponder().getNode()) ||
-                (!iq.getFrom().getNode().equals(p.getInitiator().getNode()) &&
-                        iq.getTo().getNode() != null && p.getResponder().getNode() != null &&
-                        !ignorePrefix(p.getResponder().getNode()).
-                                equals(ignorePrefix(iq.getTo().getNode())))) {   //FIXME
-            from = p.getResponder();
-            to = p.getInitiator();
-        } else {
-            from = p.getInitiator();
-            to = p.getResponder();
-        }*/
-
         final ContactHeader contactHeader = callSession.getContactHeader(to.toBareJID());
         NameAddress requestURI = null;
         if (contactHeader != null) {
@@ -1115,25 +1103,6 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         }
     }
 
-    final static String exclude[] = new String[] {"00","+"};
-
-    private static String ignorePrefix(String node) {
-        if (node == null) {
-            return null;
-        }
-
-        String result = node;
-
-        for (String prefix: exclude) {
-            if (node.length() > prefix.length() &&
-                    node.startsWith(prefix)) {
-                result = node.substring(prefix.length());
-                break;
-            }
-        }
-
-        return result;
-    }
 
     public void setPreparations(List<CallPreparation> preparations) {
         this.preparations = preparations;

@@ -60,9 +60,12 @@ public class CallKillerTask implements Runnable {
                     final JingleIQ jingleIq = session.getAcceptIQ() == null ?
                             session.getInitiateIQ() : session.getAcceptIQ();
 
+                    final JID initiator = JIDFactory.getInstance().getJID(jingleIq.getJingle().getInitiator());
+                    final JID responder = JIDFactory.getInstance().getJID(jingleIq.getJingle().getResponder());
+
                     final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(
-                            JIDFactory.getInstance().getJID(jingleIq.getJingle().getInitiator()),
-                            JIDFactory.getInstance().getJID(jingleIq.getJingle().getResponder()),
+                            session.isJingleInitiator() ? initiator: responder,
+                            session.isJingleInitiator() ? responder: initiator,
                             jingleIq.getJingle().getResponder(), reason, jingleIq.getJingle().getSid());
                     terminationIQ.setFrom(jingleIq.getJingle().getInitiator());
 
