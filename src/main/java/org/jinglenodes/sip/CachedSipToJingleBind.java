@@ -25,6 +25,8 @@
 package org.jinglenodes.sip;
 
 import org.apache.log4j.Logger;
+import org.jinglenodes.prepare.NodeFormat;
+import org.jinglenodes.prepare.PrefixNodeFormat;
 import org.jinglenodes.sip.account.SipAccount;
 import org.jinglenodes.sip.account.SipAccountProvider;
 import org.xmpp.packet.JID;
@@ -48,15 +50,13 @@ public class CachedSipToJingleBind implements SipToJingleBind {
     private JID defaultJID;
     private String defaultResource;
     private SipAccountProvider accountProvider;
+    private NodeFormat format = new PrefixNodeFormat(); //default
 
     public void addXmppToBind(final JID sipTo, final JID xmppTo) {
         log.debug("add XMPP Bind: " + sipTo.toString() + ":" + xmppTo.toString());
-        String toNode = sipTo.getNode();
-        if (toNode.indexOf("00") == 0) {
-            toNode = "+" + toNode.substring(2);
-        } else if (toNode.charAt(0) != '+') {
-            toNode = "+" + toNode;
-        }
+
+        String toNode = format.formatNode(sipTo.getNode(),null);
+
         sipToXmpp.put(toNode, xmppTo);
     }
 
@@ -67,12 +67,7 @@ public class CachedSipToJingleBind implements SipToJingleBind {
             return lastReceivedJingle.getFrom();
         }
 
-        String toNode = sipTo.getNode();
-        if (toNode.indexOf("00") == 0) {
-            toNode = "+" + toNode.substring(2);
-        } else if (toNode.charAt(0) != '+') {
-            toNode = "+" + toNode;
-        }
+        String toNode = format.formatNode(sipTo.getNode(), null);
 
         final JID jid = sipToXmpp.get(toNode);
         if (jid != null) {
@@ -85,12 +80,7 @@ public class CachedSipToJingleBind implements SipToJingleBind {
 
     public JID getSipFrom(JID xmppInitiator) {
 
-        String fromBare = xmppInitiator.toBareJID();
-        if (fromBare.indexOf("00") == 0) {
-            fromBare = "+" + fromBare.substring(2);
-        } else if (fromBare.charAt(0) != '+') {
-            fromBare = "+" + fromBare;
-        }
+        String fromBare = format.formatNode(xmppInitiator.toBareJID(), null);
 
         final JID jid = xmppToSip.get(fromBare);
         if (jid != null) return jid;
@@ -129,5 +119,13 @@ public class CachedSipToJingleBind implements SipToJingleBind {
 
     public void setAccountProvider(SipAccountProvider accountProvider) {
         this.accountProvider = accountProvider;
+    }
+
+    public NodeFormat getFormat() {
+        return format;
+    }
+
+    public void setFormat(NodeFormat format) {
+        this.format = format;
     }
 }

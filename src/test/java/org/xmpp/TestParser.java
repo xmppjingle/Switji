@@ -10,6 +10,8 @@ import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.content.Content;
 import org.jinglenodes.jingle.description.Description;
 import org.jinglenodes.jingle.description.Payload;
+import org.jinglenodes.jingle.processor.JingleException;
+import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.jingle.processor.JingleSipException;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
@@ -17,6 +19,7 @@ import org.jinglenodes.sip.processor.SipProcessor;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
+import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
 
 public class TestParser extends TestCase {
@@ -140,6 +143,67 @@ public class TestParser extends TestCase {
 
 
     public void testJID(){
-        final JID j = new JID("#13290@test.com");
+
+        Jingle jingle = new Jingle("asdasd12e21d",
+                "+4915750599998@178.33.162.38/Ax1.9.3180xxD0622D16ABBF6C26EAED9D96C981DE791A6F503Dx",
+                "+4915750599999@178.33.162.38/Ax1.9.3180xxD0622D16ABBF6C26asdasd9D96C981DE791A6F503Dx",
+                "session-terminate");
+
+        JingleIQ iq = new JingleIQ(jingle);
+
+
+        System.out.println(iq.toXML());
+
+
+        final JID j = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
+        final JID z = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
+
+
+
+        final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(
+                j, z,
+                j.toFullJID(),
+                iq.getJingle().getReason(), "qweqeqweqweqweqwe");
+
+        terminationIQ.setFrom(z.toFullJID());
+
+        System.out.println(terminationIQ);
+
+
+
     }
+
+    public void testCallKiller() {
+
+
+        Jingle jingle = new Jingle("asdasd12e21d",
+                "+4915738512828@test.ym.ms/Ax1.9.3180xxD0622D16ABBF6C26EAED9D96C981DE791A6F503Dx",
+                "+4915750599999@178.33.162.38/Ax1.9.3180xxD0622D16ABBF6C26asdasd9D96C981DE791A6F503Dx",
+                "session-accept");
+
+        final JingleIQ jingleIq = new JingleIQ(jingle);
+
+        final JID initiator = JIDFactory.getInstance().getJID(jingleIq.getJingle().getInitiator());
+        final JID responder = JIDFactory.getInstance().getJID(jingleIq.getJingle().getResponder());
+
+        jingleIq.setTo(initiator);
+        jingleIq.setFrom(responder);
+
+        final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(
+                initiator, responder,
+                responder.toFullJID(),
+                jingleIq.getJingle().getReason(), jingleIq.getJingle().getSid());
+
+        terminationIQ.setFrom(initiator.toFullJID());
+
+        final JingleIQ backTerminationIQ = JingleProcessor.createJingleTermination(jingleIq,
+                jingleIq.getJingle().getReason());
+        backTerminationIQ.setTo(jingleIq.getFrom());
+        backTerminationIQ.setFrom((JID) null);
+        System.out.println("Call Killer Back Terminate: " + backTerminationIQ.toString());
+        System.out.println("Call Killer Terminate: " + terminationIQ.toString());
+
+
+    }
+
 }
