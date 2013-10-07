@@ -4,7 +4,7 @@
 <groupId>org.jinglenodes</groupId>
 <artifactId>sipgateway</artifactId>
 <name>SIP Gateway::${project.artifactId}</name>
-<version>1.0.43</version>
+<version>1.0.44</version>
 <description>SIP Gateway based on Jingle Nodes API</description>
 <packaging>jar</packaging>
 <build>

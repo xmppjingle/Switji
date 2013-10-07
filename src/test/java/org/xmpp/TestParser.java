@@ -145,7 +145,7 @@ public class TestParser extends TestCase {
     public void testJID(){
 
         Jingle jingle = new Jingle("asdasd12e21d",
-                "+4915750599998@178.33.162.38/Ax1.9.3180xxD0622D16ABBF6C26EAED9D96C981DE791A6F503Dx",
+                "+4915738512828@test.ym.ms/Ax1.9.3180xxD0622D16ABBF6C26EAED9D96C981DE791A6F503Dx",
                 "+4915750599999@178.33.162.38/Ax1.9.3180xxD0622D16ABBF6C26asdasd9D96C981DE791A6F503Dx",
                 "session-terminate");
 
@@ -158,6 +158,8 @@ public class TestParser extends TestCase {
         final JID j = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
         final JID z = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
 
+        iq.setTo(j.toFullJID());
+        iq.setFrom(z.toFullJID());
 
 
         final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(
@@ -178,7 +180,7 @@ public class TestParser extends TestCase {
 
         Jingle jingle = new Jingle("asdasd12e21d",
                 "+4915738512828@test.ym.ms/Ax1.9.3180xxD0622D16ABBF6C26EAED9D96C981DE791A6F503Dx",
-                "+4915750599999@178.33.162.38/Ax1.9.3180xxD0622D16ABBF6C26asdasd9D96C981DE791A6F503Dx",
+                "+4915750599998@178.33.162.38/Ax1.9.3180xxD0622D16ABBF6C26EAED9D96C981DE791A6F503Dx",
                 "session-accept");
 
         final JingleIQ jingleIq = new JingleIQ(jingle);

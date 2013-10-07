@@ -60,16 +60,7 @@ public class CallKillerTask implements Runnable {
                     final JingleIQ jingleIq = session.getAcceptIQ() == null ?
                             session.getInitiateIQ() : session.getAcceptIQ();
 
-                    final JID initiator = JIDFactory.getInstance().getJID(jingleIq.getJingle().getInitiator());
-                    final JID responder = JIDFactory.getInstance().getJID(jingleIq.getJingle().getResponder());
-
-                    final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(
-                            initiator, responder,
-                            session.isJingleInitiator() ? responder.toFullJID() : initiator.toFullJID(),
-                            reason, jingleIq.getJingle().getSid());
-
-                    terminationIQ.setFrom(session.isJingleInitiator() ?
-                            initiator.toFullJID() : responder.toFullJID());
+                    JingleIQ terminationIQ = createTerminate(jingleIq);
 
                     if (log.isDebugEnabled() ) {
                         if (session.getAcceptIQ() == null) {
@@ -84,6 +75,9 @@ public class CallKillerTask implements Runnable {
                     } catch (JingleException e) {
                         log.error("Failed to Force Termination Process", e);
                     }
+
+                    //HACK: in case a preparation has overwritten terminateIQ info
+                    terminationIQ = createTerminate(jingleIq);
                     final JingleIQ backTerminationIQ = JingleProcessor.createJingleTermination(jingleIq, reason);
                     backTerminationIQ.setTo(session.getInitiateIQ().getFrom());
                     backTerminationIQ.setFrom((JID) null);
@@ -98,6 +92,22 @@ public class CallKillerTask implements Runnable {
         } else {
             log.warn("Unable to kill null Session");
         }
+    }
+
+    private JingleIQ createTerminate(final JingleIQ jingleIq) {
+
+        final JID initiator = JIDFactory.getInstance().getJID(jingleIq.getJingle().getInitiator());
+        final JID responder = JIDFactory.getInstance().getJID(jingleIq.getJingle().getResponder());
+
+        final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(
+                initiator, responder,
+                session.isJingleInitiator() ? responder.toFullJID() : initiator.toFullJID(),
+                reason, jingleIq.getJingle().getSid());
+
+        terminationIQ.setFrom(session.isJingleInitiator() ?
+                initiator.toFullJID() : responder.toFullJID());
+
+        return terminationIQ;
     }
 
 }
