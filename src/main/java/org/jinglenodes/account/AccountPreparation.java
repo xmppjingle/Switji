@@ -84,8 +84,17 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
             }
             final SipAccount account = accountServiceProcessor.getAccountProvider().getSipAccount(initiator);
             if (account != null) {
-                iq.getJingle().setResponder(responder.getNode() + "@" + account.getOutboundproxy());
-                iq.getJingle().setInitiator(account.getDisplayName() + "@" + initiator.getDomain() + (initiator.getResource() == null ? "" : "/" + initiator.getResource()));
+
+                final String resp = responder.getNode() + "@" + account.getOutboundproxy();
+                final String caller = account.getDisplayName() + "@" + initiator.getDomain() +
+                        (initiator.getResource() == null ? "" : "/" + initiator.getResource());
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Retrieved account: Initiator: " + initiator.toFullJID() + " - new initiator: " + caller);
+                }
+
+                iq.getJingle().setResponder(resp);
+                iq.getJingle().setInitiator(caller);
             }
         }
         return true;

@@ -19,7 +19,8 @@ public class PrefixNodeFormat implements NodeFormat {
             nnode = prefix + node.substring(2);
         } else if (node.charAt(0) == '+') {
             nnode = prefix + node.substring(1);
-        } else if (node.startsWith(prefix)) {
+        } else if (node.startsWith(prefix) ||
+                !isNumeric(node)) {
             nnode = node;
         } else {
             nnode = prefix + node;
@@ -34,4 +35,15 @@ public class PrefixNodeFormat implements NodeFormat {
     public void setPrefix(String prefix) {
         this.prefix = prefix;
     }
+
+    public static boolean isNumeric(String str) {
+        boolean result = true;
+        try {
+            Double.parseDouble(str);
+        } catch(NumberFormatException nfe) {
+            result = false;
+        }
+        return result;
+    }
+
 }

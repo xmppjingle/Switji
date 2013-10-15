@@ -57,14 +57,12 @@ public class CallKillerTask implements Runnable {
             if (session.isActive()) {
                 log.warn("Killing Call: " + session.getId() + " Proceeds: " + session.getProceeds().size());
                 try {
+                    final JID to = getDestination();
+
                     final JingleIQ jingleIq = session.getAcceptIQ() == null ?
                             session.getInitiateIQ() : session.getAcceptIQ();
 
-                    final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(
-                            JIDFactory.getInstance().getJID(jingleIq.getJingle().getInitiator()),
-                            JIDFactory.getInstance().getJID(jingleIq.getJingle().getResponder()),
-                            jingleIq.getJingle().getResponder(), reason, jingleIq.getJingle().getSid());
-                    terminationIQ.setFrom(jingleIq.getJingle().getInitiator());
+                    JingleIQ terminationIQ = createTerminate(jingleIq, to);
 
                     session.setCallKilled(true);
 
@@ -81,13 +79,25 @@ public class CallKillerTask implements Runnable {
                     } catch (JingleException e) {
                         log.error("Failed to Force Termination Process", e);
                     }
-                    final JingleIQ backTerminationIQ = JingleProcessor.createJingleTermination(jingleIq, reason);
-                    backTerminationIQ.setTo(session.getInitiateIQ().getFrom());
+
+                    //HACK: in case a preparation has overwritten terminateIQ info
+                    terminationIQ = createTerminate(jingleIq, to);
+
+                    final JingleIQ backTerminationIQ = JingleProcessor.
+                            createJingleTermination(session.getInitiateIQ(), reason);
+
+                    backTerminationIQ.setTo(to);
+
                     backTerminationIQ.setFrom((JID) null);
-                    log.debug("Call Killer Back Terminate: " + backTerminationIQ.toString());
-                    log.debug("Call Killer Terminate: " + terminationIQ.toString());
+
+                    if (log.isDebugEnabled() ) {
+                        log.debug("Call Killer Back Terminate: " + backTerminationIQ.toString());
+                        log.debug("Call Killer Terminate: " + terminationIQ.toString());
+                    }
+
                     jingleProcessor.send(backTerminationIQ);
                     jingleProcessor.send(terminationIQ);
+
                 } catch (Exception e) {
                     log.error("Could not Kill Properly Call: " + session.getId(), e);
                 }
@@ -96,5 +106,36 @@ public class CallKillerTask implements Runnable {
             log.warn("Unable to kill null Session");
         }
     }
+
+    private JingleIQ createTerminate(final JingleIQ jingleIq, JID to) {
+
+        final JID initiator = JIDFactory.getInstance().getJID(jingleIq.getJingle().getInitiator());
+        final JID responder = JIDFactory.getInstance().getJID(jingleIq.getJingle().getResponder());
+
+        final JingleIQ terminationIQ = JingleProcessor.createJingleTermination(
+                initiator, responder, to.toString(),
+                reason, jingleIq.getJingle().getSid());
+
+        terminationIQ.setFrom(session.isJingleInitiator() ?
+                initiator : responder);
+
+        return terminationIQ;
+    }
+
+    private JID getDestination() {
+        JID to;
+
+        if (session.isJingleInitiator()) {
+            to = session.getInitiateIQ().getFrom();
+        } else {
+            if (session.getAcceptIQ() != null) {
+                to = session.getAcceptIQ().getFrom();
+            } else {
+                to = session.getInitiateIQ().getTo();
+            }
+        }
+        return to;
+    }
+
 
 }
