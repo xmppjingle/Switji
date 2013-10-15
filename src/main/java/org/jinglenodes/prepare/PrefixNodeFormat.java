@@ -1,5 +1,7 @@
 package org.jinglenodes.prepare;
 
+import org.jinglenodes.util.Util;
+
 /**
  * Created with IntelliJ IDEA.
  * User: thiago
@@ -20,7 +22,7 @@ public class PrefixNodeFormat implements NodeFormat {
         } else if (node.charAt(0) == '+') {
             nnode = prefix + node.substring(1);
         } else if (node.startsWith(prefix) ||
-                !isNumeric(node)) {
+                !Util.isNumeric(node)) {
             nnode = node;
         } else {
             nnode = prefix + node;
@@ -36,14 +38,5 @@ public class PrefixNodeFormat implements NodeFormat {
         this.prefix = prefix;
     }
 
-    public static boolean isNumeric(String str) {
-        boolean result = true;
-        try {
-            Double.parseDouble(str);
-        } catch(NumberFormatException nfe) {
-            result = false;
-        }
-        return result;
-    }
 
 }
