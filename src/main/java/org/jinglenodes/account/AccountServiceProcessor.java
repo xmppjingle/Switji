@@ -32,6 +32,7 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
     private SipProviderInformation sipInfo;
     private NodeFormat nodeFormat;
     private String phoneDefaultType;
+    private String phoneVerifiedType;
 
     private final Element requestElement;
     private final String xmlns;
@@ -113,7 +114,8 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
         String phone = null;
         for (Object o : iq.getChildElement().elements()) {
             Element e = (Element) o;
-            if (e.attributeValue("type").equals(phoneDefaultType)) {
+            if (e.attributeValue("type").equals(phoneVerifiedType) ||
+                    e.attributeValue("type").equals(phoneDefaultType)) {
                 phone = e.attributeValue("number");
                 break;
             } else if (phone == null) {
@@ -189,6 +191,14 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
      */
     public void setPhoneDefaultType(String phoneDefaultType) {
         this.phoneDefaultType = phoneDefaultType;
+    }
+
+    public String getPhoneVerifiedType() {
+        return phoneVerifiedType;
+    }
+
+    public void setPhoneVerifiedType(String phoneVerifiedType) {
+        this.phoneVerifiedType = phoneVerifiedType;
     }
 
     public String getDomain() {
