@@ -48,9 +48,7 @@ import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.address.SipURL;
-import org.zoolu.sip.header.CSeqHeader;
-import org.zoolu.sip.header.ContactHeader;
-import org.zoolu.sip.header.ToHeader;
+import org.zoolu.sip.header.*;
 import org.zoolu.sip.message.*;
 import org.zoolu.sip.provider.SipProviderInfoInterface;
 
@@ -65,6 +63,9 @@ import java.util.List;
 public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager {
     private static final Logger log = Logger.getLogger(SipProcessor.class);
     public static final String emptyAddress = "0.0.0.0";
+    public static final String timerSupportedHeader = "timer";
+    public static final String sessionExpiresHeader = "Session-Expires";
+
     private SipProviderInfoInterface sipProviderInfo;
     private GatewayRouter gatewayRouter;
     private CallSessionMapper callSessions;
@@ -155,7 +156,11 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             else if (msg.isInvite() && msg.isRequest()) {
                 session.setJingleInitiator(false);
                 if (isReInvite(msg)) {
-                    processReInviteSip(msg, sipChannel);
+                    if (isSessionRefresh(msg)) {
+                        processRefreshSession(msg);
+                    } else {
+                        processReInviteSip(msg, sipChannel);
+                    }
                 } else {
                     processInviteSip(msg, sipChannel);
                 }
@@ -260,6 +265,17 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
 
     }
 
+    public boolean isSessionRefresh(final org.zoolu.sip.message.Message msg) throws JingleException {
+
+        final Header supported = msg.getHeader(SipHeaders.Supported);
+        final Header sessionExpires = msg.getHeader(timerSupportedHeader); //TODO update sjbundle?
+
+        return supported != null && supported.getValue() != null &&
+                supported.getValue().contains(timerSupportedHeader) && sessionExpires != null;
+
+    }
+
+
     protected void process2xxSip(final org.zoolu.sip.message.Message msg) throws JingleException {
         sendJingleAccepted(msg);
         sendSipAck(msg);
@@ -289,6 +305,10 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         final CallSession callSession = callSessions.getSession(msg);
         JingleIQ iq = callSession.getLastSentJingle();
         jingleProcessor.sendSipInviteOk(iq);
+    }
+
+    protected void processRefreshSession(final org.zoolu.sip.message.Message msg) throws JingleException {
+        sendSessionRefreshResponse(msg);
     }
 
     protected void processRingingSip(final org.zoolu.sip.message.Message msg) throws JingleException {
@@ -751,6 +771,23 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
     public final void sendSipOk(final Message msg) {
         try {
             final Message response = createSipOk(msg, sipProviderInfo);
+            response.setSendTo(msg.getSendTo());
+            response.setArrivedAt(msg.getArrivedAt());
+            gatewayRouter.routeSIP(response, null);
+        } catch (JingleSipException e) {
+            log.error("Error Creating SIP OK", e);
+        }
+    }
+
+    public final void sendSessionRefreshResponse(final Message msg) {
+        try {
+            final Message response = createSipOk(msg, sipProviderInfo);
+            Header sessionExpires = msg.getHeader(sessionExpiresHeader);
+
+            response.setHeader(new Header(SipHeaders.Supported, timerSupportedHeader));
+            response.setHeader(new Header(SipHeaders.Require, timerSupportedHeader));
+            response.setHeader(sessionExpires);
+
             response.setSendTo(msg.getSendTo());
             response.setArrivedAt(msg.getArrivedAt());
             gatewayRouter.routeSIP(response, null);
