@@ -220,6 +220,9 @@
     </bean>
 
     <bean id="sipToJingleMapper" class="org.jinglenodes.sip.CachedSipToJingleBind">
+        <constructor-arg index="0" value="${cache.maxEntries}"/>
+        <constructor-arg index="1" value="${cache.timeToLive}"/>
+        <constructor-arg index="2" value="${cache.purgeDelay}"/>
         <property name="accountProvider" ref="accountProvider"/>
         <property name="defaultJID" value="${sip.defaultjid}"/>
         <property name="defaultResource" value="${sip.defaultresource}"/>

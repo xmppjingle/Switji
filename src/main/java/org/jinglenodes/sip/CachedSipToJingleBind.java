@@ -44,13 +44,30 @@ import org.zoolu.tools.ConcurrentTimelineHashMap;
 public class CachedSipToJingleBind implements SipToJingleBind {
 
     private static final Logger log = Logger.getLogger(CachedSipToJingleBind.class);
-    private final ConcurrentTimelineHashMap<String, JID> sipToXmpp = new ConcurrentTimelineHashMap<String, JID>();
-    private final ConcurrentTimelineHashMap<String, JID> xmppToSip = new ConcurrentTimelineHashMap<String, JID>();
+    private final ConcurrentTimelineHashMap<String, JID> sipToXmpp;
+    private final ConcurrentTimelineHashMap<String, JID> xmppToSip;
 
     private JID defaultJID;
     private String defaultResource;
     private SipAccountProvider accountProvider;
-    private NodeFormat format = new PrefixNodeFormat(); //default
+    private NodeFormat format;
+
+
+    public CachedSipToJingleBind() {
+        sipToXmpp = new ConcurrentTimelineHashMap<String, JID>();
+        xmppToSip = new ConcurrentTimelineHashMap<String, JID>();
+        format = new PrefixNodeFormat(); //default
+    }
+
+
+    public CachedSipToJingleBind(int maxEntries, long timeToLive, long purgeDelay) {
+        sipToXmpp = new ConcurrentTimelineHashMap<String, JID>(maxEntries, timeToLive, purgeDelay);
+        xmppToSip = new ConcurrentTimelineHashMap<String, JID>(maxEntries, timeToLive, purgeDelay);
+        format = new PrefixNodeFormat(); //default
+        sipToXmpp.enableScheduledPurge();
+        xmppToSip.enableScheduledPurge();
+    }
+
 
     public void addXmppToBind(final JID sipTo, final JID xmppTo) {
         log.debug("add XMPP Bind: " + sipTo.toString() + ":" + xmppTo.toString());
