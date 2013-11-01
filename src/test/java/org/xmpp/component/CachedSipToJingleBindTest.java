@@ -1,21 +1,17 @@
 package org.xmpp.component;
 
+import junit.framework.TestCase;
 import org.jinglenodes.sip.CachedSipToJingleBind;
-import org.junit.Test;
 import org.xmpp.packet.JID;
-
-import static junit.framework.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author bhlangonijr
  *         Date: 11/1/13
  *         Time: 11:56 AM
  */
-public class CachedSipToJingleBindTest {
+public class CachedSipToJingleBindTest extends TestCase {
 
 
-    @Test
     public void testExpiration() throws InterruptedException {
 
 
