@@ -89,7 +89,7 @@ public class SIPGatewayApplication {
         }
         if (sipGatewayComponent.getGatewaySipRouter() != null) {
             sipGatewayComponent.getGatewaySipRouter().shutdown();
-            sipGatewayComponent.shutdown();
+            //sipGatewayComponent.shutdown();
         }
     }
 

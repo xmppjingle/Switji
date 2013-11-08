@@ -38,6 +38,8 @@ public class TestParser extends TestCase {
         jingle.setContent(new Content("initiator", "audio", "both", new Description("audio"), new RawUdpTransport(new Candidate("10.166.108.22", "10000", "0"))));
         jingle.getContent().getDescription().addPayload(Payload.G729);
         final JingleIQ jingleIQ = new JingleIQ(jingle);
+        jingleIQ.setFrom(initiator);
+        jingleIQ.setTo(responder);
         //assertEquals(jingleIQ.getChildElement().element("jingle").asXML(), source);
         System.out.println(jingleIQ.toXML());
         final JingleIQ jingleIQParsed = JingleIQ.fromXml(jingleIQ);
@@ -62,6 +64,8 @@ public class TestParser extends TestCase {
         Document doc = DocumentHelper.parseText(packet);
 
         final IQ iq = new IQ(doc.getRootElement());
+        iq.setFrom(initiator);
+        iq.setTo(responder);
         final JingleIQ jingleIQ = JingleIQ.fromXml(iq);
         jingleIQ.setFrom(initiator);
         jingleIQ.setTo("sip.localhost");
@@ -79,6 +83,8 @@ public class TestParser extends TestCase {
         final Jingle jingle = new Jingle("abc", initiator, responder, Jingle.SESSION_TERMINATE);
         jingle.setReason(new Reason(Reason.Type.success));
         final JingleIQ jingleIQ = new JingleIQ(jingle);
+        jingleIQ.setFrom(initiator);
+        jingleIQ.setTo(responder);
         //assertEquals(jingleIQ.getChildElement().element("jingle").asXML(), sourceTerminate);
         System.out.println(jingleIQ.toXML());
         final JingleIQ jingleIQParsed = JingleIQ.fromXml(jingleIQ);

@@ -164,7 +164,7 @@ public class StunCheck extends TestCase {
         }
     }
 
-    public void testStun() throws IOException, UnknownHostException {
+    public void stunTest() throws IOException, UnknownHostException {
 
         final DatagramSocket s = new DatagramSocket(4040);
         final StunRequest srq = createSTUNChangeRequest();
