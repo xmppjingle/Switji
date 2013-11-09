@@ -188,12 +188,19 @@ public class VoicemailPreparation extends CallPreparation {
 
     public void scheduleVoicemailTask(JingleIQ iq, CallSession session) {
 
-        log.debug("Scheduling voicemail task [ Delay: "+getCallTimeout()+"]: "+session.getInitiateIQ());
+        if (!pendingCalls.containsKey(iq.getJingle().getSid())) {
 
-        final Future future = service.schedule(new VoicemailForwardTask(session,this),
-                getCallTimeout(), TimeUnit.MILLISECONDS);
+            log.debug("Scheduling voicemail task [ Delay: "+getCallTimeout()+"]: "+session.getInitiateIQ());
 
-        pendingCalls.put(iq.getJingle().getSid(), future);
+            final Future future = service.schedule(new VoicemailForwardTask(session,this),
+                    getCallTimeout(), TimeUnit.MILLISECONDS);
+
+            pendingCalls.put(iq.getJingle().getSid(), future);
+
+        } else {
+            log.debug("Voicemail already scheduled for sid: "+iq.getJingle().getSid());
+
+        }
 
     }
 

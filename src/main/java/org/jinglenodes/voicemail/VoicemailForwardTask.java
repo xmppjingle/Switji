@@ -29,9 +29,13 @@ public class VoicemailForwardTask implements Callable<CallSession> {
 
         preparation.getPendingCalls().remove(session.getId());
 
-        if (!session.isCallKilled() &&
-                System.currentTimeMillis()-timestamp >= preparation.getCallTimeout()) {
+        if (!session.isCallKilled()  && !session.isConnected() &&
+                System.currentTimeMillis()-timestamp >= preparation.getCallTimeout() &&
+                session.getAcceptIQ() == null) {
             preparation.handleForwardCall(session);
+        } else {
+            log.warn("Dismissing voicemail task: "+session.getId());
+
         }
 
         return session;
