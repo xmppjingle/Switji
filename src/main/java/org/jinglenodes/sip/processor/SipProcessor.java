@@ -54,6 +54,7 @@ import org.zoolu.sip.provider.SipProviderInfoInterface;
 
 import javax.sdp.*;
 import javax.sdp.fields.AttributeField;
+import javax.sdp.fields.SessionNameField;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ import java.util.List;
 
 public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager {
     private static final Logger log = Logger.getLogger(SipProcessor.class);
+    private static final String DEFAULT_REQUEST_LINE_PARAM = "user=phone";
     public static final String emptyAddress = "0.0.0.0";
     public static final String timerSupportedHeader = "timer";
     public static final String sessionExpiresHeader = "Session-Expires";
@@ -843,10 +845,18 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
     public static Message createSipInvite(final JID initiator, final JID responder, final String sid, final SipProviderInfoInterface sipProvider, final Description rtpDescription, final RawUdpTransport transport) throws SdpException {
         final String contact = getContact(initiator.getNode(), sipProvider);
         final SessionDescription description = createSipSDP(rtpDescription, transport, sipProvider);
+        SessionNameField s = new SessionNameField();
+        s.setSessionName("session");
+        description.setSessionName(s);
         final String to = responder.toBareJID();
         final String from = initiator.toBareJID();
-        final Message m = MessageFactory.createInviteRequest(sipProvider, new SipURL(to), new NameAddress(to.split("@")[0], new SipURL(to)), new NameAddress(from, new SipURL(from)), new NameAddress(new SipURL(contact)), description.toString(), sid, initiator.getResource());
+        final Message m = MessageFactory.createInviteRequest(sipProvider, new SipURL(to),
+                new NameAddress(to.split("@")[0], new SipURL(to+";"+DEFAULT_REQUEST_LINE_PARAM)), new NameAddress(from, new SipURL(from)),
+                new NameAddress(new SipURL(contact)), description.toString(), sid, initiator.getResource());
         m.getToHeader().setParameter("tag", responder.getResource());
+        //TODO Implement support to user parameter in RequestLine at sjbundle
+        m.setRequestLine(new RequestLine(SipMethods.INVITE, new SipURL(to)+";"+DEFAULT_REQUEST_LINE_PARAM));
+
         return m;
     }
 
@@ -1152,4 +1162,5 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
     public void setCallKiller(CallKiller callKiller) {
         this.callKiller = callKiller;
     }
+
 }
