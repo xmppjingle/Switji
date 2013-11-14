@@ -50,6 +50,7 @@ public class Payload {
     public static final Payload PCMA = new Payload("8", "PCMA");
     public static final Payload G729 = new Payload("18", "G729");
     public static final Payload GSM = new Payload("3", "GSM");
+    public static final Payload TELEPHONE_EVENT = new Payload("101", "telephone-event");
 
     public Payload(String id, String name) {
         this.id = id;
@@ -98,6 +99,8 @@ public class Payload {
                 return G729;
             case 3:
                 return GSM;
+            case 101:
+                return TELEPHONE_EVENT;
         }
 
         return null;

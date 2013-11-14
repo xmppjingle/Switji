@@ -164,6 +164,7 @@ public class TestSIPGateway extends TestCase {
         final Jingle jingle = new Jingle(sid, initiator, responder, Jingle.SESSION_INITIATE);
         jingle.setContent(new Content("initiator", "audio", "both", new Description("audio"), new RawUdpTransport(new Candidate("10.166.108.22", "10000", "0"))));
         jingle.getContent().getDescription().addPayload(Payload.G729);
+        jingle.getContent().getDescription().addPayload(Payload.TELEPHONE_EVENT);
         final JingleIQ jingleIQ = new JingleIQ(jingle);
         jingleIQ.setTo(to);
         jingleIQ.setFrom(initiator);
