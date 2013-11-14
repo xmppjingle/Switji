@@ -903,7 +903,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             }
             if (payload.getId().equals(Payload.TELEPHONE_EVENT.getId())) {  //382com support
                 names.add("fmtp");
-                values.add(String.valueOf(payload.getId()) + "0-16");
+                values.add(String.valueOf(payload.getId()) + " 0-16");
             }
         }
 
