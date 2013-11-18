@@ -214,7 +214,8 @@
     <bean id="sipProviderInfo" class="org.zoolu.sip.provider.SipProviderInformation">
         <constructor-arg index="0" value="${sip.server}"/>
         <constructor-arg index="1" value="${sip.port}"/>
-        <property name="viaAddress" value="${sip.server}"/>
+        <property name="viaAddress" value="${sip.localip}"/>
+        <property name="viaPort" value="${sip.localport}"/>
     </bean>
 
     <bean id="sip" init-method="init" class="org.jinglenodes.component.SIPGatewayApplication" destroy-method="destroy">

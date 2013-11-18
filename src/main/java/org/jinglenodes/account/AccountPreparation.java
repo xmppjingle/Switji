@@ -90,7 +90,7 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
                         (initiator.getResource() == null ? "" : "/" + initiator.getResource());
 
                 if (log.isDebugEnabled()) {
-                    log.debug("Retrieved account: Initiator: " + initiator.toFullJID() + " - new initiator: " + caller);
+                    log.debug("Retrieved account: Initiator: " + initiator.toString() + " - new initiator: " + caller);
                 }
 
                 iq.getJingle().setResponder(resp);

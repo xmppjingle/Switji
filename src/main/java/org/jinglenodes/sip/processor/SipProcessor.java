@@ -871,7 +871,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
     }
 
     public static String getContact(final String node, final SipProviderInfoInterface sipProvider) {
-        return node + "@" + sipProvider.getViaAddress() + ":" + sipProvider.getPort() + ";transport=udp";
+        return node + "@" + sipProvider.getViaAddress() + ":" + sipProvider.getViaPort() + ";transport=udp";
     }
 
     public static SessionDescription createSipSDP(final Description rtpDescription, final RawUdpTransport transport, final SipProviderInfoInterface sipProvider) throws SdpException {

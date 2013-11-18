@@ -240,6 +240,11 @@ public class ExternalComponent extends AbstractComponent {
         return name;
     }
 
+    @Override
+    public String getDomain() {
+        return serverDomain;
+    }
+
     public ExternalComponentManager getManager() {
         return manager;
     }

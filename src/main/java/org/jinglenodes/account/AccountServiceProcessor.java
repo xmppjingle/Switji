@@ -103,7 +103,7 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
       */
     protected SipAccount getSipAccount(IQ iq) {
         String phone = getPhone(iq);
-        return phone != null ? new SipAccount(phone, phone, phone, "", sipInfo.getViaAddress(), sipInfo.getIP()) : null;
+        return phone != null ? new SipAccount(phone, phone, phone, "", sipInfo.getIP(), sipInfo.getIP()) : null;
     }
 
     /*
