@@ -111,7 +111,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             log.error("Severe Error Processing Jingle: " + xmppIQ, e);
         }
 
-        return null;//IQ.createResultIQ(iq);
+        return IQ.createResultIQ(iq);
 
     }
 

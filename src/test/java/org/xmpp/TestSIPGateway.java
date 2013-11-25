@@ -102,7 +102,11 @@ public class TestSIPGateway extends TestCase {
 
         final Jingle jt = new Jingle(init.getJingle().getSid(), init.getJingle().getInitiator(), init.getJingle().getResponder(), Jingle.SESSION_TERMINATE);
         jt.setReason(new Reason(Reason.Type.success));
-        jingleProcessor.processIQ(new JingleIQ(jt));
+
+        JingleIQ jtq = new JingleIQ(jt);
+        jtq.setFrom("initiator@abc.com");
+        jtq.setTo("responder@abc.com");
+        jingleProcessor.processIQ(jtq);
 
         for (int i = 0; i < 5; i++)
             Thread.sleep(200);
