@@ -897,9 +897,6 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
                 names.add("fmtp");
                 values.add(String.valueOf(payload.getId()) + " annexb=no");
 
-                names.add("ptime"); // 382com support
-                values.add("20");
-
             }
             if (payload.getId().equals(Payload.TELEPHONE_EVENT.getId())) {  //382com support
                 names.add("fmtp");
