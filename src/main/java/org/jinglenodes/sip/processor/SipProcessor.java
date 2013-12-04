@@ -394,7 +394,10 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             final CallSession callSession = callSessions.getSession(msg);
             if (callSession != null) {
                 if (sipToJingleBind != null) {
-                    to = sipToJingleBind.getXmppTo(initiator, callSession.getLastReceivedJingle());
+                    JID xmppTo = sipToJingleBind.getXmppTo(initiator, callSession.getLastReceivedJingle());
+                    if (xmppTo != null) {
+                        to = xmppTo;
+                    }
                 }
 
                 for (final JID usr : callSession.getUsers()) {
@@ -435,7 +438,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             try {
                 participants = msg.getParticipants();
             } catch (SipParsingException e) {
-                log.error("Error Processing 200OK.", e);
+                log.error("Error Processing 200K.", e);
                 return;
             }
 
@@ -449,8 +452,12 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
                 callSession.setConnected(true);
 
                 if (sipToJingleBind != null) {
-                    to = sipToJingleBind.getXmppTo(initiator, callSession.getLastReceivedJingle());
+                    JID xmppTo = sipToJingleBind.getXmppTo(initiator, callSession.getLastReceivedJingle());
+                    if (xmppTo != null) {
+                        to = xmppTo;
+                    }
                 }
+
                 for (final JID usr : callSession.getUsers()) {
                     if (to.toBareJID().equals(usr.toBareJID())) {
                         to = usr;
@@ -571,7 +578,10 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             }
 
             if (sipToJingleBind != null) {
-                to = sipToJingleBind.getXmppTo(to, callSession.getLastReceivedJingle());
+                JID xmppTo = sipToJingleBind.getXmppTo(to, callSession.getLastReceivedJingle());
+                if (xmppTo != null) {
+                    to = xmppTo;
+                }
             }
 
             for (final JID usr : callSession.getUsers()) {
@@ -740,7 +750,10 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             final CallSession callSession = callSessions.getSession(msg);
             if (callSession != null) {
                 if (sipToJingleBind != null) {
-                    to = sipToJingleBind.getXmppTo(initiator, callSession.getLastReceivedJingle());
+                    JID xmppTo = sipToJingleBind.getXmppTo(initiator, callSession.getLastReceivedJingle());
+                    if (xmppTo != null) {
+                        to = xmppTo;
+                    }
                 }
                 for (final JID usr : callSession.getUsers()) {
                     if (to.toBareJID().equals(usr.toBareJID())) {

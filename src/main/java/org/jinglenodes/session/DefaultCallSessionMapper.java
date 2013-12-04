@@ -100,6 +100,7 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
             final Participants participants = Participants.getParticipants(message);
             user = participants.getInitiator();
         } catch (SipParsingException e) {
+            log.error("Parsing exception: ", e);
             user = null;
         }
         final String id = getSessionId(message);
