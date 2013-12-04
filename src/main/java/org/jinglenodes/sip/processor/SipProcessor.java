@@ -183,7 +183,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             }
         } catch (JingleException e) {
             log.error("Could not Parse Packet", e);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error("Severe Error Processing SIP Packet: " + msg, e);
         }
 
@@ -420,6 +420,8 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             log.error("Error Sending Trying", e);
         } catch (JingleSipException e) {
             log.error("Error Creating Ring Packet", e);
+        } catch (Exception e) {
+            log.error("Unknow error", e);
         }
     }
 
