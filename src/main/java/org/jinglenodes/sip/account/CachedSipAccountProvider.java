@@ -51,7 +51,7 @@ public class CachedSipAccountProvider implements SipAccountProvider {
         }
         final String user = userJID.toBareJID();
 
-        if (cachedAccounts.containsKey(user)) {
+        if (user != null && cachedAccounts.containsKey(user)) {
             return cachedAccounts.get(user);
         }
 
