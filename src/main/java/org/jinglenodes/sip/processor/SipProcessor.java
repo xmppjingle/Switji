@@ -44,6 +44,7 @@ import org.jinglenodes.session.CallSessionMapper;
 import org.jinglenodes.sip.GatewayRouter;
 import org.jinglenodes.sip.SipPacketProcessor;
 import org.jinglenodes.sip.SipToJingleBind;
+import org.jinglenodes.sip.SipToJingleCodes;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.address.NameAddress;
@@ -604,7 +605,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
 
             final int code = getCode(msg);
 
-            final Reason reason = getReason(msg, code);
+            final Reason reason = SipToJingleCodes.getReason(msg, code);
 
             JingleIQ terminate = JingleProcessor.createJingleTermination(initiator, responder, to.toString(), reason, msg.getCallIdHeader().getCallId());
 
@@ -631,45 +632,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
 
     public static Reason getReason(final Message msg) {
         final int code = getCode(msg);
-        return getReason(msg, code);
-    }
-
-    public static Reason getReason(final Message msg, final int code) {
-        final Reason reason;
-        switch (code) {
-            case 602:
-                reason = new Reason(code + " - " + msg.getStatusLine().getReason(), Reason.Type.decline);
-                break;
-            case 402:
-                reason = new Reason((code) + " - " + msg.getStatusLine().getReason(), Reason.Type.general_error);
-                break;
-            case 483:
-            case 404:
-            case 420:
-            case 405:
-            case 414:
-            case 484:
-            case 485:
-                reason = new Reason((code) + " - " + msg.getStatusLine().getReason(), Reason.Type.connectivity_error);
-                break;
-            case 486:
-            case 480:
-                reason = new Reason((code) + " - " + msg.getStatusLine().getReason(), Reason.Type.busy);
-                break;
-            case 415:
-                reason = new Reason((code) + " - " + msg.getStatusLine().getReason(), Reason.Type.media_error);
-                break;
-            case 403:
-                reason = new Reason((code) + " - " + msg.getStatusLine().getReason(), Reason.Type.security_error);
-                break;
-            case 487:
-            case -1:
-                reason = new Reason(Reason.Type.success);
-                break;
-            default:
-                reason = new Reason(code > 0 ? (code) + " - " + msg.getStatusLine().getReason() : String.valueOf(code), Reason.Type.success);
-        }
-        return reason;
+        return SipToJingleCodes.getReason(msg, code);
     }
 
     public final void sendJingleInitialization(final Message msg, final SipChannel sipChannel) {

@@ -66,7 +66,7 @@ public class Reason {
      */
 
     public enum Type {
-        security_error, alternative_session, busy, connectivity_error, decline, general_error, media_error, success, unsupported_applications, unsupported_transports, timeout, payment, cancel, forbidden
+        security_error, alternative_session, busy, connectivity_error, decline, general_error, media_error, success, unsupported_applications, unsupported_transports, timeout, payment, cancel, forbidden, gone
     }
 
 //    @XStreamAlias("no-error")

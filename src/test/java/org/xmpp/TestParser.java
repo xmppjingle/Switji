@@ -15,12 +15,16 @@ import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.jingle.processor.JingleSipException;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
+import org.jinglenodes.prepare.CallPreparation;
+import org.jinglenodes.session.CallSession;
 import org.jinglenodes.sip.processor.SipProcessor;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
+import org.zoolu.sip.message.Participants;
+import org.zoolu.sip.message.SipParsingException;
 
 public class TestParser extends TestCase {
 
@@ -139,6 +143,63 @@ public class TestParser extends TestCase {
 
 
         System.out.println(m.toString());
+    }
+
+    public void testSIPInfoParsing() throws JingleSipException, SipParsingException {
+        final String sipString = "\n" +
+                "SIP/2.0 183 Session Progress\n" +
+                "Via: SIP/2.0/UDP 213.232.148.92:5060;branch=z9hG4bKA28u005511997158437x131125;received=178.33.112.237;rport=5062\n" +
+                "From: \"+5511997158437@ym.ms\" <sip:+5511997158437@ym.ms>;tag=Ax1.9.3.3200xx43532CCE7F832F320B6632A1D64E9F64ED36F0C8x\n" +
+                "To: \"005511950505668\" <sip:005511950505668@213.232.148.92>;tag=as12426bbb\n" +
+                "Call-ID: A28u005511997158437x131125\n" +
+                "CSeq: 1 INVITE\n" +
+                "Server: Asterisk PBX 1.8.13.0\n" +
+                "Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO, PUBLISH\n" +
+                "Supported: replaces, timer\n" +
+                "Contact: <sip:005511950505668@213.232.148.92:5060>\n" +
+                "Content-Type: application/sdp\n" +
+                "Content-Length: 410\n" +
+                "\n" +
+                "v=0\n" +
+                "o=root 1026971017 1026984194 IN IP4 213.232.148.92\n" +
+                "s=Asterisk PBX 1.8.13.0\n" +
+                "c=IN IP4 213.232.148.92\n" +
+                "t=0 0\n" +
+                "m=audio 17196 RTP/AVP 18 3 112 8 0 101\n" +
+                "a=rtpmap:18 G729/8000\n" +
+                "a=fmtp:18 annexb=no\n" +
+                "a=rtpmap:3 GSM/8000\n" +
+                "a=rtpmap:112 iLBC/8000\n" +
+                "a=fmtp:112 mode=30\n" +
+                "a=rtpmap:8 PCMA/8000\n" +
+                "a=rtpmap:0 PCMU/8000\n" +
+                "a=rtpmap:101 telephone-event/8000\n" +
+                "a=fmtp:101 0-16\n" +
+                "a=silenceSupp:off - - - -\n" +
+                "a=ptime:20\n" +
+                "a=sendrecv";
+
+        final Message m = new Message(sipString);
+
+        sendJingleRinging(m);
+
+
+        System.out.println(m.toString());
+    }
+
+    public final void sendJingleRinging(final Message msg) throws JingleSipException, SipParsingException {
+
+
+        final Participants participants = msg.getParticipants();
+
+        final JID initiator = participants.getInitiator();
+        final JID responder = participants.getResponder();
+        JID to = initiator;
+
+        final JingleIQ iq = JingleProcessor.createJingleSessionInfo(initiator, responder, to.toString(), msg.getCallIdHeader().getCallId(), Info.Type.ringing);
+
+        System.out.println(iq);
+
     }
 
 
