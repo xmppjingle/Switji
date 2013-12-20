@@ -268,10 +268,10 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
 
     }
 
-    public boolean isSessionRefresh(final org.zoolu.sip.message.Message msg) throws JingleException {
+    public static boolean isSessionRefresh(final org.zoolu.sip.message.Message msg) throws JingleException {
 
         final Header supported = msg.getHeader(SipHeaders.Supported);
-        final Header sessionExpires = msg.getHeader(timerSupportedHeader); //TODO update sjbundle?
+        final Header sessionExpires = msg.getHeader(sessionExpiresHeader); //TODO update sjbundle?
 
         return supported != null && supported.getValue() != null &&
                 supported.getValue().contains(timerSupportedHeader) && sessionExpires != null;
