@@ -86,7 +86,7 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
             if (account != null) {
 
                 final String resp = responder.getNode() + "@" + account.getOutboundproxy();
-                final String caller = account.getDisplayName() + "@" + initiator.getDomain() +
+                final String caller = account.getSipUsername() + "@" + initiator.getDomain() +
                         (initiator.getResource() == null ? "" : "/" + initiator.getResource());
 
                 if (log.isDebugEnabled()) {
