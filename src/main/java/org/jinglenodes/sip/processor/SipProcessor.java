@@ -921,7 +921,9 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
     }
 
     public static Message createSipAck(final Message response, final SipProviderInfoInterface sipProvider) {
-        return MessageFactory.create2xxAckRequest(sipProvider, response, null);
+        final String contact = getContact(response.getFromHeader().getNameAddress().getAddress().getUserName(),
+                sipProvider);
+        return MessageFactory.create2xxAckRequest(sipProvider, response, null, new NameAddress(contact));
     }
 
     public static Message createSipNon2xxAck(final Message response, final SipProviderInfoInterface sipProvider) {
