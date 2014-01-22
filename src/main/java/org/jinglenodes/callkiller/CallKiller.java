@@ -51,6 +51,7 @@ public class CallKiller {
     private long cleanCounter = 0;
     private static long HOUR = 1000 * 60 * 60;
     private static long PERIOD = 10000;
+    private int timeout = 30;
 
     public CallKiller() {
         timerExecutor = new ScheduledThreadPoolExecutor(5, new NamingThreadFactory("Call Killer Thread"));
@@ -69,8 +70,10 @@ public class CallKiller {
     }
 
     public void scheduleKill(final CallSession session, final int seconds) {
-        log.warn("Scheduling for Killing Call: " + session.getId() + " in " + seconds + " seconds");
-        final CallKillerTask task = new CallKillerTask(session, jingleProcessor, new Reason(Reason.Type.payment));
+        log.warn("Scheduling for Killing Call: " + session.getId() + " in " + seconds +
+                " seconds - max " + getTimeout());
+        Reason reason = seconds > getTimeout() ? new Reason(Reason.Type.timeout): new Reason(Reason.Type.payment);
+        final CallKillerTask task = new CallKillerTask(session, jingleProcessor, reason);
         tasks.put(session.getId(), task);
         timerExecutor.schedule(task, seconds, TimeUnit.SECONDS);
     }
@@ -127,4 +130,11 @@ public class CallKiller {
         return i;
     }
 
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
 }
