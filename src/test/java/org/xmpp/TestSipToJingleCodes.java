@@ -95,8 +95,44 @@ public class TestSipToJingleCodes extends TestCase {
                 "a=ptime:20";
 
         final Message msg = new Message(sipString);
-
         assertTrue(SipProcessor.isSessionRefresh(msg));
 
     }
+
+
+    public void testRefreshRequest2() throws JingleException {
+        String sipString = "INVITE sip:13476005162@68.68.124.82 SIP/2.0\n" +
+                "Via: SIP/2.0/UDP 178.33.112.216:5064;rport;branch=z9hG4bKA9ureeceex140126\n" +
+                "Max-Forwards: 70\n" +
+                "To: \"13476005162\" <sip:13476005162@68.68.124.82>\n" +
+                "From: \"17185049774@ym.ms\" <sip:17185049774@ym.ms>;tag=Ax2.0.3220xxFED62FC8DF37FEED83AAED1667A45A172990AE83x\n" +
+                "Call-ID: A9ureeceex140126\n" +
+                "CSeq: 1 INVITE\n" +
+                "Contact: <sip:17185049774@178.33.112.216:5064;transport=udp>\n" +
+                "Expires: 3600\n" +
+                "User-Agent: Jingle Nodes Single\n" +
+                "Content-Type: application/sdp\n" +
+                "Content-Length: 303\n" +
+                "\n" +
+                "v=0\n" +
+                "o=J2S 3 1 IN IP4 50.22.171.226\n" +
+                "s=-\n" +
+                "c=IN IP4 50.22.171.226\n" +
+                "t=0 0\n" +
+                "m=audio 49292 RTP/AVP 112 18 3 0 8 101\n" +
+                "a=rtpmap:112 iLBC/8000/1\n" +
+                "a=rtpmap:18 G729/8000/1\n" +
+                "a=fmtp:18 annexb=no\n" +
+                "a=rtpmap:3 GSM/8000/1\n" +
+                "a=rtpmap:0 PCMU/8000/1\n" +
+                "a=rtpmap:8 PCMA/8000/1\n" +
+                "a=rtpmap:101 telephone-event/8000/1\n" +
+                "a=sendrecv";
+
+        final Message msg = new Message(sipString);
+
+        assertFalse(SipProcessor.isSessionRefresh(msg));
+
+    }
+
 }

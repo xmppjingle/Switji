@@ -158,12 +158,10 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             // Invite Request
             else if (msg.isInvite() && msg.isRequest()) {
                 session.setJingleInitiator(false);
-                if (isReInvite(msg)) {
-                    if (isSessionRefresh(msg)) {
-                        processRefreshSession(msg);
-                    } else {
-                        processReInviteSip(msg, sipChannel);
-                    }
+                if (isSessionRefresh(msg)) {
+                    processRefreshSession(msg);
+                } else if (isReInvite(msg)) {
+                    processReInviteSip(msg, sipChannel);
                 } else {
                     processInviteSip(msg, sipChannel);
                 }
@@ -259,6 +257,10 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         final org.zoolu.sip.message.Message lastResponse = callSession.getLastReceivedResponse();
         if (lastResponse == null) {
             return false;
+        }
+
+        if (callSession.isConnected()) {
+            return true;
         }
 
         final int statusLineCode = lastResponse.getStatusLine() != null ? lastResponse.getStatusLine().getCode() : -1;
@@ -672,7 +674,8 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
                 content.setName(display.trim());
             }
 
-            JingleIQ initialization = JingleProcessor.createJingleInitialization(initiator, responder, to.toString(), content, msg.getCallIdHeader().getCallId());
+            JingleIQ initialization = JingleProcessor.createJingleInitialization(initiator, responder, to.toString(),
+                    content, msg.getCallIdHeader().getCallId());
             initialization.setTo(to);
 
             final CallSession callSession = callSessions.addSentJingle(initialization);
