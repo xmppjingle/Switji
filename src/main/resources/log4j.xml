@@ -3,7 +3,9 @@
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
     <appender name="cdr" class="org.apache.log4j.rolling.RollingFileAppender">
-        <param name="FileNamePattern" value="${sipgateway.home}/log/cdr_sip.log.%d.gz"/>
+        <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+            <param name="FileNamePattern" value="${sipgateway.home}/log/cdr_sip.log.%d.gz"/>
+        </rollingPolicy>
         <param name="File" value="${sipgateway.home}/log/cdr_sip.log"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d{yyyy-MM-dd'T'HH:mm:ss,SSS}\t%m%n"/>
@@ -18,7 +20,9 @@
     </appender>
 
     <appender name="appender" class="org.apache.log4j.rolling.RollingFileAppender">
-        <param name="FileNamePattern" value="${sipgateway.home}/log/sipgateway.log.%d.gz"/>
+        <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+            <param name="FileNamePattern" value="${sipgateway.home}/log/sipgateway.log.%d.gz"/>
+        </rollingPolicy>
         <param name="File" value="${sipgateway.home}/log/sipgateway.log"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d{yyyy-MM-dd'T'HH:mm:ss,SSS} %t %-5p %c - %m%n"/>
