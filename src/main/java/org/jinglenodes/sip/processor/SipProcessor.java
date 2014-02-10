@@ -158,10 +158,12 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             // Invite Request
             else if (msg.isInvite() && msg.isRequest()) {
                 session.setJingleInitiator(false);
-                if (isSessionRefresh(msg)) {
-                    processRefreshSession(msg);
-                } else if (isReInvite(msg)) {
-                    processReInviteSip(msg, sipChannel);
+                if (isReInvite(msg)) {
+                    if (isSessionRefresh(msg)) {
+                        processRefreshSession(msg);
+                    } else {
+                        processReInviteSip(msg, sipChannel);
+                    }
                 } else {
                     processInviteSip(msg, sipChannel);
                 }
@@ -259,7 +261,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             return false;
         }
 
-        if (callSession.isConnected()) {
+        if (callSession.isConnected()) { //in-dialog
             return true;
         }
 

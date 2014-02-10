@@ -101,37 +101,40 @@ public class TestSipToJingleCodes extends TestCase {
 
 
     public void testRefreshRequest2() throws JingleException {
-        String sipString = "INVITE sip:13476005162@68.68.124.82 SIP/2.0\n" +
-                "Via: SIP/2.0/UDP 178.33.112.216:5064;rport;branch=z9hG4bKA9ureeceex140126\n" +
-                "Max-Forwards: 70\n" +
-                "To: \"13476005162\" <sip:13476005162@68.68.124.82>\n" +
-                "From: \"17185049774@ym.ms\" <sip:17185049774@ym.ms>;tag=Ax2.0.3220xxFED62FC8DF37FEED83AAED1667A45A172990AE83x\n" +
-                "Call-ID: A9ureeceex140126\n" +
-                "CSeq: 1 INVITE\n" +
-                "Contact: <sip:17185049774@178.33.112.216:5064;transport=udp>\n" +
-                "Expires: 3600\n" +
-                "User-Agent: Jingle Nodes Single\n" +
+        String sipString = " INVITE sip:00447537164103@46.105.105.182 SIP/2.0\n" +
+                "Record-Route: <sip:92.42.145.116;lr;did=1c6.28c2a3f6>\n" +
+                "Call-ID: 7003108415850126995-1390871154-14518\n" +
+                "From: <sip:447951522960@81.24.194.130;user=phone>;tag=7003108415850126995\n" +
+                "To: <sip:447537164103@92.42.145.116;user=phone>\n" +
                 "Content-Type: application/sdp\n" +
-                "Content-Length: 303\n" +
+                "Min-SE: 90\n" +
+                "Session-Expires: 3600;refresher=uac\n" +
+                "CSeq: 1 INVITE\n" +
+                "Via: SIP/2.0/UDP 92.42.145.116:5060;branch=z9hG4bK8f65.dea4da77.0\n" +
+                "Via: SIP/2.0/UDP 81.24.194.130:5060;branch=z9hG4bK-61300a000a4b9e93-ac80008-1\n" +
+                "Contact: <sip:447951522960@81.24.194.130:5060;user=phone>\n" +
+                "Allow: INVITE,CANCEL,BYE,ACK,REFER,UPDATE,INFO,PRACK\n" +
+                "Supported: timer,100rel\n" +
+                "Max-Forwards: 69\n" +
+                "User-Agent: VCS  5.8.2.56-03\n" +
+                "Content-Length: 312\n" +
                 "\n" +
                 "v=0\n" +
-                "o=J2S 3 1 IN IP4 50.22.171.226\n" +
+                "o=MG4000|2.0 125266 210361 IN IP4 81.24.194.131\n" +
                 "s=-\n" +
-                "c=IN IP4 50.22.171.226\n" +
+                "c=IN IP4 81.24.194.131\n" +
                 "t=0 0\n" +
-                "m=audio 49292 RTP/AVP 112 18 3 0 8 101\n" +
-                "a=rtpmap:112 iLBC/8000/1\n" +
-                "a=rtpmap:18 G729/8000/1\n" +
-                "a=fmtp:18 annexb=no\n" +
-                "a=rtpmap:3 GSM/8000/1\n" +
-                "a=rtpmap:0 PCMU/8000/1\n" +
-                "a=rtpmap:8 PCMA/8000/1\n" +
-                "a=rtpmap:101 telephone-event/8000/1\n" +
-                "a=sendrecv";
+                "m=audio 17862 RTP/AVP 8 0 101 13\n" +
+                "a=rtpmap:101 telephone-event/8000\n" +
+                "a=fmtp:101 0-15\n" +
+                "a=ptime:20\n" +
+                "a=rtpmap:13 CN/8000\n" +
+                "a=X-vrzcap:vbd Ver=1 Mode=FaxPr ModemRtpRed=0\n" +
+                "a=X-vrzcap:identification bin=DSR2866 Prot=mgcp App=MG";
 
         final Message msg = new Message(sipString);
 
-        assertFalse(SipProcessor.isSessionRefresh(msg));
+        assertTrue(SipProcessor.isSessionRefresh(msg));
 
     }
 
