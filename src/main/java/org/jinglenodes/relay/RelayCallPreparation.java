@@ -131,7 +131,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
         if (session != null) {
-            if (session.getRelayIQ() != null) {
+            if (session.getRelayIQ() != null && session.getForwardInitIq() == null) {
                 JingleProcessor.updateJingleTransport(iq, session.getRelayIQ());
             }
         }
