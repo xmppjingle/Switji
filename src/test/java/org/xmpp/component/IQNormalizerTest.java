@@ -20,22 +20,22 @@ public class IQNormalizerTest extends TestCase {
 
     public void testSidNormalization() {
 
-        NormalizeSidFormat format = new NormalizeSidFormat();
+        NormalizeSidFormat format = new NormalizeSidFormat(" p.m", "_p.m");
 
-        String sid = "I5utessainsx140218011514_pm674";
+        String sid = "I5utessainsx140218011514 p.m.674";
 
         JingleIQ iq = fakeJingleInitiate("initiator@abc.com", "responder@abc.com", "sip.abc.com", sid);
 
         JingleIQ iqNormalized = format.normalize(iq);
 
-        assertEquals("I5utessainsx140218011514pm674", iqNormalized.getJingle().getSid());
+        assertEquals("I5utessainsx140218011514_p.m.674", iqNormalized.getJingle().getSid());
 
     }
 
 
     public void testSidNormalizationNoChange() {
 
-        NormalizeSidFormat format = new NormalizeSidFormat();
+        NormalizeSidFormat format = new NormalizeSidFormat(" p.m", "_p.m");
 
         String sid = "A5utessainsx140218011514pm673";
 

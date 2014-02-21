@@ -33,8 +33,6 @@ import org.jinglenodes.jingle.description.Description;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.jinglenodes.prepare.CallPreparation;
-import org.jinglenodes.prepare.IQNormalizer;
-import org.jinglenodes.prepare.NormalizeSidFormat;
 import org.jinglenodes.prepare.PrepareStatesManager;
 import org.jinglenodes.relay.RelayIQ;
 import org.jinglenodes.session.CallSession;
@@ -73,7 +71,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
     private SipTagAdapter sipTagAdapter = new DefaultSipTagAdapter();
 
     private List<CallPreparation> preparations = new ArrayList<CallPreparation>();
-    private IQNormalizer iqNormalizer = new NormalizeSidFormat();
+
 
     public void init() {
         for (final CallSession cs : callSessionMapper.getSessions()) {
@@ -101,11 +99,6 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             }
 
             iq = JingleIQ.fromXml(xmppIQ);
-
-            if (getIqNormalizer() != null) {
-                iq = iqNormalizer.normalize(iq);
-            }
-
             processJingle(iq);
 
         } catch (JingleException e) {
@@ -609,7 +602,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         jingle.setInfo(new Info());
         final JingleIQ iq = new JingleIQ(jingle);
         iq.setTo(to);
-        iq.setFrom((JID)null);//responder);
+        iq.setFrom((JID) null);//responder);
         return iq;
     }
 
@@ -638,11 +631,4 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         this.sipTagAdapter = sipTagAdapter;
     }
 
-    public IQNormalizer getIqNormalizer() {
-        return iqNormalizer;
-    }
-
-    public void setIqNormalizer(IQNormalizer iqNormalizer) {
-        this.iqNormalizer = iqNormalizer;
-    }
 }

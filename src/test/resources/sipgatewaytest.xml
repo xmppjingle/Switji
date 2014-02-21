@@ -12,12 +12,20 @@
         </property>
     </bean>
 
+
+    <bean id="iqNormalizer"
+          class="org.jinglenodes.prepare.NormalizeSidFormat">
+        <constructor-arg index="0" value=" p.m."/>
+        <constructor-arg index="1" value="_p.m.fix."/>
+    </bean>
+
     <bean id="sipGatewayManager"
           class="org.xmpp.component.MockExternalComponentManager">
         <constructor-arg index="0" value="${xmpp.server}"/>
         <constructor-arg index="1" value="${xmpp.port}"/>
         <property name="accountServiceNamespace" value="${account.namespace}"/>
         <property name="creditServiceNamespace" value="${credit.namespace}"/>
+        <property name="iqNormalizer" ref="iqNormalizer"/>
     </bean>
 
     <bean id="sipGatewayComponent" class="org.jinglenodes.component.SIPGatewayComponent" init-method="init">

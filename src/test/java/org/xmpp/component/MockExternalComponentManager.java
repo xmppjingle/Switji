@@ -1,15 +1,19 @@
 package org.xmpp.component;
 
 import org.dom4j.Element;
+import org.jinglenodes.prepare.IQNormalizer;
 import org.jinglenodes.relay.RelayIQ;
 import org.jivesoftware.whack.ExternalComponentManager;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.Packet;
+import org.xmpp.tinder.JingleIQ;
 
 public class MockExternalComponentManager extends ExternalComponentManager {
 
     private String accountServiceNamespace;
     private String creditServiceNamespace;
+    private IQNormalizer iqNormalizer;
+
 
     public MockExternalComponentManager(String host, int port) {
         super(host, port);
@@ -27,6 +31,10 @@ public class MockExternalComponentManager extends ExternalComponentManager {
         if (component instanceof ExternalComponent) {
             final ExternalComponent externalComponent = ((ExternalComponent) component);
             packet.setFrom(externalComponent.getJID());
+            if (getIqNormalizer() != null && (IQ)packet instanceof JingleIQ ) {
+                System.out.println("** Packet" + packet.toString());
+                packet = iqNormalizer.deNormalize(JingleIQ.fromXml((IQ)packet));
+            }
             //Fake Responses
             if (packet instanceof IQ) {
                 if (((IQ) packet).getChildElement() != null) {
@@ -77,5 +85,13 @@ public class MockExternalComponentManager extends ExternalComponentManager {
 
     public void setCreditServiceNamespace(String creditServiceNamespace) {
         this.creditServiceNamespace = creditServiceNamespace;
+    }
+
+    public IQNormalizer getIqNormalizer() {
+        return iqNormalizer;
+    }
+
+    public void setIqNormalizer(IQNormalizer iqNormalizer) {
+        this.iqNormalizer = iqNormalizer;
     }
 }

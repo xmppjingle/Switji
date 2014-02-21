@@ -3,9 +3,11 @@ package org.xmpp.component;
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
+import org.jinglenodes.prepare.IQNormalizer;
 import org.jivesoftware.whack.ExternalComponentManager;
 import org.xmpp.packet.*;
 import org.xmpp.packet.PacketError.Condition;
+import org.xmpp.tinder.JingleIQ;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ public class ExternalComponent extends AbstractComponent {
     private final ConcurrentHashMap<String, List<NamespaceProcessor>> processors = new ConcurrentHashMap<String, List<NamespaceProcessor>>();
     private final List<MessageProcessor> messageProcessors = new ArrayList<MessageProcessor>(1);
     private ExternalComponentManager manager;
+    private IQNormalizer iqNormalizer;
 
     /**
      * The XMPP domain to which this component is registered to.
@@ -41,7 +44,7 @@ public class ExternalComponent extends AbstractComponent {
     private final JID jid;
 
     /**
-     * Create a new component which provides weather information.
+     * Create a new component for interworking xmpp with sip.
      *
      * @param name         The name of this component.
      * @param description  The name of this component.
@@ -74,6 +77,13 @@ public class ExternalComponent extends AbstractComponent {
         }
     }
 
+    public void send(JingleIQ iq) {
+        if (getIqNormalizer() != null) {
+            iq = iqNormalizer.deNormalize(iq);
+        }
+        send((Packet)iq);
+    }
+
     protected IQ _createPacketError(final Message message, final Condition condition) {
         final PacketError pe = new PacketError(condition);
         final IQ ret = new IQ(IQ.Type.result);
@@ -83,14 +93,9 @@ public class ExternalComponent extends AbstractComponent {
     }
 
     /**
-     * Handle a received message and answer the weather information of the requested station id.
-     * The request must be made using Message packets where the body of the message should be the
-     * station id.<p>
-     * <p/>
-     * Note: I don't know the list of valid station ids so if you find the list please send it to me
-     * so I can add it to this example.
+     * Handle a received message
      *
-     * @param message the Message requesting information about a certain station id.
+     * @param message message.
      */
     @Override
     protected void handleMessage(Message message) {
@@ -142,7 +147,7 @@ public class ExternalComponent extends AbstractComponent {
     }
 
     @Override
-    protected IQ handleIQSet(final IQ iq) throws Exception {
+    protected IQ handleIQSet(IQ iq) throws Exception {
         // Get 'from'.
         final JID jid = iq.getFrom();
         if (null == jid) return null;
@@ -158,6 +163,10 @@ public class ExternalComponent extends AbstractComponent {
         // Parse URI from namespace.
         final String ns = namespace.getURI();
 
+        if (getIqNormalizer() != null && getIqNormalizer().getNamespace().equals(ns)) {
+            iq = iqNormalizer.normalize(JingleIQ.fromXml(iq));
+        }
+
         for (final NamespaceProcessor np : processors.get(ns))
             if (null != np) {
                 return np.processIQSet(iq);
@@ -167,7 +176,7 @@ public class ExternalComponent extends AbstractComponent {
     }
 
     @Override
-    protected void handleIQError(final IQ iq) {
+    protected void handleIQError(IQ iq) {
 
         log.debug("Received Error: " + iq.toXML());
 
@@ -186,7 +195,7 @@ public class ExternalComponent extends AbstractComponent {
     }
 
     @Override
-    protected void handleIQResult(final IQ iq) {
+    protected void handleIQResult(IQ iq) {
 
         log.debug("Received Result: " + iq.toXML());
 
@@ -259,5 +268,13 @@ public class ExternalComponent extends AbstractComponent {
 
     public JID getJID() {
         return jid;
+    }
+
+    public IQNormalizer getIqNormalizer() {
+        return iqNormalizer;
+    }
+
+    public void setIqNormalizer(IQNormalizer iqNormalizer) {
+        this.iqNormalizer = iqNormalizer;
     }
 }

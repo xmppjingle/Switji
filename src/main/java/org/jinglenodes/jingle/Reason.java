@@ -35,12 +35,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "reason")
 public class Reason {
 
-    private String text;
     @XStreamOmitField
     private Type type;
     private static final String REASON = "reason";
     private static final String CONDITION = "condition";
-
+    private String text;
     /*
     <xs:choice>
         <xs:element name='alternative-session'
@@ -86,6 +85,14 @@ public class Reason {
         this.type = type;
     }
 
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(final Type type) {
+        this.type = type;
+    }
+
     public String getText() {
         return text;
     }
@@ -94,13 +101,6 @@ public class Reason {
         this.text = text;
     }
 
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(final Type type) {
-        this.type = type;
-    }
 
     public Element getElement() {
         final Element parent = DocumentHelper.createElement(REASON);
