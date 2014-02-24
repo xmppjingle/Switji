@@ -60,6 +60,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     private CallKiller callKiller;
     private long lastCheck = System.currentTimeMillis();
     public static long TIMEOUT = 60 * 1000 * 5;
+    private boolean useOnForwardedCalls=true;
 
     @Override
     public void receivedResult(final IqRequest iqRequest) {
@@ -131,7 +132,8 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
         if (session != null) {
-            if (session.getRelayIQ() != null && session.getForwardInitIq() == null) {
+            if (session.getRelayIQ() != null &&
+                    (isUseOnForwardedCalls() || session.getForwardInitIq() == null)) {
                 JingleProcessor.updateJingleTransport(iq, session.getRelayIQ());
             }
         }
@@ -285,4 +287,11 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
         this.callKiller = callKiller;
     }
 
+    public boolean isUseOnForwardedCalls() {
+        return useOnForwardedCalls;
+    }
+
+    public void setUseOnForwardedCalls(boolean useOnForwardedCalls) {
+        this.useOnForwardedCalls = useOnForwardedCalls;
+    }
 }
