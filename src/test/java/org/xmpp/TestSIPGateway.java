@@ -56,7 +56,6 @@ public class TestSIPGateway extends TestCase {
     }
 
     public void testSessionPersistence() throws Exception {
-
         resetCounters();
 
         final JingleProcessor jingleProcessor = Main.getSipGatewayApplication().getJingleProcessor();
@@ -91,14 +90,24 @@ public class TestSIPGateway extends TestCase {
         final JingleIQ init = fakeJingleInitiate("initiator@abc.com", "responder@abc.com", "sip.abc.com", sid);
 
         jingleProcessor.processIQ(init);
+
         Thread.sleep(100);
+
         sessionMapper.clear();
+
         final CachedSipAccountProvider sipAccountProvider = (CachedSipAccountProvider) Main.getSipGatewayApplication().getSipGatewayComponent().getGatewaySipRouter().getSipAccountProvider();
         sipAccountProvider.clearCachedAccounts();
 
         sessionMapper.load();
 
         assertEquals(1, sessionMapper.getSessionCount());
+
+
+        final CallSession cs0 = jingleProcessor.getCallSessionMapper().getSession(new JingleIQ(init.getJingle()));
+
+        System.out.println("CS0 " + cs0);
+
+        assertNotNull(cs0.getProceeds());
 
         final Jingle jt = new Jingle(init.getJingle().getSid(), init.getJingle().getInitiator(), init.getJingle().getResponder(), Jingle.SESSION_TERMINATE);
         jt.setReason(new Reason(Reason.Type.success));
@@ -108,10 +117,11 @@ public class TestSIPGateway extends TestCase {
         jtq.setTo("responder@abc.com");
         jingleProcessor.processIQ(jtq);
 
-        for (int i = 0; i < 5; i++)
-            Thread.sleep(200);
+        Thread.sleep(1000);
 
         final CallSession cs = jingleProcessor.getCallSessionMapper().getSession(new JingleIQ(jt));
+
+        System.out.println("CS " + cs);
 
         assertNotNull(cs.getProceeds());
 
@@ -143,8 +153,9 @@ public class TestSIPGateway extends TestCase {
 
         final CallSession cs2 = sessionMapper.fromXml(x);
 
-//        assertEquals(1, sipInviteSent.get());
-//        assertEquals(1, sipCancelSent.get());
+        assertEquals(1, sipInviteSent.get());
+        assertEquals(1, sipCancelSent.get());
+
 
     }
 

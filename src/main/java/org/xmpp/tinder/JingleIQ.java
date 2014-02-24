@@ -27,12 +27,6 @@ public class JingleIQ extends XStreamIQ<Jingle> {
         try {
             originalDoc = new SAXReader().read(new StringReader(element.toString()));
             final Element e = originalDoc.getRootElement().createCopy();
-            if (element.getReason() != null && element.getReason().getType() != null) {
-                final Element reason = e.element("reason");
-                if (reason != null) {
-                    reason.addElement(element.getReason().getType().toString());
-                }
-            }
             this.element.add(e);
         } catch (DocumentException e) {
             e.printStackTrace();
@@ -75,8 +69,7 @@ public class JingleIQ extends XStreamIQ<Jingle> {
                 if (types.size() > 0) {
                     try {
                         final Reason.Type t = Reason.Type.valueOf(types.get(0).getName());
-                        j.getReason().setType(t
-                        );
+                        j.getReason().setType(t);
                     } catch (IllegalArgumentException iae) {
                         log.warn("Illegal Jingle Terminate Reason", iae);
                     }

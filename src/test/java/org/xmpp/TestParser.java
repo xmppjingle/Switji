@@ -10,13 +10,10 @@ import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.content.Content;
 import org.jinglenodes.jingle.description.Description;
 import org.jinglenodes.jingle.description.Payload;
-import org.jinglenodes.jingle.processor.JingleException;
 import org.jinglenodes.jingle.processor.JingleProcessor;
 import org.jinglenodes.jingle.processor.JingleSipException;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
-import org.jinglenodes.prepare.CallPreparation;
-import org.jinglenodes.session.CallSession;
 import org.jinglenodes.sip.processor.SipProcessor;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
@@ -45,6 +42,8 @@ public class TestParser extends TestCase {
         jingle.setContent(new Content("initiator", "audio", "both", new Description("audio"), new RawUdpTransport(new Candidate("10.166.108.22", "10000", "0"))));
         jingle.getContent().getDescription().addPayload(Payload.G729);
         final JingleIQ jingleIQ = new JingleIQ(jingle);
+        jingleIQ.setFrom("x@b.c");
+        jingleIQ.setTo("y@b.c");
         //assertEquals(jingleIQ.getChildElement().element("jingle").asXML(), source);
         System.out.println(jingleIQ.toXML());
         final JingleIQ jingleIQParsed = JingleIQ.fromXml(jingleIQ);
@@ -56,7 +55,10 @@ public class TestParser extends TestCase {
     }
 
     final private String sourceTerminate = "<jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-terminate\" sid=\"abc\" initiator=\"a@a.com\" responder=\"b@b.com\">\n" +
-            "  <reason><success/></reason>\n" +
+            "  <reason>\n" +
+            "    <success/>\n" +
+            "    <text>Hello</text>\n" +
+            "  </reason>\n" +
             "</jingle>";
 
 
@@ -69,6 +71,8 @@ public class TestParser extends TestCase {
         Document doc = DocumentHelper.parseText(packet);
 
         final IQ iq = new IQ(doc.getRootElement());
+        iq.setFrom("x@b.c");
+        iq.setTo("y@b.c");
         final JingleIQ jingleIQ = JingleIQ.fromXml(iq);
         jingleIQ.setFrom(initiator);
         jingleIQ.setTo("sip.localhost");
@@ -84,10 +88,12 @@ public class TestParser extends TestCase {
 
     public void testGenParserTerminate() {
         final Jingle jingle = new Jingle("abc", initiator, responder, Jingle.SESSION_TERMINATE);
-        jingle.setReason(new Reason(Reason.Type.success));
+        jingle.setReason(new Reason("Hello", Reason.Type.success));
         final JingleIQ jingleIQ = new JingleIQ(jingle);
         //assertEquals(jingleIQ.getChildElement().element("jingle").asXML(), sourceTerminate);
         System.out.println(jingleIQ.toXML());
+        jingleIQ.setFrom("x@b.c");
+        jingleIQ.setTo("y@b.c");
         final JingleIQ jingleIQParsed = JingleIQ.fromXml(jingleIQ);
         System.out.println(jingleIQParsed.getChildElement().element("jingle").asXML());
         assertEquals(sourceTerminate, jingleIQParsed.getChildElement().element("jingle").asXML());
