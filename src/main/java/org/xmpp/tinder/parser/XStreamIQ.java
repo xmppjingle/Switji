@@ -20,7 +20,8 @@ public class XStreamIQ<T> extends IQ {
         sorter.registerFieldOrder(Reason.class, new String[] {"type", "REASON", "CONDITION", "text"});
     };
 
-    final static XStream stream = new XStream(new SunUnsafeReflectionProvider(new FieldDictionary(sorter)), new DomDriver()) {
+    final static XStream stream = new XStream(new SunUnsafeReflectionProvider(new FieldDictionary(sorter)),
+            new DomDriver()) {
         protected MapperWrapper wrapMapper(MapperWrapper next) {
             return new MapperWrapper(next) {
                 public boolean shouldSerializeMember(Class definedIn, String fieldName) {

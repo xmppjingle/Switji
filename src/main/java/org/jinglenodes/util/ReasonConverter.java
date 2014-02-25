@@ -16,7 +16,7 @@ public class ReasonConverter implements Converter {
     @Override
     public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
         Reason reason = (Reason) value;
-        writer.startNode(reason.getType().toString());
+        writer.startNode(reason.getType().toString().replace("_", "-"));
         writer.endNode();
         if (reason.getText() != null) {
             writer.startNode("text");
@@ -30,7 +30,7 @@ public class ReasonConverter implements Converter {
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         Reason reason = new Reason();
         reader.moveDown();
-        reason.setType(Reason.Type.valueOf(reader.getNodeName()));
+        reason.setType(Reason.Type.valueOf(reader.getNodeName().replace("-", "_")));
         reader.moveUp();
         if (reader.hasMoreChildren()) {
             reader.moveDown();

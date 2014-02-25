@@ -68,7 +68,7 @@ public class JingleIQ extends XStreamIQ<Jingle> {
                 final List<Element> types = reason.elements();
                 if (types.size() > 0) {
                     try {
-                        final Reason.Type t = Reason.Type.valueOf(types.get(0).getName());
+                        final Reason.Type t = Reason.Type.valueOf(types.get(0).getName().replace("-", "_"));
                         j.getReason().setType(t);
                     } catch (IllegalArgumentException iae) {
                         log.warn("Illegal Jingle Terminate Reason", iae);

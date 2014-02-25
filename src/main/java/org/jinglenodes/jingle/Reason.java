@@ -41,9 +41,10 @@ public class Reason {
     private static final String CONDITION = "condition";
     private String text;
     /*
-    <xs:choice>
-        <xs:element name='alternative-session'
-                    type='alternativeSessionElementType'/>
+   <xs:complexType name='reasonElementType'>
+    <xs:sequence>
+      <xs:choice>
+        <xs:element name='alternative-session' type='alternativeSessionElementType'/>
         <xs:element name='busy' type='empty'/>
         <xs:element name='cancel' type='empty'/>
         <xs:element name='connectivity-error' type='empty'/>
@@ -61,11 +62,32 @@ public class Reason {
         <xs:element name='unsupported-applications' type='empty'/>
         <xs:element name='unsupported-transports' type='empty'/>
       </xs:choice>
-
-     */
+      <xs:element name='text' type='xs:string' minOccurs='0' maxOccurs='1'/>
+      <xs:any namespace='##other' minOccurs='0' maxOccurs='1'/>
+    </xs:sequence>
+  </xs:complexType>
+    */
 
     public enum Type {
-        security_error, alternative_session, busy, connectivity_error, decline, general_error, media_error, success, unsupported_applications, unsupported_transports, timeout, payment, cancel, forbidden, gone
+        alternative_session,
+        busy,
+        cancel,
+        connectivity_error,
+        decline,
+        expired,
+        failed_application,
+        failed_transport,
+        general_error,
+        gone,
+        incompatible_parameters,
+        media_error,
+        security_error,
+        success,
+        timeout,
+        unsupported_applications,
+        unsupported_transports,
+        payment,
+        forbidden
     }
 
 //    @XStreamAlias("no-error")
@@ -115,5 +137,10 @@ public class Reason {
         }
 
         return parent;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() == null ? null : super.toString().replace('_', '-');
     }
 }
