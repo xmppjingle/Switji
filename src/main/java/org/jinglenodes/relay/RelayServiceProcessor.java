@@ -26,6 +26,7 @@ package org.jinglenodes.relay;
 
 import org.apache.log4j.Logger;
 import org.jinglenodes.jingle.processor.JingleException;
+import org.jinglenodes.prepare.ServiceLocator;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.CallSessionMapper;
 import org.xmpp.component.AbstractServiceProcessor;
@@ -47,11 +48,13 @@ public class RelayServiceProcessor extends AbstractServiceProcessor {
     private String relayService;
     private final String namespace = RelayIQ.NAMESPACE;
     private CallSessionMapper callSessionMapper;
+    private ServiceLocator relayServiceLocator;
 
     @Override
     public IQ createServiceRequest(Object object, final String fromNode, final String toNode) {
         final RelayIQ relayIQ = new RelayIQ(true);
-        relayIQ.setTo(toNode != null ? toNode + "@" + relayService : relayService);
+        final String service = selectRelayService((IQ)object);
+        relayIQ.setTo(toNode != null ? toNode + "@" + service : service);
         relayIQ.setFrom(fromNode != null ? fromNode + "@" + this.getComponentJID().getDomain() : null);
         return relayIQ;
     }
@@ -126,4 +129,33 @@ public class RelayServiceProcessor extends AbstractServiceProcessor {
     public void setCallSessionMapper(CallSessionMapper callSessionMapper) {
         this.callSessionMapper = callSessionMapper;
     }
+
+    public ServiceLocator getRelayServiceLocator() {
+        return relayServiceLocator;
+    }
+
+    public void setRelayServiceLocator(ServiceLocator relayServiceLocator) {
+        this.relayServiceLocator = relayServiceLocator;
+    }
+
+    private String selectRelayService(IQ iqRequest) {
+        String service = null;
+
+        if (getRelayServiceLocator() != null) {
+            try {
+                service = getRelayServiceLocator().getServiceUri(iqRequest);
+            } catch (Exception e) {
+                log.error("Error while trying to select a relay service, using default["+
+                        getRelayService()+"]", e);
+            }
+        }
+
+        if (service == null) {
+            service = getRelayService(); //default
+        }
+
+        return service;
+    }
+
+
 }
