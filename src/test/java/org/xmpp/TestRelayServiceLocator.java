@@ -1,34 +1,28 @@
 package org.xmpp;
 
+import junit.framework.TestCase;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.jinglenodes.relay.RelayServiceLocator;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.xmpp.packet.IQ;
 import org.xmpp.tinder.JingleIQ;
 
 import java.io.IOException;
 import java.util.HashMap;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
-
 /**
  * @author bhlangonijr
  *         Date: 3/3/14
  *         Time: 5:34 PM
  */
-public class TestRelayServiceLocator {
+public class TestRelayServiceLocator extends TestCase {
 
 
     static HashMap<String, String> relayService;
     static HashMap<String, String> relayServiceByCode;
 
-
-    @BeforeClass
-    public static void init()  {
+    static  {
         relayService = new HashMap<String, String>();
         relayService.put("Ireland", "ireland.relay.ym.ms");
 
@@ -36,7 +30,6 @@ public class TestRelayServiceLocator {
         relayServiceByCode.put("+55", "brazil.relay.ym.ms");
     }
 
-    @Test
     public void testRelayServiceLocator() throws IOException, DocumentException {
 
         RelayServiceLocator service = new RelayServiceLocator(
@@ -65,7 +58,6 @@ public class TestRelayServiceLocator {
 
     }
 
-    @Test
     public void testRelayServiceLocatorByCountryCode() throws IOException, DocumentException {
 
         RelayServiceLocator service = new RelayServiceLocator(
