@@ -3,6 +3,8 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
+    <import resource="classpath:ipmap.xml" />
+
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -201,6 +203,7 @@
         <property name="component" ref="sipGatewayComponent"/>
         <property name="relayService" value="${relay.service}"/>
         <property name="callSessionMapper" ref="callSessionMapper"/>
+        <property name="relayServiceLocator" ref="relayServiceLocator"/>
     </bean>
 
     <bean id="voicemailPreparation" class="org.jinglenodes.voicemail.VoicemailPreparation">

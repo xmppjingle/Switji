@@ -20,6 +20,7 @@ import org.xmpp.tinder.JingleIQ;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Map;
@@ -38,12 +39,21 @@ public class RelayServiceLocator implements ServiceLocator {
     private Map<String, String> relayServices;
     private Map<String, String> relayServicesByCode;
     private NodeFormat nodeFormat;
+    private static final String classpath = "classpath:";
 
     private final DatabaseReader reader;
 
     public RelayServiceLocator(final String geoDbFile) throws IOException {
+        String path;
+
+        if (geoDbFile.startsWith("classpath")) {
+            path = getClass().getResource(geoDbFile.split(classpath)[1]).getPath();
+        } else {
+            path = new URL("file://"+geoDbFile).getPath();
+        }
+
         this.geoDbFile = geoDbFile;
-        reader =  new DatabaseReader.Builder(new File(geoDbFile)).fileMode(Reader.FileMode.MEMORY).build();
+        reader =  new DatabaseReader.Builder(new File(path)).fileMode(Reader.FileMode.MEMORY).build();
         phoneUtil = PhoneNumberUtil.getInstance();
         nodeFormat = new PrefixNodeFormat();
     }
