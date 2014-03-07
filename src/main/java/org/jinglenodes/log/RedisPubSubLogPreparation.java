@@ -2,6 +2,7 @@ package org.jinglenodes.log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.log4j.Logger;
 import org.jinglenodes.jingle.Info;
 import org.jinglenodes.jingle.Jingle;
 import org.jinglenodes.jingle.Reason;
@@ -11,9 +12,13 @@ import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.persistence.redis.JedisConnection;
 import org.xmpp.tinder.JingleIQ;
+import org.xmpp.util.NamedThreadFactory;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.SipChannel;
 import redis.clients.jedis.Jedis;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Logs information into a redis channel
@@ -21,17 +26,19 @@ import redis.clients.jedis.Jedis;
  *
  */
 public class RedisPubSubLogPreparation extends CallPreparation {
-
+    final private static Logger log = Logger.getLogger(RedisPubSubLogPreparation.class);
     final static public String DEFAULT_BLANK = "-";
     final static public String DEFAULT_UNKNOWN = "unknown";
     private String redisHost = "localhost";
     private int redisPort = 6379;
     private String channel = "sipgateway.log";
+    private ExecutorService service = Executors.newSingleThreadExecutor(new NamedThreadFactory("RedisPubSub"));
+
 
     private final ThreadLocal<Gson> gson = new ThreadLocal<Gson>() {
         @Override
         protected Gson initialValue() {
-           return new GsonBuilder().setPrettyPrinting().create();
+            return new GsonBuilder().setPrettyPrinting().create();
 
         }
     };
@@ -106,12 +113,8 @@ public class RedisPubSubLogPreparation extends CallPreparation {
     }
 
     private LogEntry publishLogEntry(final String action, final String sid, final String reasonType,
-                                            final String initiator, final String responder, final String ip,
-                                            final String elapsed, final String payload) {
-
-        final JedisConnection connection = JedisConnection.getInstance(redisHost, redisPort);
-        final Jedis jedis = connection.getResource();
-
+                                     final String initiator, final String responder, final String ip,
+                                     final String elapsed, final String payload) {
         final LogEntry entry = new LogEntry();
         entry.setAction(action);
         entry.setSid(sid);
@@ -122,11 +125,31 @@ public class RedisPubSubLogPreparation extends CallPreparation {
         entry.setElapsed(elapsed);
         entry.setPayload(payload);
 
-        final String json = gson.get().toJson(entry);
-
-        jedis.publish(getChannel(), json);
+        service.submit(new Runnable() {
+            @Override
+            public void run() {
+                sendToRedis(entry);
+            }
+        });
 
         return entry;
+    }
+
+    private void sendToRedis(LogEntry entry) {
+
+        try {
+
+            final JedisConnection connection = JedisConnection.getInstance(redisHost, redisPort);
+            final Jedis jedis = connection.getResource();
+
+            final String json = gson.get().toJson(entry);
+            jedis.publish(getChannel(), json);
+
+        } catch (Exception e) {
+            log.error("Could not push event to Redis channel: ", e);
+        }
+
+
     }
 
     @Override
