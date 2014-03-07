@@ -4,7 +4,7 @@
 <groupId>org.jinglenodes</groupId>
 <artifactId>sipgateway</artifactId>
 <name>SIP Gateway::${project.artifactId}</name>
-<version>1.0.72</version>
+<version>1.0.73</version>
 <description>SIP Gateway based on Jingle Nodes API</description>
 <packaging>jar</packaging>
 <build>
@@ -133,7 +133,7 @@
     <dependency>
         <groupId>redis.clients</groupId>
         <artifactId>jedis</artifactId>
-        <version>2.0.0</version>
+        <version>2.2.0</version>
     </dependency>
     <dependency>
         <groupId>junit</groupId>
@@ -201,7 +201,7 @@
         <artifactId>geocoder</artifactId>
         <version>2.2</version>
     </dependency>
-<dependency>
+    <dependency>
         <groupId>com.maxmind.geoip2</groupId>
         <artifactId>geoip2</artifactId>
         <version>0.7.0</version>
@@ -211,7 +211,11 @@
         <artifactId>sjbundle</artifactId>
         <version>1.0.10</version>
     </dependency>
-
+    <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.2.4</version>
+    </dependency>
     <!--<dependency>-->
         <!--<groupId>com.newrelic</groupId>-->
         <!--<artifactId>newrelic</artifactId>-->

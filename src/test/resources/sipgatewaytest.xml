@@ -77,6 +77,7 @@
                 <ref bean="accountPreparation"/>
                 <!--<ref bean="relayPreparation"/>-->
                 <ref bean="chargePreparation"/>
+                <ref bean="redisPubSubPreparation"/>
                 <!--<ref bean="numberFormatPreparation"/>-->
             </list>
         </property>
@@ -110,6 +111,7 @@
                 <ref bean="accountPreparation"/>
                 <ref bean="relayPreparation"/>
                 <ref bean="voicemailPreparation"/>
+                <ref bean="redisPubSubPreparation"/>
                 <!--<ref bean="ringHangupPreparation"/>-->
             </list>
         </property>
@@ -209,6 +211,8 @@
     <bean id="voicemailPreparation" class="org.jinglenodes.voicemail.VoicemailPreparation">
         <constructor-arg index="0" ref="jingleProcessor"/>
     </bean>
+
+    <bean id="redisPubSubPreparation" class="org.jinglenodes.log.RedisPubSubLogPreparation"/>
 
     <bean id="sipToJingleMapper" class="org.jinglenodes.sip.CachedSipToJingleBind">
         <constructor-arg index="0" value="${cache.maxEntries}"/>
