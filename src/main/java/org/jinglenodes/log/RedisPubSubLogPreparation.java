@@ -12,13 +12,13 @@ import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.persistence.redis.JedisConnection;
 import org.xmpp.tinder.JingleIQ;
-import org.xmpp.util.NamedThreadFactory;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.SipChannel;
 import redis.clients.jedis.Jedis;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Logs information into a redis channel
@@ -32,8 +32,11 @@ public class RedisPubSubLogPreparation extends CallPreparation {
     private String redisHost = "localhost";
     private int redisPort = 6379;
     private String channel = "sipgateway.log";
-    private ExecutorService service = Executors.newSingleThreadExecutor(new NamedThreadFactory("RedisPubSub"));
-
+    private final BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<Runnable>(500);
+    private final ExecutorService service = new ThreadPoolExecutor(1, 1, 15,
+            TimeUnit.SECONDS, linkedBlockingDeque, new ThreadPoolExecutor.CallerRunsPolicy());
+    private final AtomicLong requestCounter = new AtomicLong(0);
+    private final AtomicInteger pendingRequest = new AtomicInteger(0);
 
     private final ThreadLocal<Gson> gson = new ThreadLocal<Gson>() {
         @Override
@@ -115,6 +118,7 @@ public class RedisPubSubLogPreparation extends CallPreparation {
     private LogEntry publishLogEntry(final String action, final String sid, final String reasonType,
                                      final String initiator, final String responder, final String ip,
                                      final String elapsed, final String payload) {
+        pendingRequest.incrementAndGet();
         final LogEntry entry = new LogEntry();
         entry.setAction(action);
         entry.setSid(sid);
@@ -138,15 +142,28 @@ public class RedisPubSubLogPreparation extends CallPreparation {
     private void sendToRedis(LogEntry entry) {
 
         try {
-
+            final long init = System.currentTimeMillis();
             final JedisConnection connection = JedisConnection.getInstance(redisHost, redisPort);
+            log.debug("Getting resource " + (System.currentTimeMillis()-init));
             final Jedis jedis = connection.getResource();
+            log.debug("Got resource " + jedis.hashCode() + " - " + (System.currentTimeMillis()-init));
 
-            final String json = gson.get().toJson(entry);
-            jedis.publish(getChannel(), json);
+            try {
+                final String json = gson.get().toJson(entry);
+                jedis.publish(getChannel(), json);
+                requestCounter.incrementAndGet();
+                log.debug("Published to Redis " + (System.currentTimeMillis()-init));
 
-        } catch (Exception e) {
-            log.error("Could not push event to Redis channel: ", e);
+            } catch (Exception e) {
+                log.error("Could not push event to Redis channel: ", e);
+            } finally {
+                connection.returnResource(jedis);
+                pendingRequest.decrementAndGet();
+                log.debug("Released resource " + jedis.hashCode() + " - " + (System.currentTimeMillis()-init));
+            }
+
+        } catch (Exception e1) {
+            log.error("Couldn't get connection from Redis pool ", e1);
         }
 
 
@@ -208,4 +225,13 @@ public class RedisPubSubLogPreparation extends CallPreparation {
     public void setChannel(String channel) {
         this.channel = channel;
     }
+
+    public long getRequestCount() {
+        return requestCounter.get();
+    }
+
+    public long getPendingRequests() {
+        return pendingRequest.get();
+    };
+
 }
