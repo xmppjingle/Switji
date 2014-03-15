@@ -880,17 +880,15 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
                 names.add("fmtp");
                 values.add(String.valueOf(payload.getId()) + " annexb=no");
 
+                names.add("ptime");
+                values.add("20");
+
             }
             if (payload.getId().equals(Payload.TELEPHONE_EVENT.getId())) {  //382com support
                 names.add("fmtp");
                 values.add(String.valueOf(payload.getId()) + " 0-16");
             }
         }
-
-        //TODO Remove Test
-        //names.add("rtpmap");
-        //values.add("101" + " " + "telephone-event" + "/" + "8000");
-        //END TODO
 
         if (transport.getCandidates().size() < 1) {
             throw new SdpException("No Transports Found in Jingle Packet.");
