@@ -53,7 +53,7 @@ public class RelayServiceProcessor extends AbstractServiceProcessor {
     @Override
     public IQ createServiceRequest(Object object, final String fromNode, final String toNode) {
         final RelayIQ relayIQ = new RelayIQ(true);
-        final String service = selectRelayService((IQ)object);
+        final String service = selectRelayService(object);
         relayIQ.setTo(toNode != null ? toNode + "@" + service : service);
         relayIQ.setFrom(fromNode != null ? fromNode + "@" + this.getComponentJID().getDomain() : null);
         return relayIQ;
@@ -138,22 +138,20 @@ public class RelayServiceProcessor extends AbstractServiceProcessor {
         this.relayServiceLocator = relayServiceLocator;
     }
 
-    private String selectRelayService(IQ iqRequest) {
-        String service = null;
+    private String selectRelayService(Object request) {
+        String service = getRelayService(); //default
+        if (request instanceof JingleIQ) {
+            IQ iqRequest = (IQ)request;
 
-        if (getRelayServiceLocator() != null) {
-            try {
-                service = getRelayServiceLocator().getServiceUri(iqRequest);
-            } catch (Exception e) {
-                log.error("Error while trying to select a relay service, using default["+
-                        getRelayService()+"]", e);
+            if (getRelayServiceLocator() != null) {
+                try {
+                    service = getRelayServiceLocator().getServiceUri(iqRequest);
+                } catch (Exception e) {
+                    log.error("Error while trying to select a relay service, using default["+
+                            getRelayService()+"]", e);
+                }
             }
         }
-
-        if (service == null) {
-            service = getRelayService(); //default
-        }
-
         return service;
     }
 
