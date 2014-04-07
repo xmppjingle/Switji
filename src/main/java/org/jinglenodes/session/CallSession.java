@@ -26,6 +26,7 @@ package org.jinglenodes.session;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import org.apache.log4j.Logger;
+import org.jinglenodes.charge.OnlineChargeSession;
 import org.jinglenodes.credit.SessionCredit;
 import org.jinglenodes.prepare.CallPreparation;
 import org.jinglenodes.relay.RelayIQ;
@@ -81,6 +82,7 @@ public class CallSession {
     private boolean jingleInitiator;
     private boolean callKilled;
     private JingleIQ forwardInitIq;
+    private OnlineChargeSession onlineChargeSession;
 
     public CallSession(final String id, final JID user) {
         this.id = id;
@@ -358,6 +360,14 @@ public class CallSession {
         this.forwardInitIq = forwardInitIq;
     }
 
+    public OnlineChargeSession getOnlineChargeSession() {
+        return onlineChargeSession;
+    }
+
+    public void setOnlineChargeSession(OnlineChargeSession onlineChargeSession) {
+        this.onlineChargeSession = onlineChargeSession;
+    }
+
     @Override
     public String toString() {
         return "CallSession{" +
@@ -389,6 +399,7 @@ public class CallSession {
                 ", jingleInitiator=" + jingleInitiator +
                 ", callKilled=" + callKilled +
                 ", forwardInitIq=" + forwardInitIq +
+                ", onlineChargeSession=" + onlineChargeSession +
                 '}';
     }
 }
