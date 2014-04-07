@@ -37,6 +37,7 @@ public class RingHangupPreparation extends CallPreparation {
 
     @Override
     public boolean proceedAccept(JingleIQ iq, CallSession session) {
+        killCall(session, iq);
         return true;
     }
 
@@ -82,7 +83,18 @@ public class RingHangupPreparation extends CallPreparation {
 
     @Override
     public JingleIQ proceedSIPAccept(JingleIQ iq, CallSession session, SipChannel channel) {
+        killCall(session, iq);
         return iq;
+    }
+
+    private void killCall(CallSession session, JingleIQ iq) {
+        if (session != null) {
+            //callKiller.immediateKill(session, new Reason(Reason.Type.cancel));
+            callKiller.scheduleKill(session, sleepTime);
+        } else {
+            //callKiller.immediateKill(iq, new Reason(Reason.Type.cancel));
+            callKiller.scheduleKill(iq, sleepTime);
+        }
     }
 
     public CallKiller getCallKiller() {
