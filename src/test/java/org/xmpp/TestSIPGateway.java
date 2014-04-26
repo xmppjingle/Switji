@@ -43,7 +43,7 @@ public class TestSIPGateway extends TestCase {
     static {
         BasicConfigurator.configure();
         Main.setAppDir(System.getProperty("user.dir") + "/target/test-classes/");
-        Main.start("sipgatewaytest.xml");
+        Main.start("sipgatewaytestocs.xml");
         try {
             sipServerMock = new SipServerMock();
         } catch (IOException e) {

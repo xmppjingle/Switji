@@ -97,16 +97,16 @@ public class OnlineChargePreparation extends CallPreparation implements ResultRe
 
     private void chargeCall(JingleIQ iq, CallSession session) {
 
-        if (session.getSessionCredit() == null) {
+        if (session.getOnlineChargeSession() == null) {
             final OnlineChargeSession chargeSession = new OnlineChargeSession(
                     null, null, System.currentTimeMillis());
             session.setOnlineChargeSession(chargeSession);
         }
 
-        JID initiator = JIDFactory.getInstance().getJID(session.getSessionCredit().getInitiator() != null ?
-                session.getSessionCredit().getInitiator() : iq.getJingle().getInitiator());
-        JID responder = JIDFactory.getInstance().getJID(session.getSessionCredit().getResponder() != null ?
-                session.getSessionCredit().getResponder() : iq.getJingle().getResponder());
+        JID initiator = JIDFactory.getInstance().getJID(session.getOnlineChargeSession().getInitiator() != null ?
+                session.getOnlineChargeSession().getInitiator() : iq.getJingle().getInitiator());
+        JID responder = JIDFactory.getInstance().getJID(session.getOnlineChargeSession().getResponder() != null ?
+                session.getOnlineChargeSession().getResponder() : iq.getJingle().getResponder());
 
         if (initiator != null && responder != null) {
             if (onlineChargeServiceProcessor != null) {

@@ -14,7 +14,8 @@ import java.io.Serializable;
 public class OnlineChargeSession implements Serializable {
 
     private static final int DEFAULT_CHARGE_SECONDS = 60; // 60 seconds default
-
+    private RouteType routeType = RouteType.ip;
+    private boolean charged = false;
     private final int chargeSeconds;
     private final String initiator;
     private final String responder;
@@ -22,7 +23,8 @@ public class OnlineChargeSession implements Serializable {
     private long endTime;
     private int chargeCount; // value changed by a single thread a time, no need to handle concurrency
 
-    public OnlineChargeSession(int chargeSeconds, String initiator, String responder, long startTime) {
+    public OnlineChargeSession(RouteType routeType, int chargeSeconds, String initiator, String responder, long startTime) {
+        this.routeType = routeType;
         this.chargeSeconds = chargeSeconds;
         this.initiator = initiator;
         this.responder = responder;
@@ -30,7 +32,23 @@ public class OnlineChargeSession implements Serializable {
     }
 
     public OnlineChargeSession(String initiator, String responder, long startTime) {
-        this(DEFAULT_CHARGE_SECONDS, initiator, responder, startTime);
+        this(RouteType.ip, DEFAULT_CHARGE_SECONDS, initiator, responder, startTime);
+    }
+
+    public RouteType getRouteType() {
+        return routeType;
+    }
+
+    public void setRouteType(RouteType routeType) {
+        this.routeType = routeType;
+    }
+
+    public boolean isCharged() {
+        return charged;
+    }
+
+    public void setCharged(boolean charged) {
+        this.charged = charged;
     }
 
     public int getChargeSeconds() {
@@ -70,5 +88,9 @@ public class OnlineChargeSession implements Serializable {
      */
     public void incChargeCount() {
         this.chargeCount++;
+    }
+
+    public enum RouteType {
+        ip, pstn
     }
 }
