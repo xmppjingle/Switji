@@ -71,26 +71,29 @@ public class ChargePreparation extends CallPreparation implements ResultReceiver
 
     private void chargeCall(JingleIQ iq, CallSession session) {
 
-        if (session.getSessionCredit() == null) {
-            final SessionCredit sessionCredit = new SessionCredit(SessionCredit.RouteType.pstn);
-            session.setSessionCredit(sessionCredit);
-        }
+        if (session.getOnlineChargeSession() != null) {
 
-        if (!session.getSessionCredit().isCharged()) {
-            JID initiator = JIDFactory.getInstance().getJID(session.getSessionCredit().getInitiator() != null ? session.getSessionCredit().getInitiator() : iq.getJingle().getInitiator());
-            JID responder = JIDFactory.getInstance().getJID(session.getSessionCredit().getResponder() != null ? session.getSessionCredit().getResponder() : iq.getJingle().getResponder());
-            if (initiator != null && responder != null) {
-                if (chargeServiceProcessor != null) {
-                    try {
-                        chargeServiceProcessor.queryService(iq, initiator.getNode(), responder.getNode(), this);
-                    } catch (ServiceException e) {
-                        log.error("Could NOT Query Charge Service.", e);
+            if (session.getSessionCredit() == null) {
+                final SessionCredit sessionCredit = new SessionCredit(SessionCredit.RouteType.pstn);
+                session.setSessionCredit(sessionCredit);
+            }
+
+            if (!session.getSessionCredit().isCharged()) {
+                JID initiator = JIDFactory.getInstance().getJID(session.getSessionCredit().getInitiator() != null ? session.getSessionCredit().getInitiator() : iq.getJingle().getInitiator());
+                JID responder = JIDFactory.getInstance().getJID(session.getSessionCredit().getResponder() != null ? session.getSessionCredit().getResponder() : iq.getJingle().getResponder());
+                if (initiator != null && responder != null) {
+                    if (chargeServiceProcessor != null) {
+                        try {
+                            chargeServiceProcessor.queryService(iq, initiator.getNode(), responder.getNode(), this);
+                        } catch (ServiceException e) {
+                            log.error("Could NOT Query Charge Service.", e);
+                        }
+                    } else {
+                        log.error("Charge Error: Charge Service Processor is null");
                     }
                 } else {
-                    log.error("Charge Error: Charge Service Processor is null");
+                    log.error("Charge Error: Could NOT Retrieve Call Info");
                 }
-            } else {
-                log.error("Charge Error: Could NOT Retrieve Call Info");
             }
         }
     }
