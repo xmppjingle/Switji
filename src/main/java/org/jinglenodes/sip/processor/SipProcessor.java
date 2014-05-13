@@ -291,14 +291,29 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
     protected void processByeSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) throws JingleException {
         sendJingleTerminate(msg, sipChannel);
         sendSipOk(msg);
-        callSessions.removeSession(callSessions.getSession(msg));
-
+        final CallSession session = callSessions.getSession(msg);
+        if (session != null) {
+            callSessions.removeSession(session);
+            session.setConnected(false);
+        } else {
+            if (msg.getCallIdHeader() != null) {
+                log.warn("Session not found for call-id: " + msg.getCallIdHeader().getCallId());
+            }
+        }
     }
 
     protected void processCancelSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) throws JingleException {
         sendJingleTerminate(msg, sipChannel);
         sendSipOk(msg);
-        callSessions.removeSession(callSessions.getSession(msg));
+        final CallSession session = callSessions.getSession(msg);
+        if (session != null) {
+            callSessions.removeSession(session);
+            session.setConnected(false);
+        } else {
+            if (msg.getCallIdHeader() != null) {
+                log.warn("Session not found for call-id: " + msg.getCallIdHeader().getCallId());
+            }
+        }
 
     }
 

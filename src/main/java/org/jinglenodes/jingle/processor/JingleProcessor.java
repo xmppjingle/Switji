@@ -302,6 +302,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
             return;
         }
         sendSipTermination(iq, callSession);
+
     }
 
     public final void sendSipTermination(final JingleIQ iq, final CallSession callSession) {
@@ -400,6 +401,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
                     }
                 }
             }
+            callSession.setConnected(false);
         } catch (JingleSipException e) {
             log.warn("Call Termination Error", e);
         } catch (SipParsingException e) {

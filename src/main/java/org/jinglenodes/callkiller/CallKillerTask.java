@@ -54,7 +54,7 @@ public class CallKillerTask implements Runnable {
     @Override
     public void run() {
         if (session != null) {
-            if (session.isActive()) {
+            if (session.isActive() && session.isConnected()) {
                 log.warn("Killing Call: " + session.getId() + " Proceeds: " + session.getProceeds().size());
                 try {
                     final JID to = getDestination();
