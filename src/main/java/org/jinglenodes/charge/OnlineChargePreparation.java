@@ -89,9 +89,12 @@ public class OnlineChargePreparation extends CallPreparation implements ResultRe
 
     @Override
     public boolean proceedTerminate(JingleIQ iq, CallSession session) {
-        log.debug("Onlune charge Proceed Terminate: " + iq.toXML() + " - " + session.getId());
+        log.debug("Online charge Proceed Terminate: " + iq.toXML() + " - " + session.getId());
         setSessionFinishTime(session, System.currentTimeMillis());
         stopCharging(iq, session);
+        if (callKiller != null) {
+            callKiller.cancelKill(session);
+        }
         return true;
     }
 
@@ -173,6 +176,9 @@ public class OnlineChargePreparation extends CallPreparation implements ResultRe
     public JingleIQ proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
         setSessionFinishTime(session, System.currentTimeMillis());
         stopCharging(iq, session);
+        if (callKiller != null) {
+            callKiller.cancelKill(session);
+        }
         return iq;
     }
 
@@ -203,7 +209,7 @@ public class OnlineChargePreparation extends CallPreparation implements ResultRe
         log.error("Failed to charge, cancelling call: " + iqRequest.getRequest());
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
             final JingleIQ iq = (JingleIQ) iqRequest.getOriginalPacket();
-            prepareStatesManager.cancelCall(iq, null, new Reason(Reason.Type.forbidden));
+            terminateCall(iq, new Reason("Couldn't charge account", Reason.Type.payment));
         }
 
     }
@@ -213,12 +219,17 @@ public class OnlineChargePreparation extends CallPreparation implements ResultRe
         log.error("Timeout to charge, cancelling call: " + iqRequest.getRequest());
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
             final JingleIQ iq = (JingleIQ) iqRequest.getOriginalPacket();
-            prepareStatesManager.cancelCall(iq, null, new Reason(Reason.Type.expired));
+            terminateCall(iq, new Reason("Timeout", Reason.Type.expired));
         }
     }
 
-    private void dropCall(CallSession session) {
-        getCallKiller().immediateKill(session, new Reason(Reason.Type.timeout));
+    private void terminateCall(JingleIQ iq, Reason reason) {
+        final CallSession callSession = sessionMapper.getSession(iq);
+        if (callSession != null) {
+            callKiller.immediateKill(callSession, reason);
+        } else {
+            log.warn("Session not found for IQ: " + iq.toXML());
+        }
     }
 
     public CallKiller getCallKiller() {

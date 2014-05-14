@@ -119,17 +119,26 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
       */
     protected OnlineChargeSession getSessionCredit(final IQ iq, final OnlineChargeSession sessionCredit) {
         String type = null;
+        String seqNumber = null;
 
         log.debug("Get Consume-begin response: " + iq.toXML());
 
         final Element e = iq.getChildElement();
         type = e.attributeValue("type");
+        Element esPrivate = e.element("es-private");
+        if (esPrivate != null) {
+            seqNumber = esPrivate.attributeValue("seqnr");
+            if (log.isDebugEnabled()) {
+                log.debug("Sequence " + seqNumber + "number for IQ " + iq.toXML() );
+            }
+        }
 
         if (type != null) {
             try {
 
                 final OnlineChargeSession.RouteType rt = OnlineChargeSession.RouteType.valueOf(type);
                 sessionCredit.setRouteType(rt);
+                sessionCredit.setSeqNumber(seqNumber);
 
             } catch (IllegalFormatException ife) {
                 log.error("Invalid Credit Value Received: " + iq.toXML(), ife);

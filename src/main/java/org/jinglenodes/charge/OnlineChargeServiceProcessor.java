@@ -88,7 +88,18 @@ public class OnlineChargeServiceProcessor extends AbstractServiceProcessor {
                     e.addAttribute("responder", toBareJid);
                     e.addAttribute("seconds", String.valueOf(chargedTime));
                     e.addAttribute("sid", jingleIQ.getJingle().getSid());
+
+                    if (chargeSession.getSeqNumber() != null) {
+                        Element esPrivate = e.addElement("es-private");
+                        esPrivate.addAttribute("seqnr", chargeSession.getSeqNumber());
+                    } else {
+                        if (log.isDebugEnabled()) {
+                            log.debug("There is no es-private element to send: " + request.toXML());
+                        }
+                    }
+
                     request.setChildElement(e);
+
                     chargeSession.incChargeCount();
 
                     log.debug("Issuing hot billing request["+chargeSession.getChargeCount()+"]: " + request.toXML());

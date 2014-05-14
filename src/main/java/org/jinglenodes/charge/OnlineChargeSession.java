@@ -22,6 +22,7 @@ public class OnlineChargeSession implements Serializable {
     private final long startTime;
     private long endTime;
     private int chargeCount; // value changed by a single thread a time, no need to handle concurrency
+    private String seqNumber;
 
     public OnlineChargeSession(RouteType routeType, int chargeSeconds, String initiator, String responder, long startTime) {
         this.routeType = routeType;
@@ -81,6 +82,14 @@ public class OnlineChargeSession implements Serializable {
 
     public void setChargeCount(int chargeCount) {
         this.chargeCount = chargeCount;
+    }
+
+    public String getSeqNumber() {
+        return seqNumber;
+    }
+
+    public void setSeqNumber(String seqNumber) {
+        this.seqNumber = seqNumber;
     }
 
     /**
