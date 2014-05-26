@@ -109,8 +109,10 @@ public class ChargeServiceProcessor extends AbstractServiceProcessor {
 
     @Override
     protected void handleResult(IqRequest iq) {
-        if (iq.getOriginalPacket() instanceof JingleIQ) {
-            final CallSession session = sessionMapper.getSession((JingleIQ) iq.getOriginalPacket());
+        final String sid = iq.getResult().getElement().attributeValue("sid");
+        if (sid != null) {
+            log.debug("Final Charge Value Received: " + iq.getResult().toXML());
+            final CallSession session = sessionMapper.getSessionBySid(sid);
             if (session != null) {
                 final OnlineChargeSession credit = session.getOnlineChargeSession();
                 if (credit != null) {

@@ -40,6 +40,8 @@ public interface CallSessionMapper {
 
     public CallSession getSession(JingleIQ iq);
 
+    public CallSession getSessionBySid(final String sid);
+
     public void addSession(CallSession callSession);
 
     public void removeSession(CallSession callSession);

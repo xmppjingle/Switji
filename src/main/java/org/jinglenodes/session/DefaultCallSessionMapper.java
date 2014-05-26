@@ -65,7 +65,7 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
 
     public DefaultCallSessionMapper(final int maxSessionTtl,
                                     final int purgeTime, final int unfinishedSessionTtl) {
-        this(20000,maxSessionTtl, purgeTime, unfinishedSessionTtl);
+        this(20000, maxSessionTtl, purgeTime, unfinishedSessionTtl);
     }
 
     public DefaultCallSessionMapper(final int maxEntries, final int maxSessionTtl,
@@ -233,8 +233,22 @@ public class DefaultCallSessionMapper implements CallSessionMapper {
         return p;
     }
 
+    /**
+     * Get call session by session id
+     *
+     * @param sid session id
+     * @return call session
+     */
+    public CallSession getSessionBySid(final String sid) {
+        return getSession(getSessionId(sid));
+    }
+
     public String getSessionId(final JingleIQ iq) {
         final String id = iq.getJingle().getSid();
+        return getSessionId(id);
+    }
+
+    private String getSessionId(final String id) {
         final String p = "null";
         return id+"x"+p;
     }
