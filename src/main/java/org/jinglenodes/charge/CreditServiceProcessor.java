@@ -55,6 +55,7 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
     private CallSessionMapper sessionMapper;
     private String creditService;
     private NodeFormat nodeFormat;
+    private Integer chargeSeconds;
 
     public CreditServiceProcessor(final String elementName, final String xmlns) {
         this.xmlns = xmlns;
@@ -76,6 +77,10 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
 
             OnlineChargeSession sessionCredit = new OnlineChargeSession(
                     from.toBareJID(), toBareJid, System.currentTimeMillis());
+
+            if (getChargeSeconds() != null) {
+                sessionCredit.setChargeCount(getChargeSeconds());
+            }
 
             final CallSession session = sessionMapper.getSession(jingleIQ);
             if (session != null) {
@@ -199,4 +204,11 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
         this.nodeFormat = nodeFormat;
     }
 
+    public Integer getChargeSeconds() {
+        return chargeSeconds;
+    }
+
+    public void setChargeSeconds(Integer chargeSeconds) {
+        this.chargeSeconds = chargeSeconds;
+    }
 }
