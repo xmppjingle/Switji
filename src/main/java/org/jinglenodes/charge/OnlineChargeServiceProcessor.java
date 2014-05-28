@@ -130,8 +130,8 @@ public class OnlineChargeServiceProcessor extends AbstractServiceProcessor {
             if (session != null) {
                 final OnlineChargeSession chargeSession = session.getOnlineChargeSession();
                 if (chargeSession != null) {
-                    log.debug("Incrementing credit session: " + (chargeSession.getChargeCount() + 1) );
                     chargeSession.incChargeCount();
+                    log.debug("Incrementing credit session: " + chargeSession.getChargeCount());
                 }
             }
         }

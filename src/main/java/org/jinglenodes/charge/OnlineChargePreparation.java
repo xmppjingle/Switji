@@ -203,8 +203,10 @@ public class OnlineChargePreparation extends CallPreparation implements ResultRe
 
     @Override
     public void receivedResult(IqRequest iq) {
-        log.debug("Online Call Charging: " + iq.getRequest());
-        final String sid = iq.getResult().getElement().attributeValue("sid");
+        if (log.isDebugEnabled()) {
+            log.debug("Online Call Charging: Result: " + iq.getResult() + " - \nRequest");
+        }
+        final String sid = iq.getResult().getChildElement().attributeValue("sid");
         if (sid != null) {
             log.debug("Credit Value Received: " + iq.getResult().toXML());
             final CallSession session = sessionMapper.getSessionBySid(sid);
