@@ -131,10 +131,43 @@ public class OnlineChargeServiceProcessor extends AbstractServiceProcessor {
                 final OnlineChargeSession chargeSession = session.getOnlineChargeSession();
                 if (chargeSession != null) {
                     chargeSession.incChargeCount();
+                    if (session != null) {
+                        updateSession(iq.getResult(), chargeSession);
+                    }
                     log.debug("Incrementing credit session: " + chargeSession.getChargeCount());
                 }
             }
         }
+    }
+    /**
+     * Update the online session
+     * @param iq
+     * @param sessionCredit
+     * @return
+     */
+    protected void updateSession(final IQ iq, final OnlineChargeSession sessionCredit) {
+        String seqNumber = null;
+
+        final Element e = iq.getChildElement();
+        Element esPrivate = e.element("es-private");
+        if (esPrivate != null) {
+            seqNumber = esPrivate.attributeValue("seqnr");
+            if (log.isDebugEnabled()) {
+                log.debug("Sequence " + seqNumber + "number for IQ " + iq.toXML() );
+            }
+        }
+
+        if (seqNumber != null) {
+            try {
+                if (log.isDebugEnabled()) {
+                    log.debug("Updating Consume response into the session: " + iq.toXML());
+                }
+                sessionCredit.setSeqNumber(seqNumber);
+            } catch (Exception ex) {
+                log.error("Error updating online charging session: " + iq.toXML(), ex);
+            }
+        }
+
     }
 
     @Override

@@ -25,7 +25,6 @@
 package org.jinglenodes.charge;
 
 import org.apache.log4j.Logger;
-import org.dom4j.Element;
 import org.jinglenodes.callkiller.CallKiller;
 import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.prepare.CallPreparation;
@@ -35,7 +34,6 @@ import org.jinglenodes.session.CallSessionMapper;
 import org.xmpp.component.IqRequest;
 import org.xmpp.component.ResultReceiver;
 import org.xmpp.component.ServiceException;
-import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.tinder.JingleIQ;
 import org.zoolu.sip.message.JIDFactory;
@@ -206,44 +204,6 @@ public class OnlineChargePreparation extends CallPreparation implements ResultRe
         if (log.isDebugEnabled()) {
             log.debug("Online Call Charging: Result: " + iq.getResult() + " - \nRequest");
         }
-        final String sid = iq.getResult().getChildElement().attributeValue("sid");
-        if (sid != null) {
-            log.debug("Credit Value Received: " + iq.getResult().toXML());
-            final CallSession session = sessionMapper.getSessionBySid(sid);
-            if (session != null) {
-                updateSession(iq.getResult(), session.getOnlineChargeSession());
-            }
-        }
-    }
-
-    /**
-     * Update the online session
-     * @param iq
-     * @param sessionCredit
-     * @return
-     */
-    protected void updateSession(final IQ iq, final OnlineChargeSession sessionCredit) {
-        String seqNumber = null;
-
-        log.debug("Get Consume response: " + iq.toXML());
-
-        final Element e = iq.getChildElement();
-        Element esPrivate = e.element("es-private");
-        if (esPrivate != null) {
-            seqNumber = esPrivate.attributeValue("seqnr");
-            if (log.isDebugEnabled()) {
-                log.debug("Sequence " + seqNumber + "number for IQ " + iq.toXML() );
-            }
-        }
-
-        if (seqNumber != null) {
-            try {
-                sessionCredit.setSeqNumber(seqNumber);
-            } catch (Exception ex) {
-                log.error("Error updating online charging session: " + iq.toXML(), ex);
-            }
-        }
-
     }
 
     @Override
