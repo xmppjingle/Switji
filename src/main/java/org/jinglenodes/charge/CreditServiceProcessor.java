@@ -50,12 +50,13 @@ import java.util.IllegalFormatException;
  */
 public class CreditServiceProcessor extends AbstractServiceProcessor {
     private final Logger log = Logger.getLogger(CreditServiceProcessor.class);
+    private static final int DEFAULT_BILLING_TIME_SLICE = 60;
     private final Element requestElement;
     private final String xmlns;
     private CallSessionMapper sessionMapper;
     private String creditService;
     private NodeFormat nodeFormat;
-    private Integer chargeSeconds;
+    private int chargeSeconds=DEFAULT_BILLING_TIME_SLICE ;
 
     public CreditServiceProcessor(final String elementName, final String xmlns) {
         this.xmlns = xmlns;
@@ -75,12 +76,8 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
             request.setChildElement(requestElement.createCopy());
             final String toBareJid = JIDFactory.getInstance().getJID(toNode, creditService, null).toBareJID();
 
-            OnlineChargeSession sessionCredit = new OnlineChargeSession(
-                    from.toBareJID(), toBareJid, System.currentTimeMillis());
-
-            if (getChargeSeconds() != null) {
-                sessionCredit.setChargeCount(getChargeSeconds());
-            }
+            OnlineChargeSession sessionCredit = new OnlineChargeSession(OnlineChargeSession.RouteType.pstn,
+                    getChargeSeconds(), from.toBareJID(), toBareJid, System.currentTimeMillis());
 
             final CallSession session = sessionMapper.getSession(jingleIQ);
             if (session != null) {
@@ -204,11 +201,12 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
         this.nodeFormat = nodeFormat;
     }
 
-    public Integer getChargeSeconds() {
+    public int getChargeSeconds() {
         return chargeSeconds;
     }
 
-    public void setChargeSeconds(Integer chargeSeconds) {
+    public void setChargeSeconds(int chargeSeconds) {
         this.chargeSeconds = chargeSeconds;
     }
+
 }
