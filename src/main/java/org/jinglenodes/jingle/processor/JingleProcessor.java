@@ -30,6 +30,7 @@ import org.jinglenodes.jingle.Jingle;
 import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.jingle.content.Content;
 import org.jinglenodes.jingle.description.Description;
+import org.jinglenodes.jingle.description.Payload;
 import org.jinglenodes.jingle.transport.Candidate;
 import org.jinglenodes.jingle.transport.RawUdpTransport;
 import org.jinglenodes.prepare.CallPreparation;
@@ -63,6 +64,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager {
 
     final static Logger log = Logger.getLogger(JingleProcessor.class);
+
     protected CallSessionMapper callSessionMapper;
     private SipToJingleBind sipToJingleBind;
     private GatewayRouter gatewayRouter;
@@ -279,7 +281,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
 
             if (iq.getJingle().getContent() != null) {
                 try {
-                    final Content content = iq.getJingle().getContent();
+                    final Content content = getSingleCodec(iq.getJingle().getContent());
                     final String body = SipProcessor.createSipSDP((Description) content.getDescription(), (RawUdpTransport) content.getTransport(), sipProviderInfo).toString();
                     ok.setBody(body);
                 } catch (SdpException e) {
@@ -606,6 +608,35 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
         iq.setTo(to);
         iq.setFrom((JID) null);//responder);
         return iq;
+    }
+
+
+    /**
+     * Create a single codec offer based on a Jingle Content
+     *
+     * @param originalContent
+     * @return Content with single codec
+     */
+    public static Content getSingleCodec(Content originalContent) {
+
+        Content content;
+        try {
+            Description newDescription = new Description(originalContent.getDescription().getMedia());
+
+            for (int i=0; i < originalContent.getDescription().getPayloads().size(); i++) {
+                Payload payload = originalContent.getDescription().getPayloads().get(i);
+                if (i==0 || payload.getId().equals(Payload.TELEPHONE_EVENT.getId())) {
+                    newDescription.addPayload(payload);
+                }
+            }
+            content = new Content(originalContent.getCreator(), originalContent.getName(),
+                    originalContent.getSenders(), newDescription, originalContent.getTransport());
+
+        } catch (Exception e) {
+            content = originalContent;
+            log.error("Error returning single codec content", e);
+        }
+        return content;
     }
 
     public void sendJingleTermination(JingleIQ initiateIQ, CallSession session) {

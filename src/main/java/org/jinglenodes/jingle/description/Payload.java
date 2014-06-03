@@ -109,4 +109,14 @@ public class Payload {
         return null;
 
     }
+
+    @Override
+    public String toString() {
+        return "Payload{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", clockrate=" + clockrate +
+                ", channels=" + channels +
+                '}';
+    }
 }

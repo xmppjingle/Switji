@@ -275,4 +275,33 @@ public class TestParser extends TestCase {
 
     }
 
+    public void testJingleSingleCodec() {
+
+        JingleIQ accept = createJIngleAccept("me@upptalk.net", "he@upptalk.net", "me@upptalk.net", "12309823@10.32.0.1");
+
+        Content content = JingleProcessor.getSingleCodec(accept.getJingle().getContent());
+
+        for (Payload payload: content.getDescription().getPayloads()) {
+            System.out.println("payload = " + payload);
+        }
+
+        assertEquals(2, content.getDescription().getPayloads().size());
+
+    }
+
+
+    public static JingleIQ createJIngleAccept(final String initiator, final String responder, final String to, final String sid) {
+        final Jingle jingle = new Jingle(sid, initiator, responder, Jingle.SESSION_ACCEPT);
+        jingle.setContent(new Content("initiator", "audio", "both", new Description("audio"), new RawUdpTransport(new Candidate("10.166.108.22", "10000", "0"))));
+        jingle.getContent().getDescription().addPayload(Payload.G729);
+        jingle.getContent().getDescription().addPayload(Payload.PCMA);
+        jingle.getContent().getDescription().addPayload(Payload.PCMU);
+        jingle.getContent().getDescription().addPayload(Payload.TELEPHONE_EVENT);
+        final JingleIQ jingleIQ = new JingleIQ(jingle);
+        jingleIQ.setTo(to);
+        jingleIQ.setFrom(initiator);
+        return jingleIQ;
+    }
+
+
 }
