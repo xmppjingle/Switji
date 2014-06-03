@@ -71,7 +71,7 @@ public class ChargePreparation extends CallPreparation implements ResultReceiver
 
     private void chargeCall(JingleIQ iq, CallSession session) {
 
-        if (session.getOnlineChargeSession() != null) {
+        if (session.getOnlineChargeSession() == null) {
 
             if (session.getSessionCredit() == null) {
                 final SessionCredit sessionCredit = new SessionCredit(SessionCredit.RouteType.pstn);
