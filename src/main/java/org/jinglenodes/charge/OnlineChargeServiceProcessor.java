@@ -29,6 +29,8 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
+import org.jinglenodes.callkiller.CallKiller;
+import org.jinglenodes.jingle.Reason;
 import org.jinglenodes.prepare.NodeFormat;
 import org.jinglenodes.session.CallSession;
 import org.jinglenodes.session.CallSessionMapper;
@@ -56,6 +58,7 @@ public class OnlineChargeServiceProcessor extends AbstractServiceProcessor {
     private CallSessionMapper sessionMapper;
     private String onlineChargeService;
     private NodeFormat nodeFormat;
+    private CallKiller callKiller;
 
     public OnlineChargeServiceProcessor(final String elementName, final String xmlns) {
         this.xmlns = xmlns;
@@ -171,13 +174,31 @@ public class OnlineChargeServiceProcessor extends AbstractServiceProcessor {
     }
 
     @Override
-    protected void handleError(IqRequest iq) {
-        log.error("Failed to Charge Account: " + iq.getResult().toXML());
+    protected void handleError(IqRequest iqRequest) {
+        log.error("Failed to Charge Account: " + iqRequest.getResult().toXML());
+        if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
+            final JingleIQ iq = (JingleIQ) iqRequest.getOriginalPacket();
+            terminateCall(iq, new Reason("Couldn't charge account", Reason.Type.payment));
+        }
     }
 
     @Override
-    protected void handleTimeout(IqRequest request) {
-        log.warn("Request timed out: " + request.getResult().toXML());
+    protected void handleTimeout(IqRequest iqRequest) {
+        log.warn("Request timed out: " + iqRequest.getResult().toXML());
+        if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
+            final JingleIQ iq = (JingleIQ) iqRequest.getOriginalPacket();
+            terminateCall(iq, new Reason("Timeout", Reason.Type.expired));
+        }
+    }
+
+    private void terminateCall(JingleIQ iq, Reason reason) {
+        final CallSession callSession = sessionMapper.getSession(iq);
+        if (callSession != null && callKiller != null) {
+            callKiller.immediateKill(callSession, reason);
+            log.debug("Terminating call: " + iq.toXML());
+        } else {
+            log.warn("Session/Callkiller not found for IQ: " + iq.toXML());
+        }
     }
 
     @Override
@@ -209,4 +230,11 @@ public class OnlineChargeServiceProcessor extends AbstractServiceProcessor {
         this.nodeFormat = nodeFormat;
     }
 
+    public CallKiller getCallKiller() {
+        return callKiller;
+    }
+
+    public void setCallKiller(CallKiller callKiller) {
+        this.callKiller = callKiller;
+    }
 }
