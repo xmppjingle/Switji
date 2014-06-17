@@ -166,6 +166,7 @@
         <property name="onlineChargeService" value="${online.charge.service}"/>
         <property name="sessionMapper" ref="callSessionMapper"/>
         <property name="nodeFormat" ref="nodeFormat"/>
+        <property name="callKiller" ref="callKiller"/>
     </bean>
 
     <bean id="onlineChargePreparation" class="org.jinglenodes.charge.OnlineChargePreparation">

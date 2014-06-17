@@ -173,6 +173,7 @@ public class CreditPreparation extends CallPreparation implements ResultReceiver
             final OnlineChargeSession sessionCredit = session.getOnlineChargeSession();
             if (sessionCredit == null ||
                     OnlineChargeSession.RouteType.ip.equals(sessionCredit.getRouteType())) {
+                log.warn("Call is being killed: " + sessionCredit);
                 callKiller.immediateKill(session, new Reason("No Credits", Reason.Type.payment));
                 return false;
             } else {

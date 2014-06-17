@@ -82,6 +82,8 @@ public class CreditServiceProcessor extends AbstractServiceProcessor {
             final CallSession session = sessionMapper.getSession(jingleIQ);
             if (session != null) {
                 session.setOnlineChargeSession(sessionCredit);
+            } else {
+                log.warn("Session not found for jingleIQ: " + jingleIQ.toXML());
             }
 
             final Element e = request.getChildElement();
