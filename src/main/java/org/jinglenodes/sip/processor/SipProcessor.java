@@ -104,7 +104,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
     @Override
     public void prepareCall(final Message msg, CallSession session, final SipChannel sipChannel) {
 
-        log.debug("Prepare SIP Call: " + msg.toString() + " - Session " + session);
+        log.trace("Prepare SIP Call: " + msg.toString() + " - Session " + session);
 
         if (session == null) {
             try {
@@ -131,7 +131,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
     public void proceedCall(Message msg, CallSession session, final SipChannel sipChannel) {
         try {
 
-            log.debug("Proceeding SIP: " + msg.toString());
+            log.trace("Proceeding SIP: " + msg.toString());
 
             final CSeqHeader ch = msg.getCSeqHeader();
             if (msg.isRegister() || (ch != null && ch.getMethod().equals(SipMethods.REGISTER))) {
@@ -501,7 +501,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             callSessions.addSentJingle(iq);
             callSession.setAcceptIQ(iq);
             if (log.isDebugEnabled()) {
-                log.debug("Updating accept IQ: "+iq.toString());
+                log.trace("Updating accept IQ: "+iq.toString());
             }
             gatewayRouter.send(iq);
         } catch (JingleSipException e) {
@@ -527,12 +527,12 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             try {
                 mainParticipants = msg.getParticipants();
             } catch (SipParsingException e) {
-                log.debug("Error Processing BYE.", e);
+                log.error("Error Processing BYE.", e);
                 return;
             }
 
             if (callSession == null) {
-                log.debug("CallSession not found for packet: " + msg.toString());
+                log.error("CallSession not found for packet: " + msg.toString());
                 return;
             }
 
@@ -638,9 +638,9 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             gatewayRouter.send(terminate);
 
         } catch (JingleException e) {
-            log.debug("Error Processing BYE.", e);
+            log.error("Error Processing BYE.", e);
         } catch (SipParsingException e) {
-            log.debug("Error Processing BYE.", e);
+            log.error("Error Processing BYE.", e);
         }
 
     }
@@ -712,9 +712,9 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         } catch (JingleSipException e) {
             log.error("Error Processing INVITE.", e);
         } catch (SipParsingException e) {
-            log.debug("Error Processing INVITE.", e);
+            log.error("Error Processing INVITE.", e);
         } catch (Throwable e) {
-            log.debug("SEVERE - Error Processing INVITE.", e);
+            log.error("SEVERE - Error Processing INVITE.", e);
         }
     }
 
@@ -1037,7 +1037,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         final JID from;
         final JID to;
 
-        log.debug("Creating SIP BYE: " + iq.toXML() + " - " + p.getInitiator()+" / "+p.getResponder());
+        log.trace("Creating SIP BYE: " + iq.toXML() + " - " + p.getInitiator()+" / "+p.getResponder());
 
         if (callSession.isJingleInitiator()) {
             from = p.getInitiator();

@@ -30,8 +30,32 @@
         <appender-ref ref="cdr"/>
     </logger>
 
+    <logger name="org.xmpp.component.ExternalComponent"
+            additivity="false">
+        <level value="debug" />
+        <appender-ref ref="appender" />
+    </logger>
+
+    <logger name="org.jinglenodes.sip.processor.SipProcessor"
+            additivity="false">
+        <level value="debug" />
+        <appender-ref ref="appender" />
+    </logger>
+
+    <logger name="org.jinglenodes.sip.router.GatewaySipRouter"
+            additivity="false">
+        <level value="debug" />
+        <appender-ref ref="appender" />
+    </logger>
+
+    <logger name="org.jivesoftware.whack.ExternalComponentManager"
+            additivity="false">
+        <level value="debug" />
+        <appender-ref ref="appender" />
+    </logger>
+
     <root>
-        <priority value="debug"/>
+        <priority value="info"/>
         <appender-ref ref="appender"/>
     </root>
 </log4j:configuration>
