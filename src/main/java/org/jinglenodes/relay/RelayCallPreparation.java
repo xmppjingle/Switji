@@ -87,7 +87,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
         if (iqRequest.getOriginalPacket() instanceof JingleIQ) {
             callKiller.immediateKill((JingleIQ) iqRequest.getOriginalPacket(), new Reason("No Relay", Reason.Type.connectivity_error));
         } else if (iqRequest.getOriginalPacket() instanceof Message) {
-            callKiller.immediateKill((JingleIQ) iqRequest.getOriginalPacket(), new Reason("No Relay", Reason.Type.connectivity_error));
+            callKiller.immediateKill((Message) iqRequest.getOriginalPacket(), new Reason("No Relay", Reason.Type.connectivity_error));
         }
     }
 
@@ -99,7 +99,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
             try {
                 relayServiceProcessor.queryService(iq, initiator.getNode(), initiator.getNode(), this);
             } catch (ServiceException e) {
-                log.error("Failed Querying Account Service.", e);
+                log.error("Failed Querying Relay Service.", e);
             }
             return false;
         }
@@ -154,7 +154,7 @@ public class RelayCallPreparation extends CallPreparation implements ResultRecei
                 try {
                     relayServiceProcessor.queryService(msg, initiator.getNode(), initiator.getNode(), this);
                 } catch (ServiceException e) {
-                    log.error("Failed Querying Account Service.", e);
+                    log.error("Failed Querying Relay Service.", e);
                 }
                 return false;
             }
