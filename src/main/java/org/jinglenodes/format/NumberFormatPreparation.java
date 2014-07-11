@@ -81,21 +81,25 @@ public class NumberFormatPreparation extends CallPreparation {
     private JingleIQ formatNumbers(JingleIQ iq) {
         final JID rj = JIDFactory.getInstance().getJID(iq.getJingle().getResponder());
         String toNode = rj.getNode();
-        if (toNode.indexOf("00") == 0) {
-            toNode = toNode.substring(2);
-        } else if (toNode.charAt(0) == '+') {
-            toNode = toNode.substring(1);
+        if (toNode != null) {
+            if (toNode.indexOf("00") == 0) {
+                toNode = toNode.substring(2);
+            } else if (toNode.charAt(0) == '+') {
+                toNode = toNode.substring(1);
+            }
+            iq.getJingle().setResponder(toNode + "@" + rj.getDomain() + "/" + rj.getResource());
         }
-        iq.getJingle().setResponder(toNode + "@" + rj.getDomain() + "/" + rj.getResource());
 
         final JID ij = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
         String fromNode = ij.getNode();
-        if (fromNode.indexOf("00") == 0) {
-            fromNode = fromNode.substring(2);
-        } else if (fromNode.charAt(0) == '+') {
-            fromNode = fromNode.substring(1);
+        if (fromNode != null) {
+            if (fromNode.indexOf("00") == 0) {
+                fromNode = fromNode.substring(2);
+            } else if (fromNode.charAt(0) == '+') {
+                fromNode = fromNode.substring(1);
+            }
+            iq.getJingle().setInitiator(fromNode + "@" + ij.getDomain() + "/" + ij.getResource());
         }
-        iq.getJingle().setInitiator(fromNode + "@" + ij.getDomain() + "/" + ij.getResource());
         return iq;
     }
 }
