@@ -117,9 +117,11 @@ public class OnlineChargePreparation extends CallPreparation implements ResultRe
                     onlineChargeServiceProcessor.queryService(iq, initiator.getNode(), responder.getNode(), this);
                 } catch (ServiceException e) {
                     log.error("Could NOT Query Online Charge Service.", e);
-                    if (session != null && !session.isConnected()) {
+                    if (session != null) {
                         log.error("Forcing stop charging: " + session.getId());
                         stopCharging(iq, session);
+                    } else {
+                        log.warn("Couldn't stop online charge request - null session ");
                     }
                 }
             } else {
