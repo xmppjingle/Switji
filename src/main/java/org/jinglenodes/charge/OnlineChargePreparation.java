@@ -314,13 +314,11 @@ public class OnlineChargePreparation extends CallPreparation implements ResultRe
     }
 
     private void stopCharging(final JingleIQ iq, final CallSession session) {
-        try {
-            Future future = executorTasks.remove(session.getId());
-            if (future != null && !future.isCancelled()) {
-                future.cancel(true);
-            }
-        } catch (Exception e) {
-            log.error("Error cancelling online charge task", e);
+        Future future = executorTasks.remove(session.getId());
+        if (future != null) {
+            future.cancel(true);
+        } else {
+            throw new RuntimeException("Couldn't find session for cancelling billing task: " + session.getId());
         }
     }
 
