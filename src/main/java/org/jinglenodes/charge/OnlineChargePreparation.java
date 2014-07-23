@@ -91,7 +91,7 @@ public class OnlineChargePreparation extends CallPreparation implements ResultRe
     public boolean proceedTerminate(JingleIQ iq, CallSession session) {
         log.debug("Online charge Proceed Terminate: " + iq.toXML() + " - " + session.getId());
         setSessionFinishTime(session, System.currentTimeMillis());
-        stopCharging(iq, session);
+        stopCharging(iq, session, false);
         if (callKiller != null) {
             callKiller.cancelKill(session);
         }
@@ -119,7 +119,7 @@ public class OnlineChargePreparation extends CallPreparation implements ResultRe
                     log.error("Could NOT Query Online Charge Service.", e);
                     if (session != null) {
                         log.error("Forcing stop charging: " + session.getId());
-                        stopCharging(iq, session);
+                        stopCharging(iq, session, true);
                     } else {
                         log.warn("Couldn't stop online charge request - null session ");
                     }
@@ -181,7 +181,7 @@ public class OnlineChargePreparation extends CallPreparation implements ResultRe
     @Override
     public JingleIQ proceedSIPTerminate(JingleIQ iq, CallSession session, SipChannel channel) {
         setSessionFinishTime(session, System.currentTimeMillis());
-        stopCharging(iq, session);
+        stopCharging(iq, session, false);
         if (callKiller != null) {
             callKiller.cancelKill(session);
         }
@@ -313,12 +313,16 @@ public class OnlineChargePreparation extends CallPreparation implements ResultRe
         }
     }
 
-    private void stopCharging(final JingleIQ iq, final CallSession session) {
+    private void stopCharging(final JingleIQ iq, final CallSession session, boolean recurringRequest) {
         Future future = executorTasks.remove(session.getId());
         if (future != null) {
             future.cancel(true);
         } else {
-            throw new RuntimeException("Couldn't find session for cancelling billing task: " + session.getId());
+            log.error("Couldn't find session for cancelling billing task: " + session.getId());
+            if (recurringRequest) {
+                //force termination of scheduled billing request
+                throw new RuntimeException("Couldn't find session for cancelling billing task: " + session.getId());
+            }
         }
     }
 
