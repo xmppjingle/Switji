@@ -142,14 +142,16 @@ public class SipTrunkRouter implements SipRouter, DatagramListener {
 
         final SipAccount sipAccount = sipAccountProvider.getSipAccount(sender);
         if (sipAccount != null) {
-            final SocketAddress result = CachedAddressResolver.getInstance().getSocketAddress(sipAccount.getOutboundproxy());
+            final SocketAddress result = CachedAddressResolver.getInstance().getSocketAddress(
+                    sipAccount.getSipDestinationAddress());
             message.setSendTo(result);
             return result;
         }
 
         if (message.getToHeader() != null) {
             final SipURL sipUrl = message.getToHeader().getNameAddress().getAddress();
-            final SocketAddress result = CachedAddressResolver.getInstance().getSIPSocketAddress(sipUrl.getHost(), sipUrl.getPort());
+            final SocketAddress result = CachedAddressResolver.getInstance().getSIPSocketAddress(sipUrl.getHost(),
+                    sipUrl.getPort());
             message.setSendTo(result);
             return result;
         }

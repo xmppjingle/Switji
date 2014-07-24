@@ -23,9 +23,16 @@ import java.net.InetSocketAddress;
  */
 public class TestMessageRetry extends TestCase {
 
+    private SipProviderInformation sipProviderInfo = new SipProviderInformation("127.0.0.1", 5060);
 
-
-    SipProviderInformation sipProviderInfo = new SipProviderInformation("127.0.0.1", 5060);
+    private String msg503 = "SIP/2.0 503 Service Unavailable\n" +
+            "Via: SIP/2.0/UDP 178.33.112.216:5064;branch=z9hG4bKI86udoglovex140723124841438;rport=5064\n" +
+            "From: \"12066296164@ym.ms\" <sip:12066296164@ym.ms>;tag=Ix2.1.2xxf978e612041c77c53378813a50265a06a0d643edx\n" +
+            "To: \"15713155551\" <sip:15713155551@68.68.124.82;user=phone>;tag=gK00b2aae3\n" +
+            "Call-ID: I86udoglovex140723124841438\n" +
+            "CSeq: 1 INVITE\n" +
+            "Reason: Q.850;cause=41\n" +
+            "Content-Length: 0";
 
 
     public void testMessage() throws JingleSipException, SdpException {
@@ -43,6 +50,17 @@ public class TestMessageRetry extends TestCase {
 
 
     }
+
+    public void test503Message() {
+
+        Message msg = new Message(msg503);
+
+        System.out.println(msg.getStatusLine().getCode());
+
+
+    }
+
+
 
 
     public static JingleIQ fakeJingleInitiate(final String initiator, final String responder, final String to, final String sid) {

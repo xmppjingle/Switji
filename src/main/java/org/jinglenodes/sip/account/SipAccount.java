@@ -26,6 +26,8 @@ package org.jinglenodes.sip.account;
 
 import org.zoolu.sip.provider.SipProviderInfoInterface;
 
+import java.util.List;
+
 /**
  * SipAccount instance. This class handle all SIP account information for a user
  *
@@ -45,9 +47,14 @@ public class SipAccount {
 
     private String outboundproxy = "";
 
+    private List<String>  alternateOutboundproxies;
+
     private SipProviderInfoInterface sipProvider = null;
 
-    public SipAccount(final String sipUsername, final String authUsername, final String displayName, final String password, final String server, final String outboundproxy) {
+    private String sipDestinationAddress;
+
+    public SipAccount(final String sipUsername, final String authUsername, final String displayName,
+                      final String password, final String server, final String outboundproxy) {
         this.sipUsername = sipUsername;
         this.authUsername = authUsername;
         this.displayName = displayName;
@@ -57,6 +64,7 @@ public class SipAccount {
             this.server = this.server.trim();
         }
         this.outboundproxy = outboundproxy;
+        this.sipDestinationAddress = outboundproxy != null ? outboundproxy : server;
     }
 
     public String getAuthUsername() {
@@ -116,6 +124,22 @@ public class SipAccount {
 
     public void setSipProvider(SipProviderInfoInterface sipProvider) {
         this.sipProvider = sipProvider;
+    }
+
+    public List<String> getAlternateOutboundproxies() {
+        return alternateOutboundproxies;
+    }
+
+    public void setAlternateOutboundproxies(List<String> alternateOutboundproxies) {
+        this.alternateOutboundproxies = alternateOutboundproxies;
+    }
+
+    public String getSipDestinationAddress() {
+        return sipDestinationAddress;
+    }
+
+    public void setSipDestinationAddress(String sipDestinationAddress) {
+        this.sipDestinationAddress = sipDestinationAddress;
     }
 
 }

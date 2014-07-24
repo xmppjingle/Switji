@@ -365,7 +365,7 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
                     cancel.setSendTo(message.getSendTo());
                     cancel.setArrivedAt(message.getArrivedAt());
                     callSession.addSentRequest(cancel);
-                    callSession.setRetries(2);
+                    //callSession.setRetries(2);
                     gatewayRouter.routeSIP(cancel, callSession.getUser());
 
                 } else {

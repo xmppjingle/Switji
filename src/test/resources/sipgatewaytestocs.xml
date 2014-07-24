@@ -81,6 +81,7 @@
                 <!--<ref bean="numberFormatPreparation"/>-->
             </list>
         </property>
+        <property name="maxSipRetries" value="${sip.maxRetries}"/>
     </bean>
 
     <bean id="nodeFormat" class="org.jinglenodes.prepare.E164NodeFormat"/>
@@ -112,6 +113,7 @@
                 <ref bean="relayPreparation"/>
                 <ref bean="voicemailPreparation"/>
                 <ref bean="redisPubSubPreparation"/>
+                <ref bean="sipRetryPreparation"/>
                 <!--<ref bean="ringHangupPreparation"/>-->
             </list>
         </property>
@@ -196,6 +198,11 @@
         <property name="domain" value="${xmpp.domain}"/>
         <property name="sipToJingleBind" ref="sipToJingleMapper"/>
         <property name="nodeFormat" ref="nodeFormat"/>
+        <property name="alternateSipInfo">
+            <list>
+                <ref bean="alternativeSipProviderInfo"/>
+            </list>
+        </property>
     </bean>
 
     <bean id="detourPreparation" class="org.jinglenodes.detour.DetourPreparation">
@@ -234,6 +241,11 @@
 
     <bean id="redisPubSubPreparation" class="org.jinglenodes.log.RedisPubSubLogPreparation"/>
 
+    <bean id="sipRetryPreparation" class="org.jinglenodes.retry.RetryPreparation">
+        <constructor-arg index="0" ref="jingleProcessor"/>
+        <property name="maxSipRetries" value="${sip.maxRetries}"/>
+    </bean>
+
     <bean id="sipToJingleMapper" class="org.jinglenodes.sip.CachedSipToJingleBind">
         <constructor-arg index="0" value="${cache.maxEntries}"/>
         <constructor-arg index="1" value="${cache.timeToLive}"/>
@@ -249,6 +261,13 @@
     <bean id="sipProviderInfo" class="org.zoolu.sip.provider.SipProviderInformation">
         <constructor-arg index="0" value="${sip.server}"/>
         <constructor-arg index="1" value="${sip.port}"/>
+        <property name="viaAddress" value="${sip.localip}"/>
+        <property name="viaPort" value="${sip.localport}"/>
+    </bean>
+
+    <bean id="alternativeSipProviderInfo" class="org.zoolu.sip.provider.SipProviderInformation">
+        <constructor-arg index="0" value="${sip.alternative.server}"/>
+        <constructor-arg index="1" value="${sip.alternative.port}"/>
         <property name="viaAddress" value="${sip.localip}"/>
         <property name="viaPort" value="${sip.localport}"/>
     </bean>

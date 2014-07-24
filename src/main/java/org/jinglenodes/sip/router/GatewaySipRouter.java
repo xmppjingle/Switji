@@ -192,7 +192,8 @@ public class GatewaySipRouter implements SipRouter, DatagramListener {
 
         final SipAccount sipAccount = sipAccountProvider.getSipAccount(sender);
         if (sipAccount != null) {
-            final SocketAddress result = CachedAddressResolver.getInstance().getSocketAddress(sipAccount.getOutboundproxy());
+            final SocketAddress result = CachedAddressResolver.getInstance().getSocketAddress(
+                    sipAccount.getSipDestinationAddress());
             message.setSendTo(result);
             log.debug("Using sipAccount Value for: " + message.toString());
             return result;

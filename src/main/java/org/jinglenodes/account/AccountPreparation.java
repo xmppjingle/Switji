@@ -40,6 +40,9 @@ import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.SipChannel;
 import org.zoolu.sip.message.SipParsingException;
+import org.zoolu.tools.Random;
+
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -85,14 +88,23 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
             final SipAccount account = accountServiceProcessor.getAccountProvider().getSipAccount(initiator);
             if (account != null) {
 
-                final String resp = responder.getNode() + "@" + account.getOutboundproxy();
+                try {
+                    final List<String> proxies = account.getAlternateOutboundproxies();
+                    if (session != null && session.getRetries() > 0 &&
+                            proxies != null && proxies.size() > 0) {
+                        account.setSipDestinationAddress(proxies.get(Random.nextInt(proxies.size())));
+                    }
+                } catch (Exception e) {
+                    log.error("Error selecting alternative sip proxy", e);
+                }
+
+                String [] proxy = account.getSipDestinationAddress().split(":");
+                final String resp = responder.getNode() + "@" + proxy[0];
                 final String caller = account.getSipUsername() + "@" + initiator.getDomain() +
                         (initiator.getResource() == null ? "" : "/" + initiator.getResource());
-
                 if (log.isDebugEnabled()) {
                     log.debug("Retrieved account: Initiator: " + initiator.toString() + " - new initiator: " + caller);
                 }
-
                 iq.getJingle().setResponder(resp);
                 iq.getJingle().setInitiator(caller);
             }

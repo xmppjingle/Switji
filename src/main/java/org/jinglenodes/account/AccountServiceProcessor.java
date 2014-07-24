@@ -18,6 +18,9 @@ import org.zoolu.sip.message.JIDFactory;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.provider.SipProviderInformation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by IntelliJ IDEA.
  * User: thiago
@@ -38,6 +41,8 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
     private final String xmlns;
     private String accountService;
     private String domain;
+
+    private List<SipProviderInformation> alternateSipInfo;
 
     public AccountServiceProcessor(final String elementName, final String xmlns) {
         this.xmlns = xmlns;
@@ -102,8 +107,18 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
       * the information retrieved from the iq
       */
     protected SipAccount getSipAccount(IQ iq) {
+        SipAccount account = null;
         String phone = getPhone(iq);
-        return phone != null ? new SipAccount(phone, phone, phone, "", sipInfo.getIP(), sipInfo.getIP()) : null;
+        if (phone != null) {
+            account = new SipAccount(phone, phone, phone, "", sipInfo.getIP(), sipInfo.getIP()+":"+sipInfo.getPort());
+            if (getAlternateSipInfo() != null && getAlternateSipInfo().size() > 0) {
+                account.setAlternateOutboundproxies(new ArrayList<String>());
+                for (SipProviderInformation info: getAlternateSipInfo()) {
+                    account.getAlternateOutboundproxies().add(info.getIP()+":"+info.getPort());
+                }
+            }
+        }
+        return account;
     }
 
     /*
@@ -215,5 +230,13 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
 
     public void setNodeFormat(NodeFormat nodeFormat) {
         this.nodeFormat = nodeFormat;
+    }
+
+    public List<SipProviderInformation> getAlternateSipInfo() {
+        return alternateSipInfo;
+    }
+
+    public void setAlternateSipInfo(List<SipProviderInformation> alternateSipInfo) {
+        this.alternateSipInfo = alternateSipInfo;
     }
 }

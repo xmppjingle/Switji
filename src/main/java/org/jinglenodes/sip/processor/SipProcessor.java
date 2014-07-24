@@ -68,6 +68,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
     public static final String emptyAddress = "0.0.0.0";
     public static final String timerSupportedHeader = "timer";
     public static final String sessionExpiresHeader = "Session-Expires";
+    public static final int DEFAULT_MAX_SIP_RETRIES = 0;
 
     private SipProviderInfoInterface sipProviderInfo;
     private GatewayRouter gatewayRouter;
@@ -76,6 +77,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
     private SipToJingleBind sipToJingleBind;
     private CallKiller callKiller;
     private boolean forceMapper = false;
+    private int maxSipRetries = DEFAULT_MAX_SIP_RETRIES;
 
     private List<CallPreparation> preparations = new ArrayList<CallPreparation>();
 
@@ -178,7 +180,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             }
             // 486 BUSY, 408 TIMEOUT, 483 MANY HOPS
             else if (statusLineCode > -1) {
-                processFailSip(msg, sipChannel);
+                processFailSip(msg, sipChannel, session);
             } else if (msg.isOption()) {
                 processSipOption(msg);
             }
@@ -361,7 +363,7 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
     protected void process100Sip(final org.zoolu.sip.message.Message msg) throws JingleException {
     }
 
-    protected void processFailSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel) throws JingleException {
+    protected void processFailSip(final org.zoolu.sip.message.Message msg, final SipChannel sipChannel, CallSession session) throws JingleException {
         final int statusLineCode = msg.getStatusLine() != null ? msg.getStatusLine().getCode() : -1;
         boolean matches = false;
 
@@ -372,11 +374,21 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             }
         }
         if (matches) {
-            if (msg.isInvite() || (msg.getCSeqHeader() != null && SipMethods.INVITE.equals(msg.getCSeqHeader().getMethod()))) {
-                sendJingleTerminate(msg, sipChannel);
-            }
             sendSipAck(msg);
-            callSessions.removeSession(callSessions.getSession(msg));
+            boolean removeSession = true;
+            if (msg.isInvite() ||
+                    (msg.getCSeqHeader() != null && SipMethods.INVITE.equals(msg.getCSeqHeader().getMethod()))) {
+                if (msg.getStatusLine() != null && (msg.getStatusLine().getCode() == 503 ||
+                        msg.getStatusLine().getCode() == 500) && session.getRetries() < getMaxSipRetries()) {
+                    log.info("session waiting for retry: " + session.getId());
+                    removeSession = false;
+                } else {
+                    sendJingleTerminate(msg, sipChannel);
+                }
+            }
+            if (removeSession) {
+                callSessions.removeSession(callSessions.getSession(msg));
+            }
         }
 
     }
@@ -1166,4 +1178,11 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
         this.callKiller = callKiller;
     }
 
+    public int getMaxSipRetries() {
+        return maxSipRetries;
+    }
+
+    public void setMaxSipRetries(int maxSipRetries) {
+        this.maxSipRetries = maxSipRetries;
+    }
 }
