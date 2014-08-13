@@ -360,13 +360,16 @@ public class JingleProcessor implements NamespaceProcessor, PrepareStatesManager
                     if (message == null) {
                         message = callSession.getLastMessage();
                     }
-
-                    final Message cancel = SipProcessor.createSipCancel(message);
-                    cancel.setSendTo(message.getSendTo());
-                    cancel.setArrivedAt(message.getArrivedAt());
-                    callSession.addSentRequest(cancel);
-                    //callSession.setRetries(2);
-                    gatewayRouter.routeSIP(cancel, callSession.getUser());
+                    if (message != null) {
+                        final Message cancel = SipProcessor.createSipCancel(message);
+                        cancel.setSendTo(message.getSendTo());
+                        cancel.setArrivedAt(message.getArrivedAt());
+                        callSession.addSentRequest(cancel);
+                        //callSession.setRetries(2);
+                        gatewayRouter.routeSIP(cancel, callSession.getUser());
+                    } else {
+                        log.debug("Didn't find the last sent sip message, session id: " + callSession.getId());
+                    }
 
                 } else {
 

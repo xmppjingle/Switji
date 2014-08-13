@@ -481,6 +481,11 @@ public class SipProcessor implements SipPacketProcessor, SipPrepareStatesManager
             callSession = callSessions.getSession(msg);
             if (callSession != null) {
 
+                if (callSession.isCallKilled() || callSession.getFinishTime() > callSession.getStartTime()) {
+                    log.debug("Accept ignored as call is already cancelled/killed: " + callSession.getId());
+                    return;
+                }
+
                 callSession.setConnected(true);
 
                 if (sipToJingleBind != null) {
