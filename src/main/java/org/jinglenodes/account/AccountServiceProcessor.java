@@ -55,9 +55,20 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
         toNode = nodeFormat.formatNode(toNode, fromNode);
         final JID toService = JIDFactory.getInstance().getJID(toNode + "@" + accountService);
         request.setTo(toService);
-        request.setChildElement(requestElement.createCopy());
+        final Element child = requestElement.createCopy();
+        if (object != null && object instanceof JingleIQ) {
+            final JingleIQ iq = (JingleIQ)object;
+            String destination = iq.getJingle().getResponder();
+            if (destination != null) {
+                if (destination.indexOf('@') > -1) {
+                    destination = destination.split("@")[0];
+                }
+                child.addAttribute("destination", destination);
+            }
+        }
+        request.setChildElement(child);
         if (log.isDebugEnabled()) {
-            log.debug("createServiceRequest: " + request.toXML());
+            log.debug("createServiceRequest: " + request.toXML() + "\n from: " + object);
         }
         return request;
     }
@@ -136,7 +147,7 @@ public class AccountServiceProcessor extends AbstractServiceProcessor {
             } else if (phone == null) {
                 phone = e.attributeValue("number");
             }
-        }       
+        }
 
         return phone==null ? iq.getFrom().getNode() : phone;
     }

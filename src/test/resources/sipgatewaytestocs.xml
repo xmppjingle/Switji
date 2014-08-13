@@ -106,7 +106,7 @@
         <property name="preparations">
             <list>
                 <ref bean="callLogger"/>
-                <ref bean="detourPreparation"/>
+                <!--<ref bean="detourPreparation"/>-->
                 <ref bean="creditPreparation"/>
                 <ref bean="chargePreparation"/>
                 <ref bean="accountPreparation"/>
