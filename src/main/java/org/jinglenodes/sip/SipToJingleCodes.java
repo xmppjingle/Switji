@@ -22,10 +22,10 @@ public class SipToJingleCodes {
 
         reasonMap.put(400, Reason.Type.general_error);
         reasonMap.put(401, Reason.Type.security_error);
-        reasonMap.put(402, Reason.Type.general_error);
-        reasonMap.put(403, Reason.Type.security_error);
+        reasonMap.put(402, Reason.Type.payment);
+        reasonMap.put(403, Reason.Type.forbidden);
         reasonMap.put(404, Reason.Type.connectivity_error);
-        reasonMap.put(405, Reason.Type.connectivity_error);
+        reasonMap.put(405, Reason.Type.forbidden);
 
         reasonMap.put(406, Reason.Type.general_error);
         reasonMap.put(407, Reason.Type.security_error);
