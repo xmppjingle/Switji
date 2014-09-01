@@ -57,13 +57,14 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
     private PrepareStatesManager prepareStatesManager;
     private SipPrepareStatesManager sipPrepareStatesManager;
     private AccountServiceProcessor accountServiceProcessor;
+    private boolean useCachePerSession = true;
 
     @Override
     public boolean prepareInitiate(JingleIQ iq, final CallSession session) {
         JID initiator = JIDFactory.getInstance().getJID(iq.getJingle().getInitiator());
         if (sipToJingleBind != null) {
             final JID sipFrom = sipToJingleBind.getSipFrom(initiator);
-            if (sipFrom != null) {
+            if (sipFrom != null && !isUseCachePerSession()) {
                 return true;
             } else {
                 try {
@@ -182,7 +183,7 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
             if (sipToJingleBind != null) {
                 log.debug("Checking Prepare Initiate: " + responder);
                 final JID xmppTo = sipToJingleBind.getXmppTo(responder, null);
-                if (xmppTo != null) {
+                if (xmppTo != null && !isUseCachePerSession()) {
                     log.debug("Found xmppTo for: " + responder + " is: " + xmppTo);
                     return true;
                 } else {
@@ -253,5 +254,13 @@ public class AccountPreparation extends CallPreparation implements ResultReceive
 
     public void setSipPrepareStatesManager(SipPrepareStatesManager sipPrepareStatesManager) {
         this.sipPrepareStatesManager = sipPrepareStatesManager;
+    }
+
+    public boolean isUseCachePerSession() {
+        return useCachePerSession;
+    }
+
+    public void setUseCachePerSession(boolean useCachePerSession) {
+        this.useCachePerSession = useCachePerSession;
     }
 }
